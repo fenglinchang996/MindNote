@@ -1,28 +1,19 @@
 import React from "react";
+import Header from "./Header";
 import "./Docs.css";
 import docPic from "./Mind-Map-Paper.svg";
 
 const Docs = () => {
   return (
     <div className="docs">
-      <Header />
+      <Header>
+        <nav className="navbar">
+          <div className="navbar-item">My Mindnotes</div>
+          <div className="navbar-item">Public Mindnotes</div>
+        </nav>
+      </Header>
       <DocList />
     </div>
-  );
-};
-
-const Header = (props) => {
-  return (
-    <header className="header">
-      <div className="title">MindNote</div>
-      <nav className="navbar">
-        <div className="navbar-item">My Mindnotes</div>
-        <div className="navbar-item">Public Mindnotes</div>
-      </nav>
-      <div className="member">
-        <i className="fas fa-user-alt"></i>
-      </div>
-    </header>
   );
 };
 

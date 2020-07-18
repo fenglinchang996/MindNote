@@ -1,54 +1,5 @@
 /* Header */
 
-.docs > .header {
-  display: flex;
-  align-items: center;
-  padding: 10px;
-  height: 50px;
-  background-color: #e8e8ee;
-}
-
-.docs > .header > .title {
-  font-family: "Lucida Sans", sans-serif;
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #457b9d;
-  margin-right: 20px;
-}
-
-.docs > .header > .navbar {
-  display: flex;
-  align-items: center;
-  margin: 0 30px;
-}
-
-.docs > .header > .navbar > .navbar-item {
-  margin: 0 10px;
-  padding: 10px;
-  cursor: pointer;
-}
-
-.docs > .header > .member {
-  width: 35px;
-  height: 35px;
-  line-height: 35px;
-  text-align: center;
-  margin: 0 10px 0 auto;
-  font-size: 1.2rem;
-  border: 1px solid #1d3557;
-  border-radius: 50%;
-  cursor: pointer;
-}
-
-.docs > .header > .navbar > .navbar-item:hover {
-  color: #457b9d;
-}
-
-.docs > .header > .member:hover {
-  border-color: #457b9d;
-  color: #457b9d;
-}
-
 /* Doc List */
 
 .doc-list {
