@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import Home from "./Home";
 import Docs from "./Docs";
+import Mindnote from "./Mindnote";
 import "./App.css";
 
 const App = () => {
@@ -17,6 +18,9 @@ const App = () => {
         <Switch>
           <Route path="/docs">
             <Docs />
+          </Route>
+          <Route path="/mindnote">
+            <Mindnote />
           </Route>
           <Route path="/">
             <Home />

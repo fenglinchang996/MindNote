@@ -5,7 +5,7 @@
   align-items: center;
   padding: 10px;
   height: 50px;
-  background-color: #e8e8ee;
+  border-bottom: 2px solid #e8e8ee;
 }
 
 header > .title {
@@ -14,6 +14,14 @@ header > .title {
   font-weight: bold;
   color: #457b9d;
   margin-right: 20px;
+}
+
+header > .go-back-btn {
+  margin-left: 10px;
+  cursor: pointer;
+}
+header > .go-back-btn:hover {
+  color: #457b9d;
 }
 
 .header > .navbar {
