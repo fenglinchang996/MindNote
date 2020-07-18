@@ -11,7 +11,7 @@ const Home = (props) => {
 
 const Header = (props) => {
   return (
-    <header className="header row align-items-center">
+    <header className="header">
       <div className="title">MindNote</div>
       <nav className="navbar">
         <div className="navbar-item">Feature</div>
