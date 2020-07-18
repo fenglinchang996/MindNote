@@ -1,4 +1,11 @@
 import React from "react";
+import {
+  Switch,
+  Route,
+  BrowserRouter as Router,
+  Link,
+  NavLink,
+} from "react-router-dom";
 import Home from "./Home";
 import Docs from "./Docs";
 import "./App.css";
@@ -6,8 +13,16 @@ import "./App.css";
 const App = () => {
   return (
     <div className="container">
-      <Home />
-      <Docs />
+      <Router>
+        <Switch>
+          <Route path="/docs">
+            <Docs />
+          </Route>
+          <Route path="/">
+            <Home />
+          </Route>
+        </Switch>
+      </Router>
     </div>
   );
 };
