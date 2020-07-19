@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useState, useReducer, createContext } from "react";
 import Header from "../Header";
 import Canvas from "./Canvas";
 import Tool from "./Tool";
+import StyleContext from "./StyleContext";
+import ItemContext from "./ItemContext";
+import { LIST_ACTION_TYPE } from "./enums";
 
 const listReducer = (list, action) => {
   switch (action.type) {
@@ -43,7 +46,9 @@ const Mindnote = (props) => {
           <i className="fas fa-chevron-left"></i>&nbsp; Back
         </div>
       </Header>
-      <Canvas />
+      <ItemContext.Provider value={ItemContextValue}>
+        <Canvas />
+      </ItemContext.Provider>
       <Tool />
     </div>
   );
