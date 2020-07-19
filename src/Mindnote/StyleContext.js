@@ -18,12 +18,39 @@ const styleContext = createContext({
     },
   },
   connectionArrowStyle: {
-    offset: 5,
     style: {
       fill: "blue",
+      cursor: "pointer",
     },
   },
-  curveStyle: {},
+  curveStyle: {
+    style: {
+      fill: "none",
+      stroke: "blue",
+      strokeWidth: 5,
+      strokeLinecap: "round",
+    },
+  },
+  curvePointStyle: {
+    r: 5,
+    style: {
+      fill: "green",
+    },
+  },
+  curveControlStyle: {
+    r: 5,
+    style: {
+      fill: "green",
+    },
+  },
+  curveControlLineStyle: {
+    style: {
+      fill: "none",
+      stroke: "lightgray",
+      strokeWidth: 5,
+      strokeDasharray: "5, 5",
+    },
+  },
 });
 
 export default styleContext;

@@ -5,6 +5,7 @@ import Tool from "./Tool";
 import StyleContext from "./StyleContext";
 import ItemContext from "./ItemContext";
 import { LIST_ACTION_TYPE } from "./enums";
+import "./Mindnote.css";
 
 const listReducer = (list, action) => {
   switch (action.type) {

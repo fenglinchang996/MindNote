@@ -3,6 +3,7 @@ import { v4 as uuid } from "uuid";
 import StyleContext from "./StyleContext";
 import ItemContext from "./ItemContext";
 import Node from "./Node";
+import Curve from "./Curve";
 import { LIST_ACTION_TYPE } from "./enums";
 import {
   calcIntersectionPoint,
@@ -41,12 +42,14 @@ const Canvas = (props) => {
   });
   const [SVGSizeRatio, setSVGSizeRatio] = useState(1);
   const [viewBoxOrigin, setViewBoxOrigin] = useState({ x: 0, y: 0 });
+
   // Style
   const { SVGStyle, nodeStyle, curveStyle } = useContext(StyleContext);
   // Item: NodeList, CurveList
   const { nodeList, dispatchNodes, curveList, dispatchCurves } = useContext(
     ItemContext
   );
+
   // Node
   const calcNodeCorners = (center, width, height) => {
     const halfWidth = 0.5 * width;
@@ -135,8 +138,11 @@ const Canvas = (props) => {
     },
   } = {}) => {
     const id = uuid();
-    const nodeCoord = calcNodeCoord(center, width, height);
-    const { corners, edgeCenters, connections } = nodeCoord;
+    const { corners, edgeCenters, connections } = calcNodeCoord(
+      center,
+      width,
+      height
+    );
     return {
       id,
       center,
@@ -154,6 +160,51 @@ const Canvas = (props) => {
       right,
       bottom,
       left,
+    };
+  };
+
+  // Curve
+  const calcCurveControl = (start, end) => {
+    const directionVector = { a: end.x - start.x, b: end.y - start.y };
+    const startFraction = 0.4;
+    const endFraction = 0.6;
+    const startOffset = {
+      dx: directionVector.a * startFraction,
+      dy: directionVector.b * startFraction,
+    };
+    const endOffset = {
+      dx: directionVector.a * endFraction,
+      dy: directionVector.b * endFraction,
+    };
+    let startControl = {
+      x: start.x + startOffset.dx,
+      y: start.y + startOffset.dy,
+    };
+    let endControl = { x: start.x + endOffset.dx, y: start.y + endOffset.dy };
+    return { startControl, endControl };
+  };
+  const createCurve = ({
+    start,
+    end,
+    startNode = null,
+    endNode = null,
+    startEdge = null,
+    endEdge = null,
+    style = curveStyle.style,
+  } = {}) => {
+    const id = uuid();
+    const { startControl, endControl } = calcCurveControl(start, end);
+    return {
+      id,
+      start,
+      end,
+      startControl,
+      endControl,
+      startNode,
+      endNode,
+      startEdge,
+      endEdge,
+      style,
     };
   };
 
@@ -188,6 +239,12 @@ const Canvas = (props) => {
       {nodeList.map((node) => (
         <Node key={node.id} nodeData={node} />
       ))}
+      <Curve
+        curveData={createCurve({
+          start: { x: 10, y: 10 },
+          end: { x: 100, y: 100 },
+        })}
+      />
     </svg>
   );
 };

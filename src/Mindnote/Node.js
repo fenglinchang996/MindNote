@@ -36,34 +36,45 @@ const Node = (props) => {
   useEffect(() => {
     setConnectionArrows({
       top: {
-        x1: connections.topConnection.x,
-        y1: connections.topConnection.y,
-        x2: connections.topConnection.x,
-        y2: connections.topConnection.y - connectionArrowOffset,
+        x: connections.topConnection.x - 10,
+        y: connections.topConnection.y - 20,
+        width: 20,
+        height: 20,
       },
       right: {
-        x1: connections.rightConnection.x,
-        y1: connections.rightConnection.y,
-        x2: connections.rightConnection.x + connectionArrowOffset,
-        y2: connections.rightConnection.y,
+        x: connections.rightConnection.x,
+        y: connections.rightConnection.y - 10,
+        width: 20,
+        height: 20,
       },
       bottom: {
-        x1: connections.bottomConnection.x,
-        y1: connections.bottomConnection.y,
-        x2: connections.bottomConnection.x,
-        y2: connections.bottomConnection.y + connectionArrowOffset,
+        x: connections.bottomConnection.x - 10,
+        y: connections.bottomConnection.y,
+        width: 20,
+        height: 20,
       },
       left: {
-        x1: connections.leftConnection.x,
-        y1: connections.leftConnection.y,
-        x2: connections.leftConnection.x - connectionArrowOffset,
-        y2: connections.leftConnection.y,
+        x: connections.leftConnection.x - 20,
+        y: connections.leftConnection.y - 10,
+        width: 20,
+        height: 20,
       },
     });
   }, [connections]);
 
+  // focusable
+  const [isFocused, setIsFocused] = useState(false);
+
   return (
-    <g tabIndex={-1}>
+    <g
+      tabIndex={-1}
+      onFocus={() => {
+        setIsFocused(true);
+      }}
+      onBlur={() => {
+        setIsFocused(false);
+      }}
+    >
       <rect
         x={origin.x}
         y={origin.y}
@@ -71,28 +82,29 @@ const Node = (props) => {
         height={height}
         style={style}
       ></rect>
-      <g>
-        <defs>
-          <marker
-            id="Arrow"
-            markerWidth="10"
-            markerHeight="10"
-            refX="0"
-            refY="5"
-            orient="auto"
-          >
-            <polygon
-              points="0,0 10,5 0,10"
-              style={connectionArrowStyle.style}
-            />
-          </marker>
-        </defs>
+      <g display={isFocused ? "block" : "none"}>
         {connectionArrows ? (
           <>
-            <line {...connectionArrows.top} markerEnd="url(#Arrow)" />
-            <line {...connectionArrows.right} markerEnd="url(#Arrow)" />
-            <line {...connectionArrows.bottom} markerEnd="url(#Arrow)" />
-            <line {...connectionArrows.left} markerEnd="url(#Arrow)" />
+            <foreignObject {...connectionArrows.top} cursor="pointer">
+              <div className="connection-arrow">
+                <i className="fas fa-caret-up"></i>
+              </div>
+            </foreignObject>
+            <foreignObject {...connectionArrows.right} cursor="pointer">
+              <div className="connection-arrow">
+                <i className="fas fa-caret-right"></i>
+              </div>
+            </foreignObject>
+            <foreignObject {...connectionArrows.bottom} cursor="pointer">
+              <div className="connection-arrow">
+                <i className="fas fa-caret-down"></i>
+              </div>
+            </foreignObject>
+            <foreignObject {...connectionArrows.left} cursor="pointer">
+              <div className="connection-arrow">
+                <i className="fas fa-caret-left"></i>
+              </div>
+            </foreignObject>
           </>
         ) : (
           ""
