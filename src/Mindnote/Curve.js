@@ -4,7 +4,7 @@ import BaseCurve from "./BaseCurve";
 
 const wrapCurve = (BaseCurve) => (props) => {
   const { curveData } = props;
-
+  const { style } = curveData;
   // Use StyleContext
   const { curveStyle } = useContext(StyleContext);
 
@@ -22,7 +22,7 @@ const wrapCurve = (BaseCurve) => (props) => {
       }}
     >
       <BaseCurve
-        curveData={{ ...curveData, style: curveData.style || curveStyle.style }}
+        curveData={{ ...curveData, style: style || curveStyle.style }}
         isFocused={isFocused}
       />
     </g>

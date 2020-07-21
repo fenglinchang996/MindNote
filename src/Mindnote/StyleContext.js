@@ -15,6 +15,16 @@ const styleContext = createContext({
       strokeWidth: 2,
     },
   },
+  virtualNodeStyle: {
+    style: {
+      rx: 5,
+      ry: 5,
+      fill: "white",
+      stroke: "pink",
+      strokeWidth: 2,
+      strokeDasharray: "5, 5",
+    },
+  },
   connectionArrowStyle: {
     style: {
       fill: "blue",

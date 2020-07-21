@@ -4,7 +4,6 @@ import BaseCurve from "./BaseCurve";
 
 const wrapVirtualCurve = (BaseCurve) => (props) => {
   const { curveData } = props;
-
   // Use StyleContext
   const { virtualCurveStyle } = useContext(StyleContext);
 
@@ -13,7 +12,7 @@ const wrapVirtualCurve = (BaseCurve) => (props) => {
       <BaseCurve
         curveData={{
           ...curveData,
-          style: curveData.style || virtualCurveStyle.style,
+          style: virtualCurveStyle.style,
         }}
         isFocused={true}
       />

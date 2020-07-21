@@ -2,10 +2,11 @@ import React, { useState, useEffect, useContext, useRef } from "react";
 import { v4 as uuid } from "uuid";
 import StyleContext from "./StyleContext";
 import ItemContext from "./ItemContext";
+import VirtualNode from "./VirtualNode";
 import Node from "./Node";
 import VirtualCurve from "./VirtualCurve";
 import Curve from "./Curve";
-import { LIST_ACTION_TYPE } from "./enums";
+import { LIST_ACTION_TYPE, ITEM_TYPE } from "./enums";
 import {
   calcIntersectionPoint,
   calcCenterPoint,
@@ -117,7 +118,7 @@ const SVG = (props) => {
     center,
     width = nodeStyle.width,
     height = nodeStyle.height,
-    style = nodeStyle.style,
+    style = null,
     parentId = null,
     upstreamCurveId = null,
     childrenId = [],
@@ -168,6 +169,8 @@ const SVG = (props) => {
       left,
     };
   };
+  // Virtual Node
+  const [virtualNode, setVirtualNode] = useState(null);
 
   // Curve
   const calcCurveControl = (start, end) => {
@@ -213,6 +216,8 @@ const SVG = (props) => {
       style,
     };
   };
+  // Virtual Curve
+  const [virtualCurve, setVirtualCurve] = useState(null);
 
   // Initialize Canvas
   useEffect(() => {
@@ -230,6 +235,7 @@ const SVG = (props) => {
 
   return (
     <svg
+      tabIndex={-1}
       id="svg"
       className="svg"
       xmlns="http://www.w3.org/2000/svg"
@@ -240,9 +246,7 @@ const SVG = (props) => {
         SVGSizeRatio * SVGSize.width
       } ${SVGSizeRatio * SVGSize.height}`}
       style={SVGStyle.style}
-      onMouseDown={() => {
-        setSelectedItem({ type: "SVG" });
-      }}
+      onFocus={() => setSelectedItem({ type: ITEM_TYPE.SVG })}
     >
       {nodeList.map((node) => (
         <Node key={node.id} nodeData={node} />
