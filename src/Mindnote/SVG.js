@@ -238,9 +238,21 @@ const SVG = (props) => {
   const drag = (e) => {
     switch (dragType) {
       case DRAG_TYPE.MOVE_CANVAS:
+        const previousCursorSVGCoord = convertToSVGCoord({
+          x: e.clientX,
+          y: e.clientY,
+        });
+        const newCursorSVGCoord = convertToSVGCoord({
+          x: e.clientX + e.movementX,
+          y: e.clientY + e.movementY,
+        });
+        const cursorSVGMovement = {
+          dx: newCursorSVGCoord.x - previousCursorSVGCoord.x,
+          dy: newCursorSVGCoord.y - previousCursorSVGCoord.y,
+        };
         setViewBoxOrigin({
-          x: viewBoxOrigin.x - e.movementX,
-          y: viewBoxOrigin.y - e.movementY,
+          x: viewBoxOrigin.x - cursorSVGMovement.dx,
+          y: viewBoxOrigin.y - cursorSVGMovement.dy,
         });
         break;
       default:
