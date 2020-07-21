@@ -6,7 +6,7 @@ import VirtualNode from "./VirtualNode";
 import Node from "./Node";
 import VirtualCurve from "./VirtualCurve";
 import Curve from "./Curve";
-import { LIST_ACTION_TYPE, ITEM_TYPE } from "./enums";
+import { LIST_ACTION_TYPE, ITEM_TYPE, DRAG_TYPE } from "./enums";
 import {
   calcIntersectionPoint,
   calcCenterPoint,
@@ -233,6 +233,35 @@ const SVG = (props) => {
     }
   }, [SVGSize, nodeList]);
 
+  // Drag
+  const [dragType, setDragType] = useState(null);
+  const drag = (e) => {
+    switch (dragType) {
+      case DRAG_TYPE.MOVE_CANVAS:
+        setViewBoxOrigin({
+          x: viewBoxOrigin.x - e.movementX,
+          y: viewBoxOrigin.y - e.movementY,
+        });
+        break;
+      default:
+        break;
+    }
+  };
+
+  // Drop
+  const drop = (e) => {
+    switch (dragType) {
+      case DRAG_TYPE.MOVE_CANVAS:
+        break;
+      default:
+        break;
+    }
+    setDragType(null);
+  };
+
+  // Moving Canvas
+  const moveCanvas = () => setDragType(DRAG_TYPE.MOVE_CANVAS);
+
   return (
     <svg
       tabIndex={-1}
@@ -247,6 +276,13 @@ const SVG = (props) => {
       } ${SVGSizeRatio * SVGSize.height}`}
       style={SVGStyle.style}
       onFocus={() => setSelectedItem({ type: ITEM_TYPE.SVG })}
+      onMouseDown={(e) => {
+        if (e.target === SVGRef.current) {
+          moveCanvas();
+        }
+      }}
+      onMouseMove={drag}
+      onMouseUp={drop}
     >
       {nodeList.map((node) => (
         <Node key={node.id} nodeData={node} />

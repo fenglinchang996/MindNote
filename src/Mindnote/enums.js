@@ -70,6 +70,10 @@ const ITEM_TYPE = {
   SVG: "SVG",
 };
 
+const DRAG_TYPE = {
+  MOVE_CANVAS: "MOVE_CANVAS",
+};
+
 export {
   LIST_ACTION_TYPE,
   EDGE,
@@ -81,4 +85,5 @@ export {
   SHOW_TOOL_TYPE,
   TOOL_TYPE,
   ITEM_TYPE,
+  DRAG_TYPE,
 };
