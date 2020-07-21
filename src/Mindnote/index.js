@@ -1,10 +1,14 @@
-import React, { useState, useReducer, createContext } from "react";
+import React, { useState, useReducer, createContext, useEffect } from "react";
+import { Link } from "react-router-dom";
 import Header from "../Header";
-import Canvas from "./Canvas";
-import Tool from "./Tool";
+import SVG from "./SVG";
+import CommonTool from "./CommonTool";
+import NodeTool from "./NodeTool";
+import CurveTool from "./CurveTool";
+import Note from "./Note";
 import StyleContext from "./StyleContext";
 import ItemContext from "./ItemContext";
-import { LIST_ACTION_TYPE } from "./enums";
+import { LIST_ACTION_TYPE, SHOW_TOOL_TYPE, TOOL_TYPE } from "./enums";
 import "./Mindnote.css";
 
 const listReducer = (list, action) => {
@@ -30,27 +34,86 @@ const listReducer = (list, action) => {
       return list;
   }
 };
+const showToolReducer = (isShowTool, action) => {
+  switch (action.type) {
+    case SHOW_TOOL_TYPE.SHOW_NODE_TOOL:
+      return { ...isShowTool, showNodeTool: true };
+    case SHOW_TOOL_TYPE.SHOW_CURVE_TOOL:
+      return { ...isShowTool, showCurveTool: true };
+    case SHOW_TOOL_TYPE.SHOW_NOTE:
+      return { ...isShowTool, showNote: true };
+    case SHOW_TOOL_TYPE.CLOSE_NODE_TOOL:
+      return { ...isShowTool, showNodeTool: false };
+    case SHOW_TOOL_TYPE.CLOSE_CURVE_TOOL:
+      return { ...isShowTool, showCurveTool: false };
+    case SHOW_TOOL_TYPE.CLOSE_NOTE:
+      return { ...isShowTool, showNote: false };
+    case SHOW_TOOL_TYPE.CLOSE_ALL:
+      return { showNodeTool: false, showCurveTool: false, showNote: false };
+    default:
+      return isShowNote;
+  }
+};
 
 const Mindnote = (props) => {
   const [nodeList, dispatchNodes] = useReducer(listReducer, []);
   const [curveList, dispatchCurves] = useReducer(listReducer, []);
+  const [isShowTool, dispatchShowTool] = useReducer(showToolReducer, {
+    showNode: false,
+    showCurve: false,
+    showNote: false,
+  });
+  const [selectedItem, setSelectedItem] = useState(null);
+  useEffect(() => {
+    if (selectedItem && selectedItem.type === "NODE") {
+      dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_NODE_TOOL });
+      dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_NOTE });
+    } else {
+      dispatchShowTool({ type: SHOW_TOOL_TYPE.CLOSE_ALL });
+    }
+  }, [selectedItem]);
   const ItemContextValue = {
     nodeList,
     dispatchNodes,
     curveList,
     dispatchCurves,
+    selectedItem,
+    setSelectedItem,
   };
+
   return (
     <div className="mindnote">
       <Header>
         <div className="go-back-btn">
-          <i className="fas fa-chevron-left"></i>&nbsp; Back
+          <Link to="/docs">
+            <i className="fas fa-chevron-left"></i>&nbsp; Back
+          </Link>
         </div>
       </Header>
-      <ItemContext.Provider value={ItemContextValue}>
-        <Canvas />
-      </ItemContext.Provider>
-      <Tool />
+      <div className="canvas">
+        <ItemContext.Provider value={ItemContextValue}>
+          <SVG />
+        </ItemContext.Provider>
+        <CommonTool />
+        <NodeTool
+          isShowNodeTool={isShowTool.showNodeTool}
+          closeTool={() =>
+            dispatchShowTool({ type: SHOW_TOOL_TYPE.CLOSE_NODE_TOOL })
+          }
+        />
+        <CurveTool
+          isShowCurveTool={isShowTool.showCurveTool}
+          closeTool={() =>
+            dispatchShowTool({ type: SHOW_TOOL_TYPE.CLOSE_CURVE_TOOL })
+          }
+        />
+        <Note
+          isShowNote={isShowTool.showNote}
+          closeTool={() =>
+            dispatchShowTool({ type: SHOW_TOOL_TYPE.CLOSE_NOTE })
+          }
+        />
+      </div>
     </div>
   );
 };

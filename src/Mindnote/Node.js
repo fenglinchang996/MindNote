@@ -1,8 +1,11 @@
 import React, { useState, useEffect, useContext } from "react";
 import StyleContext from "./StyleContext";
+import ItemContext from "./ItemContext";
+import { ITEM_TYPE } from "./enums";
 
 const Node = (props) => {
   const { connectionArrowStyle } = useContext(StyleContext);
+  const { setSelectedItem } = useContext(ItemContext);
   const { nodeData } = props;
   const {
     id,
@@ -70,6 +73,7 @@ const Node = (props) => {
       tabIndex={-1}
       onFocus={() => {
         setIsFocused(true);
+        setSelectedItem({ type: ITEM_TYPE.NODE, id });
       }}
       onBlur={() => {
         setIsFocused(false);

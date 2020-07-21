@@ -1,3 +1,143 @@
+.canvas {
+  position: relative;
+}
+
+.svg {
+  height: calc(99vh - 50px);
+}
+
+/* Tool */
+.tool-box {
+  position: absolute; /* relative to .canvas */
+  display: flex;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px #a8a8a8;
+  background-color: #ffffff;
+}
+
+.common-tool {
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.tool-item {
+  display: flex;
+  align-items: center;
+  height: 30px;
+  position: relative;
+  text-align: center;
+  margin: 0 5px;
+  border-radius: 2px;
+}
+
+.tool-item:hover {
+  background-color: #e8e8e8;
+}
+
+.hori-sep {
+  border: 1px solid #a8a8a8;
+}
+.verti-sep {
+  border: 1px solid #a8a8a8;
+  margin: 0 15px;
+  content: none;
+}
+
+.tool-main-title {
+  text-align: center;
+  margin: 5px;
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+.tool-close-btn {
+  position: absolute; /* relative to .tool-box */
+  padding: 5px;
+  top: 10px;
+  right: 15px;
+}
+
+.tool-close-btn:hover {
+  background-color: #e8e8e8;
+}
+
+.tool-list {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 10px;
+}
+
+.tool-subtitle {
+  font-weight: bold;
+  width: 60px;
+  margin: 5px 10px;
+}
+
+.tool-select {
+  cursor: pointer;
+}
+
+.tool-btn {
+  cursor: pointer;
+}
+
+.tool-icon {
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  margin: 0 5px;
+}
+
+.color-block {
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+}
+
+.tool-select:hover,
+.tool-btn:hover {
+  background-color: #e8e8e8;
+}
+
+.tool-trigger {
+  padding: 5px;
+  border-radius: 2px;
+}
+
+.tool-trigger:hover {
+  background-color: #c8c8c8;
+}
+
+.tool-selector {
+  display: none;
+  position: absolute;
+  top: 15px;
+  border-radius: 2px;
+  box-shadow: 0 0 10px #a8a8a8;
+}
+
+/* Note Tool */
+.note {
+  right: 20px;
+  top: 120px;
+}
+
+.text-area {
+  margin: 5px;
+}
+.text-content {
+  width: 100%;
+  border-radius: 5px;
+  border-color: #a8a8a8;
+  padding: 15px;
+  resize: vertical;
+}
+
+/* SVG */
 .connection-arrow {
   display: flex;
   align-items: center;
