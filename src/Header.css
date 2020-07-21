@@ -48,7 +48,6 @@ header > .go-back-btn:hover {
   font-size: 1.2rem;
   border: 1px solid #1d3557;
   border-radius: 50%;
-  cursor: pointer;
 }
 
 .header > .member-btn:hover {

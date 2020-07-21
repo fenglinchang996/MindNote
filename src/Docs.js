@@ -2,6 +2,7 @@ import React from "react";
 import Header from "./Header";
 import "./Docs.css";
 import docPic from "./Mind-Map-Paper.svg";
+import { Link } from "react-router-dom";
 
 const Docs = () => {
   return (
@@ -44,7 +45,9 @@ const DocList = (props) => {
       })}
       <div className="doc new-doc">
         <button className="add-mindnote-btn">
-          <i className="fas fa-plus"></i>
+          <Link to="/mindnote">
+            <i className="fas fa-plus"></i>
+          </Link>
         </button>
       </div>
     </div>

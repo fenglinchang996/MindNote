@@ -1,0 +1,47 @@
+.main {
+  display: flex;
+  align-content: center;
+  flex-wrap: wrap;
+  text-align: center;
+  height: calc(100vh - 50px);
+}
+
+.main-title {
+  font-size: 3rem;
+}
+
+.main-title,
+.main-desc,
+.main-block {
+  width: 100%;
+}
+
+.main-block {
+  margin: 40px 0;
+}
+
+.main-btn {
+  width: 150px;
+  font-size: 1.5rem;
+  margin: 0 20px;
+  padding: 10px;
+  border: 1px solid #457b9d;
+  border-radius: 5px;
+}
+
+.try-it-btn {
+  color: #ffffff;
+  background-color: #457b9d;
+}
+
+.sign-up-btn {
+  color: #457b9d;
+}
+
+.link {
+  text-decoration: underline;
+}
+
+.link:hover {
+  color: #457b9d;
+}
