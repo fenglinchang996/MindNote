@@ -259,8 +259,19 @@ const SVG = (props) => {
     setDragType(null);
   };
 
-  // Moving Canvas
+  // Move Canvas
   const moveCanvas = () => setDragType(DRAG_TYPE.MOVE_CANVAS);
+
+  // Resize Canvas
+  const resizeCanvas = (deltaRatio) => {
+    if (SVGSizeRatio < 0.5) {
+      deltaRatio > 0 && setSVGSizeRatio(SVGSizeRatio + deltaRatio);
+    } else if (SVGSizeRatio > 2) {
+      deltaRatio < 0 && setSVGSizeRatio(SVGSizeRatio + deltaRatio);
+    } else {
+      setSVGSizeRatio(SVGSizeRatio + deltaRatio);
+    }
+  };
 
   return (
     <svg
@@ -276,6 +287,11 @@ const SVG = (props) => {
       } ${SVGSizeRatio * SVGSize.height}`}
       style={SVGStyle.style}
       onFocus={() => setSelectedItem({ type: ITEM_TYPE.SVG })}
+      onWheel={(e) => {
+        if (e.ctrlKey) {
+          resizeCanvas(0.0002 * e.deltaY);
+        }
+      }}
       onMouseDown={(e) => {
         if (e.target === SVGRef.current) {
           moveCanvas();
