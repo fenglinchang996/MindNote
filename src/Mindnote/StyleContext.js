@@ -2,9 +2,7 @@ import { createContext } from "react";
 
 const styleContext = createContext({
   SVGStyle: {
-    style: {
-      border: "1px solid black",
-    },
+    style: {},
   },
   nodeStyle: {
     width: 80,
@@ -31,6 +29,14 @@ const styleContext = createContext({
       strokeLinecap: "round",
     },
   },
+  virtualCurveStyle: {
+    style: {
+      fill: "none",
+      stroke: "lightblue",
+      strokeWidth: 5,
+      strokeDasharray: "10, 5",
+    },
+  },
   curvePointStyle: {
     r: 5,
     style: {
@@ -48,7 +54,7 @@ const styleContext = createContext({
       fill: "none",
       stroke: "lightgray",
       strokeWidth: 5,
-      strokeDasharray: "5, 5",
+      strokeDasharray: "2, 2",
     },
   },
 });
