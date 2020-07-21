@@ -3,6 +3,7 @@ import { v4 as uuid } from "uuid";
 import StyleContext from "./StyleContext";
 import ItemContext from "./ItemContext";
 import Node from "./Node";
+import VirtualCurve from "./VirtualCurve";
 import Curve from "./Curve";
 import { LIST_ACTION_TYPE } from "./enums";
 import {
@@ -25,7 +26,7 @@ document.addEventListener(
   }
 );
 
-const Canvas = (props) => {
+const SVG = (props) => {
   // SVG
   const convertToSVGCoord = ({ x, y }) => {
     const clientPoint = SVGRef.current.createSVGPoint();
@@ -46,9 +47,14 @@ const Canvas = (props) => {
   // Style
   const { SVGStyle, nodeStyle, curveStyle } = useContext(StyleContext);
   // Item: NodeList, CurveList
-  const { nodeList, dispatchNodes, curveList, dispatchCurves } = useContext(
-    ItemContext
-  );
+  const {
+    nodeList,
+    dispatchNodes,
+    curveList,
+    dispatchCurves,
+    selectedItem,
+    setSelectedItem,
+  } = useContext(ItemContext);
 
   // Node
   const calcNodeCorners = (center, width, height) => {
@@ -190,7 +196,7 @@ const Canvas = (props) => {
     endNode = null,
     startEdge = null,
     endEdge = null,
-    style = curveStyle.style,
+    style = null,
   } = {}) => {
     const id = uuid();
     const { startControl, endControl } = calcCurveControl(start, end);
@@ -229,24 +235,20 @@ const Canvas = (props) => {
       xmlns="http://www.w3.org/2000/svg"
       ref={SVGRef}
       width="100%"
-      height="100%"
       preserveAspectRatio="xMidYMid meet"
       viewBox={`${viewBoxOrigin.x} ${viewBoxOrigin.y} ${
         SVGSizeRatio * SVGSize.width
       } ${SVGSizeRatio * SVGSize.height}`}
       style={SVGStyle.style}
+      onMouseDown={() => {
+        setSelectedItem({ type: "SVG" });
+      }}
     >
       {nodeList.map((node) => (
         <Node key={node.id} nodeData={node} />
       ))}
-      <Curve
-        curveData={createCurve({
-          start: { x: 10, y: 10 },
-          end: { x: 100, y: 100 },
-        })}
-      />
     </svg>
   );
 };
 
-export default Canvas;
+export default SVG;
