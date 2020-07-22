@@ -4,7 +4,6 @@ import BaseCurve from "./BaseCurve";
 
 const wrapVirtualCurve = (BaseCurve) => (props) => {
   const { curveData } = props;
-  // Use StyleContext
   const { virtualCurveStyle } = useContext(StyleContext);
 
   return (

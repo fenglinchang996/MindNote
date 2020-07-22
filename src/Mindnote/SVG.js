@@ -2,11 +2,19 @@ import React, { useState, useEffect, useContext, useRef } from "react";
 import { v4 as uuid } from "uuid";
 import StyleContext from "./StyleContext";
 import ItemContext from "./ItemContext";
+import SVGContext from "./SVGContext";
 import VirtualNode from "./VirtualNode";
 import Node from "./Node";
 import VirtualCurve from "./VirtualCurve";
 import Curve from "./Curve";
-import { LIST_ACTION_TYPE, ITEM_TYPE, DRAG_TYPE } from "./enums";
+import {
+  EDGE,
+  CURVE_IN_OUT,
+  LIST_ACTION_TYPE,
+  ITEM_TYPE,
+  DRAG_TYPE,
+  CLOCKFACE,
+} from "./enums";
 import {
   calcIntersectionPoint,
   calcCenterPoint,
@@ -51,6 +59,7 @@ const SVG = (props) => {
   const {
     nodeList,
     dispatchNodes,
+    getNode,
     curveList,
     dispatchCurves,
     selectedItem,
@@ -115,36 +124,33 @@ const SVG = (props) => {
     };
   };
   const createNode = ({
+    id = null,
     center,
     width = nodeStyle.width,
     height = nodeStyle.height,
     style = null,
-    parentId = null,
+    curveIn = null,
+    parentNodeId = null,
     upstreamCurveId = null,
-    childrenId = [],
+    childNodesId = [],
     downstreamCurvesId = [],
     top = {
-      curveInOut: null,
-      childrenId: [],
+      nodesId: [],
       curvesId: [],
     },
     right = {
-      curveInOut: null,
-      childrenId: [],
+      nodesId: [],
       curvesId: [],
     },
     bottom = {
-      curveInOut: null,
-      childrenId: [],
+      nodesId: [],
       curvesId: [],
     },
     left = {
-      curveInOut: null,
-      childrenId: [],
+      nodesId: [],
       curvesId: [],
     },
   } = {}) => {
-    const id = uuid();
     const { corners, edgeCenters, connections } = calcNodeCoord(
       center,
       width,
@@ -159,9 +165,10 @@ const SVG = (props) => {
       edgeCenters,
       connections,
       style,
-      parentId,
+      curveIn,
+      parentNodeId,
       upstreamCurveId,
-      childrenId,
+      childNodesId,
       downstreamCurvesId,
       top,
       right,
@@ -169,6 +176,52 @@ const SVG = (props) => {
       left,
     };
   };
+  const setNodeCurveRelation = (
+    actionType,
+    parentNode,
+    childNode,
+    curve,
+    startEdge,
+    endEdge
+  ) => {
+    switch (actionType) {
+      case "ADD":
+        const parentNodeRelationData = {
+          childNodesId: [...parentNode.childNodesId, childNode.id],
+          downstreamCurvesId: [...parentNode.downstreamCurvesId, curve.id],
+          [startEdge]: {
+            nodesId: [...parentNode[startEdge].nodesId, childNode.id],
+            curvesId: [...parentNode[startEdge].curvesId, curve.id],
+          },
+        };
+        const childNodeRelationData = {
+          curveIn: endEdge,
+          parentNodeId: parentNode.id,
+          upstreamCurveId: curve.id,
+          [endEdge]: {
+            nodesId: [...childNode[endEdge].nodesId, parentNode.id],
+            curvesId: [...childNode[endEdge].curvesId, curve.id],
+          },
+        };
+        const curveRelationData = {
+          startNodeId: parentNode.id,
+          endNodeId: childNode.id,
+          startEdge,
+          endEdge,
+        };
+
+        return {
+          parentNodeRelationData,
+          childNodeRelationData,
+          curveRelationData,
+        };
+      case "REMOVE":
+        break;
+      default:
+        break;
+    }
+  };
+
   // Virtual Node
   const [virtualNode, setVirtualNode] = useState(null);
 
@@ -193,15 +246,15 @@ const SVG = (props) => {
     return { startControl, endControl };
   };
   const createCurve = ({
+    id = null,
     start,
     end,
-    startNode = null,
-    endNode = null,
+    startNodeId = null,
+    endNodeId = null,
     startEdge = null,
     endEdge = null,
     style = null,
   } = {}) => {
-    const id = uuid();
     const { startControl, endControl } = calcCurveControl(start, end);
     return {
       id,
@@ -209,8 +262,8 @@ const SVG = (props) => {
       end,
       startControl,
       endControl,
-      startNode,
-      endNode,
+      startNodeId,
+      endNodeId,
       startEdge,
       endEdge,
       style,
@@ -228,10 +281,135 @@ const SVG = (props) => {
         x: 0.5 * SVGSize.width,
         y: 0.5 * SVGSize.height,
       };
-      const centerNode = createNode({ center });
+      const centerNode = createNode({ id: uuid(), center });
       dispatchNodes({ type: LIST_ACTION_TYPE.ADD_ITEMS, items: [centerNode] });
     }
   }, [SVGSize, nodeList]);
+
+  // Move Canvas
+  const moveCanvas = () => setDragType(DRAG_TYPE.MOVE_CANVAS);
+
+  // Resize Canvas
+  const resizeCanvas = (deltaRatio) => {
+    if (SVGSizeRatio < 0.5) {
+      deltaRatio > 0 && setSVGSizeRatio(SVGSizeRatio + deltaRatio);
+    } else if (SVGSizeRatio > 2) {
+      deltaRatio < 0 && setSVGSizeRatio(SVGSizeRatio + deltaRatio);
+    } else {
+      setSVGSizeRatio(SVGSizeRatio + deltaRatio);
+    }
+  };
+
+  // Draw new Node
+  const [currentStartNode, setCurrentStartNode] = useState(null);
+  const calcCurveConnections = (startNode, endNode) => {
+    const topIntersect = calcIntersectionPoint(
+      startNode.center,
+      endNode.center,
+      startNode.corners.topLeft,
+      startNode.corners.topRight
+    );
+    const rightIntersect = calcIntersectionPoint(
+      startNode.center,
+      endNode.center,
+      startNode.corners.topRight,
+      startNode.corners.bottomRight
+    );
+    const bottomIntersect = calcIntersectionPoint(
+      startNode.center,
+      endNode.center,
+      startNode.corners.bottomRight,
+      startNode.corners.bottomLeft
+    );
+    const leftIntersect = calcIntersectionPoint(
+      startNode.center,
+      endNode.center,
+      startNode.corners.bottomLeft,
+      startNode.corners.topLeft
+    );
+    let curveDirection;
+    // CLOCKFACE
+    if (topIntersect) {
+      curveDirection =
+        topIntersect.x < startNode.center.x ? CLOCKFACE.ELEVEN : CLOCKFACE.ONE;
+    } else if (rightIntersect) {
+      curveDirection =
+        rightIntersect.y < startNode.center.y ? CLOCKFACE.TWO : CLOCKFACE.FOUR;
+    } else if (bottomIntersect) {
+      curveDirection =
+        bottomIntersect.x < startNode.center.x
+          ? CLOCKFACE.SEVEN
+          : CLOCKFACE.FIVE;
+    } else if (leftIntersect) {
+      curveDirection =
+        leftIntersect.y < startNode.center.y ? CLOCKFACE.TEN : CLOCKFACE.EIGHT;
+    } else {
+      curveDirection = null;
+    }
+    let start;
+    let end;
+    let startEdge;
+    let endEdge;
+    switch (curveDirection) {
+      case CLOCKFACE.ELEVEN:
+      case CLOCKFACE.ONE:
+        start = startNode.connections.topConnection;
+        end = endNode.connections.bottomConnection;
+        startEdge = EDGE.TOP;
+        endEdge = EDGE.BOTTOM;
+        break;
+      case CLOCKFACE.TWO:
+      case CLOCKFACE.FOUR:
+        start = startNode.connections.rightConnection;
+        end = endNode.connections.leftConnection;
+        startEdge = EDGE.RIGHT;
+        endEdge = EDGE.LEFT;
+        break;
+      case CLOCKFACE.FIVE:
+      case CLOCKFACE.SEVEN:
+        start = startNode.connections.bottomConnection;
+        end = endNode.connections.topConnection;
+        startEdge = EDGE.BOTTOM;
+        endEdge = EDGE.TOP;
+        break;
+      case CLOCKFACE.EIGHT:
+      case CLOCKFACE.TEN:
+        start = startNode.connections.leftConnection;
+        end = endNode.connections.rightConnection;
+        startEdge = EDGE.LEFT;
+        endEdge = EDGE.RIGHT;
+        break;
+      default:
+        start = startNode.center;
+        end = endNode.center;
+        startEdge = null;
+        endEdge = null;
+        break;
+    }
+    return { start, end, startEdge, endEdge };
+  };
+  const drawNewNode = (e, startNodeId, startEdge) => {
+    // Get Start Node
+    const startNode = getNode(startNodeId);
+    // If edge is not in, then draw a new node
+    if (startNode.curveIn !== startEdge) {
+      setDragType(DRAG_TYPE.DRAW_NEW_NODE);
+      setCurrentStartNode(startNode);
+      // Set End Node
+      const endCenter = convertToSVGCoord({ x: e.clientX, y: e.clientY });
+      const endNode = createNode({ center: endCenter });
+      // Get Curve Connection
+      const curveConnection = calcCurveConnections(startNode, endNode);
+      // Set Curve
+      const virtualCurve = createCurve({
+        start: curveConnection.start,
+        end: curveConnection.end,
+      });
+      // Set Virtual Node and Virtual Curve
+      setVirtualNode(endNode);
+      setVirtualCurve(virtualCurve);
+    }
+  };
 
   // Drag
   const [dragType, setDragType] = useState(null);
@@ -255,6 +433,22 @@ const SVG = (props) => {
           y: viewBoxOrigin.y - cursorSVGMovement.dy,
         });
         break;
+      case DRAG_TYPE.DRAW_NEW_NODE:
+        // Get Start Node
+        const startNode = currentStartNode;
+        // Set End Node
+        const endCenter = convertToSVGCoord({ x: e.clientX, y: e.clientY });
+        const endNode = createNode({ center: endCenter });
+        // Get Curve Connection
+        const curveConnection = calcCurveConnections(startNode, endNode);
+        // Set Curve
+        const virtualCurve = createCurve({
+          start: curveConnection.start,
+          end: curveConnection.end,
+        });
+        // Set Virtual Node and Virtual Curve
+        setVirtualNode(endNode);
+        setVirtualCurve(virtualCurve);
       default:
         break;
     }
@@ -265,24 +459,61 @@ const SVG = (props) => {
     switch (dragType) {
       case DRAG_TYPE.MOVE_CANVAS:
         break;
+      case DRAG_TYPE.DRAW_NEW_NODE:
+        // Get Start Node
+        const startNode = currentStartNode;
+        // Create End Node
+        const endCenter = convertToSVGCoord({ x: e.clientX, y: e.clientY });
+        const endNode = createNode({
+          id: uuid(),
+          center: endCenter,
+        });
+        // Get Curve Connection
+        const curveConnection = calcCurveConnections(startNode, endNode);
+        // Create Curve
+        const curve = createCurve({
+          id: uuid(),
+          start: curveConnection.start,
+          end: curveConnection.end,
+        });
+        // Set Node and Curve Relation
+        const {
+          parentNodeRelationData,
+          childNodeRelationData,
+          curveRelationData,
+        } = setNodeCurveRelation(
+          "ADD",
+          startNode,
+          endNode,
+          curve,
+          curveConnection.startEdge,
+          curveConnection.endEdge
+        );
+        console.log(parentNodeRelationData);
+        const newStartNode = { ...startNode, ...parentNodeRelationData };
+        const newEndNode = { ...endNode, ...childNodeRelationData };
+        const newCurve = { ...curve, ...curveRelationData };
+        // Add (and Update) Nodes and Curves
+        dispatchNodes({
+          type: LIST_ACTION_TYPE.ADD_ITEMS,
+          items: [newEndNode],
+        });
+        dispatchNodes({
+          type: LIST_ACTION_TYPE.UPDATE_ITEMS,
+          items: [newStartNode],
+        });
+        dispatchCurves({
+          type: LIST_ACTION_TYPE.ADD_ITEMS,
+          items: [newCurve],
+        });
+        // Set Virtual Node and Virtual Curve
+        setVirtualNode(null);
+        setVirtualCurve(null);
+        break;
       default:
         break;
     }
     setDragType(null);
-  };
-
-  // Move Canvas
-  const moveCanvas = () => setDragType(DRAG_TYPE.MOVE_CANVAS);
-
-  // Resize Canvas
-  const resizeCanvas = (deltaRatio) => {
-    if (SVGSizeRatio < 0.5) {
-      deltaRatio > 0 && setSVGSizeRatio(SVGSizeRatio + deltaRatio);
-    } else if (SVGSizeRatio > 2) {
-      deltaRatio < 0 && setSVGSizeRatio(SVGSizeRatio + deltaRatio);
-    } else {
-      setSVGSizeRatio(SVGSizeRatio + deltaRatio);
-    }
   };
 
   return (
@@ -312,9 +543,16 @@ const SVG = (props) => {
       onMouseMove={drag}
       onMouseUp={drop}
     >
-      {nodeList.map((node) => (
-        <Node key={node.id} nodeData={node} />
-      ))}
+      <SVGContext.Provider value={{ drawNewNode }}>
+        {curveList.map((curve) => (
+          <Curve key={curve.id} curveData={curve} />
+        ))}
+        {nodeList.map((node) => (
+          <Node key={node.id} nodeData={node} />
+        ))}
+        {virtualNode && <VirtualNode nodeData={virtualNode} />}
+        {virtualCurve && <VirtualCurve curveData={virtualCurve} />}
+      </SVGContext.Provider>
     </svg>
   );
 };

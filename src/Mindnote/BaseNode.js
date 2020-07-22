@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useContext } from "react";
 import StyleContext from "./StyleContext";
 import ItemContext from "./ItemContext";
+import SVGContext from "./SVGContext";
 import { ITEM_TYPE } from "./enums";
+import { EDGE } from "./enums";
 
-const Node = (props) => {
+const BaseNode = (props) => {
   const { nodeData, isFocused } = props;
   const {
     id,
@@ -24,6 +26,7 @@ const Node = (props) => {
     bottom,
   } = nodeData;
   const { connectionArrowStyle } = useContext(StyleContext);
+  const { drawNewNode } = useContext(SVGContext);
 
   // Origin
   const [origin, setOrigin] = useState({ x: 0, y: 0 });
@@ -73,18 +76,25 @@ const Node = (props) => {
       <g display={isFocused ? "block" : "none"}>
         {connectionArrows ? (
           <>
-            <ConnectionArrow arrowData={connectionArrows.top} fa="caret-up" />
+            <ConnectionArrow
+              arrowData={connectionArrows.top}
+              fa="caret-up"
+              drawNewNode={(e) => drawNewNode(e, id, EDGE.TOP)}
+            />
             <ConnectionArrow
               arrowData={connectionArrows.right}
               fa="caret-right"
+              drawNewNode={(e) => drawNewNode(e, id, EDGE.RIGHT)}
             />
             <ConnectionArrow
               arrowData={connectionArrows.bottom}
               fa="caret-down"
+              drawNewNode={(e) => drawNewNode(e, id, EDGE.BOTTOM)}
             />
             <ConnectionArrow
               arrowData={connectionArrows.left}
               fa="caret-left"
+              drawNewNode={(e) => drawNewNode(e, id, EDGE.LEFT)}
             />
           </>
         ) : (
@@ -96,9 +106,9 @@ const Node = (props) => {
 };
 
 const ConnectionArrow = (props) => {
-  const { arrowData, fa } = props;
+  const { arrowData, fa, drawNewNode } = props;
   return (
-    <foreignObject {...arrowData} cursor="pointer">
+    <foreignObject {...arrowData} cursor="pointer" onMouseDown={drawNewNode}>
       <div className="connection-arrow">
         <i className={`fas fa-${fa}`}></i>
       </div>
@@ -106,4 +116,4 @@ const ConnectionArrow = (props) => {
   );
 };
 
-export default Node;
+export default BaseNode;

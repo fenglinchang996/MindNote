@@ -5,7 +5,6 @@ import BaseCurve from "./BaseCurve";
 const wrapCurve = (BaseCurve) => (props) => {
   const { curveData } = props;
   const { style } = curveData;
-  // Use StyleContext
   const { curveStyle } = useContext(StyleContext);
 
   // Toggle displaying Control Circle

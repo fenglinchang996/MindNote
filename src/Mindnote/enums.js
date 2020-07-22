@@ -72,6 +72,7 @@ const ITEM_TYPE = {
 
 const DRAG_TYPE = {
   MOVE_CANVAS: "MOVE_CANVAS",
+  DRAW_NEW_NODE: "DRAW_NEW_NODE",
 };
 
 export {

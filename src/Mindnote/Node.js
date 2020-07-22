@@ -5,11 +5,10 @@ import ItemContext from "./ItemContext";
 import { ITEM_TYPE } from "./enums";
 
 const wrapNode = (BaseNode) => (props) => {
-  const { nodeStyle } = useContext(StyleContext);
-  const { setSelectedItem } = useContext(ItemContext);
   const { nodeData } = props;
   const { id, style } = nodeData;
-
+  const { nodeStyle } = useContext(StyleContext);
+  const { setSelectedItem } = useContext(ItemContext);
   // focusable
   const [isFocused, setIsFocused] = useState(false);
 

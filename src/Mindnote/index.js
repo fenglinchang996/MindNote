@@ -57,6 +57,7 @@ const showToolReducer = (isShowTool, action) => {
 
 const Mindnote = (props) => {
   const [nodeList, dispatchNodes] = useReducer(listReducer, []);
+  const getNode = (nodeId) => nodeList.find((node) => node.id === nodeId);
   const [curveList, dispatchCurves] = useReducer(listReducer, []);
   const [isShowTool, dispatchShowTool] = useReducer(showToolReducer, {
     showNode: false,
@@ -75,6 +76,7 @@ const Mindnote = (props) => {
   const ItemContextValue = {
     nodeList,
     dispatchNodes,
+    getNode,
     curveList,
     dispatchCurves,
     selectedItem,
