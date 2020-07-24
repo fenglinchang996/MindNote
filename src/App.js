@@ -1,11 +1,15 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Switch,
   Route,
   BrowserRouter as Router,
   Link,
   NavLink,
+  useRouteMatch,
+  useLocation,
+  Redirect,
 } from "react-router-dom";
+import Header from "./Header";
 import Home from "./Home";
 import Docs from "./Docs";
 import Mindnote from "./Mindnote";
@@ -17,13 +21,19 @@ const App = () => {
       <Router>
         <Switch>
           <Route path="/docs">
+            <Header />
             <Docs />
           </Route>
-          <Route path="/mindnote">
+          <Route path="/mindnote/:mindnoteId">
+            <Header />
             <Mindnote />
           </Route>
-          <Route path="/">
+          <Route path="/home">
+            <Header />
             <Home />
+          </Route>
+          <Route path="/" exact>
+            <Redirect to="/home" />
           </Route>
         </Switch>
       </Router>
