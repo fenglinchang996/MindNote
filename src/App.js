@@ -12,6 +12,7 @@ import {
 import Header from "./Header";
 import Home from "./Home";
 import Docs from "./Docs";
+import Member from "./Member";
 import Mindnote from "./Mindnote";
 import "./App.css";
 
@@ -31,6 +32,9 @@ const App = () => {
           <Route path="/home">
             <Header />
             <Home />
+          </Route>
+          <Route path="/member">
+            <Member />
           </Route>
           <Route path="/" exact>
             <Redirect to="/home" />
