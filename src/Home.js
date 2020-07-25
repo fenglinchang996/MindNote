@@ -14,12 +14,14 @@ const Home = (props) => {
           Map Out Your Ideas Visually and Organize Them Detaily
         </h3>
         <div className="main-block">
-          <button className="main-btn try-it-btn">
-            <Link to="/mindnote">Try It !</Link>
-          </button>
-          <span>&nbsp;or&nbsp;</span>
           <button className="main-btn sign-up-btn">
-            <Link to="/docs/my">Sign Up</Link>
+            <Link to="/member/signup">Try MindNote for Free</Link>
+          </button>
+          <button className="main-btn gallery-btn">
+            <Link to="/docs/public">
+              View People's Mindnotes &nbsp;
+              <i className="fas fa-chevron-right"></i>
+            </Link>
           </button>
           <div className="main-block">
             Already had mindnotes?&nbsp;

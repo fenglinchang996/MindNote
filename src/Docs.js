@@ -9,11 +9,10 @@ import {
   useLocation,
   useRouteMatch,
 } from "react-router-dom";
-import { db } from "./firebase";
-import Header from "./Header";
-import MindNote from "./Mindnote";
 import "./Docs.css";
 import docPic from "./Mind-Map-Paper.svg";
+import { db } from "./firebase";
+import { AuthToLogInRoute } from "./AuthRoute";
 
 const Docs = (props) => {
   const { path, url } = useRouteMatch();
@@ -23,15 +22,17 @@ const Docs = (props) => {
 
   return (
     <div className="docs">
-      <Route path={`${path}/public`}>
-        <DocList />
-      </Route>
-      <Route path={`${path}/my`}>
-        <DocList />
-      </Route>
-      <Route path={`${path}`}>
-        <Redirect to={`${path}/my`} />
-      </Route>
+      <Switch>
+        <Route path={`${path}/public`}>
+          <DocList />
+        </Route>
+        <AuthToLogInRoute path={`${path}/my`}>
+          <DocList />
+        </AuthToLogInRoute>
+        <Route path={`${path}`}>
+          <Redirect to={`${path}/public`} />
+        </Route>
+      </Switch>
     </div>
   );
 };
