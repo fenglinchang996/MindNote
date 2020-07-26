@@ -1,19 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Header from "./Header";
 import "./Home.css";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 const Home = (props) => {
   return (
     <div className="home">
-      <Header>
-        <nav className="navbar">
-          <div className="navbar-item">Feature</div>
-          <div className="navbar-item">Pricing</div>
-          <div className="navbar-item">Support</div>
-          <div className="navbar-item">About</div>
-        </nav>
-      </Header>
       <main className="main">
         <h1 className="main-title">
           Mind Mapping &nbsp;<i className="fas fa-plus"></i>&nbsp; Note Taking
@@ -22,16 +14,18 @@ const Home = (props) => {
           Map Out Your Ideas Visually and Organize Them Detaily
         </h3>
         <div className="main-block">
-          <button className="main-btn try-it-btn">
-            <Link to="/mindnote">Try It !</Link>
-          </button>
-          <span>&nbsp;or&nbsp;</span>
           <button className="main-btn sign-up-btn">
-            <Link to="/docs">Sign Up</Link>
+            <Link to="/member/signup">Try MindNote for Free</Link>
+          </button>
+          <button className="main-btn gallery-btn">
+            <Link to="/docs/public">
+              View People's Mindnotes &nbsp;
+              <i className="fas fa-chevron-right"></i>
+            </Link>
           </button>
           <div className="main-block">
             Already had mindnotes?&nbsp;
-            <Link className="link" to="./docs">
+            <Link className="link" to="/docs">
               Log in
             </Link>
             &nbsp;here.
