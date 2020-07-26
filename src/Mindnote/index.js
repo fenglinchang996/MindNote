@@ -1,5 +1,6 @@
-import React, { useState, useReducer, createContext, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useReducer, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { db } from "../firebase";
 import Header from "../Header";
 import SVG from "./SVG";
 import CommonTool from "./CommonTool";
@@ -13,6 +14,8 @@ import "./Mindnote.css";
 
 const listReducer = (list, action) => {
   switch (action.type) {
+    case LIST_ACTION_TYPE.INIT_ITEMS:
+      return [...action.items];
     case LIST_ACTION_TYPE.ADD_ITEMS:
       return [...list, ...action.items];
     case LIST_ACTION_TYPE.UPDATE_ITEMS:
@@ -73,6 +76,7 @@ const Mindnote = (props) => {
       dispatchShowTool({ type: SHOW_TOOL_TYPE.CLOSE_ALL });
     }
   }, [selectedItem]);
+
   const ItemContextValue = {
     nodeList,
     dispatchNodes,
@@ -82,7 +86,51 @@ const Mindnote = (props) => {
     selectedItem,
     setSelectedItem,
   };
-
+  const { mindnoteId } = useParams();
+  // Get mindnote data from database
+  useEffect(() => {
+    if (mindnoteId) {
+      const mindnoteRef = db.collection("mindnotes").doc(mindnoteId);
+      mindnoteRef
+        .get()
+        .then((mindnoteDoc) => {
+          if (mindnoteDoc.exists) {
+            const mindnote = mindnoteDoc.data();
+            dispatchNodes({
+              type: LIST_ACTION_TYPE.INIT_ITEMS,
+              items: mindnote.nodeList,
+            });
+            dispatchCurves({
+              type: LIST_ACTION_TYPE.INIT_ITEMS,
+              items: mindnote.curveList,
+            });
+          } else {
+            // mindnoteDoc.data() will be undefined in this case
+            console.log("No such mindnote!");
+          }
+        })
+        .catch((error) => {
+          console.log("Error getting document:", error);
+        });
+    }
+  }, []);
+  // Save(Update) mindnote data to database
+  const saveMindnoteToDB = (nodeList, curveList) => {
+    db.collection("mindnotes")
+      .doc(mindnoteId)
+      .update({
+        nodeList,
+        curveList,
+        noteList: [],
+      })
+      .then(() => {
+        console.log("Document successfully updated!");
+      })
+      .catch((error) => {
+        // The document probably doesn't exist.
+        console.error("Error updating document: ", error);
+      });
+  };
   return (
     <div className="mindnote">
       <Header>

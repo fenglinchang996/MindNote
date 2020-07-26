@@ -274,8 +274,7 @@ const SVG = (props) => {
 
   // Initialize Canvas
   useEffect(() => {
-    // Todo: get Node List from database asynchronously
-    // Create Center Node
+    // Create Center Node if no nodeList Data
     if (SVGSize.height !== 0 && SVGSize.width !== 0 && nodeList.length === 0) {
       const center = {
         x: 0.5 * SVGSize.width,
