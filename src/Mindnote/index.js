@@ -9,7 +9,12 @@ import CurveTool from "./CurveTool";
 import Note from "./Note";
 import StyleContext from "./StyleContext";
 import ItemContext from "./ItemContext";
-import { LIST_ACTION_TYPE, SHOW_TOOL_TYPE, TOOL_TYPE } from "./enums";
+import {
+  LIST_ACTION_TYPE,
+  SHOW_TOOL_TYPE,
+  TOOL_TYPE,
+  ITEM_TYPE,
+} from "./enums";
 import "./Mindnote.css";
 
 const listReducer = (list, action) => {
@@ -70,8 +75,7 @@ const Mindnote = (props) => {
   });
   const [selectedItem, setSelectedItem] = useState(null);
   useEffect(() => {
-    if (selectedItem && selectedItem.type === "NODE") {
-      dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_NODE_TOOL });
+    if (selectedItem && selectedItem.type === ITEM_TYPE.NODE) {
       dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_NOTE });
     } else {
       dispatchShowTool({ type: SHOW_TOOL_TYPE.CLOSE_ALL });
@@ -79,12 +83,10 @@ const Mindnote = (props) => {
   }, [selectedItem]);
 
   const ItemContextValue = {
-    nodeList,
     dispatchNodes,
     getNode,
-    curveList,
+    getCurve,
     dispatchCurves,
-    selectedItem,
     setSelectedItem,
   };
   const { mindnoteId } = useParams();
@@ -136,7 +138,11 @@ const Mindnote = (props) => {
     <div className="mindnote">
       <div className="canvas">
         <ItemContext.Provider value={ItemContextValue}>
-          <SVG />
+          <SVG
+            nodeList={nodeList}
+            curveList={curveList}
+            selectedItem={selectedItem}
+          />
         </ItemContext.Provider>
         <CommonTool
           saveMindnoteToDB={() => saveMindnoteToDB(nodeList, curveList)}

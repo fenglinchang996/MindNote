@@ -53,16 +53,16 @@ const SVG = (props) => {
   const [SVGSizeRatio, setSVGSizeRatio] = useState(1);
   const [viewBoxOrigin, setViewBoxOrigin] = useState({ x: 0, y: 0 });
 
+  // nodeList, curveList, selectedItem
+  const { nodeList, curveList, selectedItem } = props;
   // Style
   const { SVGStyle, nodeStyle, curveStyle } = useContext(StyleContext);
-  // Item: NodeList, CurveList
+  // Item method
   const {
-    nodeList,
     dispatchNodes,
     getNode,
-    curveList,
     dispatchCurves,
-    selectedItem,
+    getCurve,
     setSelectedItem,
   } = useContext(ItemContext);
 
@@ -410,11 +410,26 @@ const SVG = (props) => {
     }
   };
 
+  // Modify Curve
+  const [currentCurveControlType, setCurrentCurveControlType] = useState(null);
+  const modifyCurveControl = (e, curveId, controlType) => {
+    if (
+      selectedItem &&
+      selectedItem.type === ITEM_TYPE.CURVE &&
+      selectedItem.id === curveId
+    ) {
+      setDragType(DRAG_TYPE.MODIFY_CURVE_CONTROL);
+      setCurrentCurveControlType(controlType);
+      const virtualCurve = { ...getCurve(selectedItem.id) };
+      setVirtualCurve(virtualCurve);
+    }
+  };
+
   // Drag
   const [dragType, setDragType] = useState(null);
   const drag = (e) => {
-    switch (dragType) {
-      case DRAG_TYPE.MOVE_CANVAS:
+    if (dragType) {
+      if (dragType === DRAG_TYPE.MOVE_CANVAS) {
         const previousCursorSVGCoord = convertToSVGCoord({
           x: e.clientX,
           y: e.clientY,
@@ -431,8 +446,7 @@ const SVG = (props) => {
           x: viewBoxOrigin.x - cursorSVGMovement.dx,
           y: viewBoxOrigin.y - cursorSVGMovement.dy,
         });
-        break;
-      case DRAG_TYPE.DRAW_NEW_NODE:
+      } else if (dragType === DRAG_TYPE.DRAW_NEW_NODE) {
         // Get Start Node
         const startNode = currentStartNode;
         // Set End Node
@@ -448,17 +462,25 @@ const SVG = (props) => {
         // Set Virtual Node and Virtual Curve
         setVirtualNode(endNode);
         setVirtualCurve(virtualCurve);
-      default:
-        break;
+      } else if (dragType === DRAG_TYPE.MODIFY_CURVE_CONTROL) {
+        const newControlPoint = convertToSVGCoord({
+          x: e.clientX,
+          y: e.clientY,
+        });
+        const newVirtualCurve = {
+          ...virtualCurve,
+          [currentCurveControlType]: newControlPoint,
+        };
+        setVirtualCurve(newVirtualCurve);
+      }
     }
   };
 
   // Drop
   const drop = (e) => {
-    switch (dragType) {
-      case DRAG_TYPE.MOVE_CANVAS:
-        break;
-      case DRAG_TYPE.DRAW_NEW_NODE:
+    if (dragType) {
+      if (dragType === DRAG_TYPE.MOVE_CANVAS) {
+      } else if (dragType === DRAG_TYPE.DRAW_NEW_NODE) {
         // Get Start Node
         const startNode = currentStartNode;
         // Create End Node
@@ -508,11 +530,25 @@ const SVG = (props) => {
         // Set Virtual Node and Virtual Curve
         setVirtualNode(null);
         setVirtualCurve(null);
-        break;
-      default:
-        break;
+      } else if (dragType === DRAG_TYPE.MODIFY_CURVE_CONTROL) {
+        const newControlPoint = convertToSVGCoord({
+          x: e.clientX,
+          y: e.clientY,
+        });
+        const originalCurve = getCurve(selectedItem.id);
+        const updatedCurve = {
+          ...originalCurve,
+          [currentCurveControlType]: newControlPoint,
+        };
+        dispatchCurves({
+          type: LIST_ACTION_TYPE.UPDATE_ITEMS,
+          items: [updatedCurve],
+        });
+        setCurrentCurveControlType(null);
+        setVirtualCurve(null);
+      }
+      setDragType(null);
     }
-    setDragType(null);
   };
 
   return (
@@ -542,7 +578,7 @@ const SVG = (props) => {
       onMouseMove={drag}
       onMouseUp={drop}
     >
-      <SVGContext.Provider value={{ drawNewNode }}>
+      <SVGContext.Provider value={{ drawNewNode, modifyCurveControl }}>
         {curveList.map((curve) => (
           <Curve key={curve.id} curveData={curve} />
         ))}
