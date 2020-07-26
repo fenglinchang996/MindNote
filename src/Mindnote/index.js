@@ -62,6 +62,7 @@ const Mindnote = (props) => {
   const [nodeList, dispatchNodes] = useReducer(listReducer, []);
   const getNode = (nodeId) => nodeList.find((node) => node.id === nodeId);
   const [curveList, dispatchCurves] = useReducer(listReducer, []);
+  const getCurve = (curveId) => curveList.find((curve) => curve.id === curveId);
   const [isShowTool, dispatchShowTool] = useReducer(showToolReducer, {
     showNode: false,
     showCurve: false,
@@ -133,18 +134,13 @@ const Mindnote = (props) => {
   };
   return (
     <div className="mindnote">
-      <Header>
-        <div className="go-back-btn">
-          <Link to="/docs">
-            <i className="fas fa-chevron-left"></i>&nbsp; Back
-          </Link>
-        </div>
-      </Header>
       <div className="canvas">
         <ItemContext.Provider value={ItemContextValue}>
           <SVG />
         </ItemContext.Provider>
-        <CommonTool />
+        <CommonTool
+          saveMindnoteToDB={() => saveMindnoteToDB(nodeList, curveList)}
+        />
         <NodeTool
           isShowNodeTool={isShowTool.showNodeTool}
           closeTool={() =>
