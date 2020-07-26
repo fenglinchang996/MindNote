@@ -1,5 +1,4 @@
-import React, { useEffect } from "react";
-import "./Header.css";
+import React, { useState, useEffect, useContext } from "react";
 import {
   Link,
   NavLink,
@@ -10,10 +9,14 @@ import {
   useRouteMatch,
   useHistory,
 } from "react-router-dom";
+import UserContext from "./UserContext";
+import "./Header.css";
+import { auth } from "./firebase";
 
 const Header = (props) => {
   const { path, url } = useRouteMatch();
   let history = useHistory();
+  const user = useContext(UserContext);
 
   const homeNav = (
     <nav className="navbar">
@@ -44,15 +47,54 @@ const Header = (props) => {
   return (
     <header className="header">
       <div className="title">
-        <Link to="/">MindNote</Link>
+        <Link to="/home">MindNote</Link>
       </div>
       {path === "/home" && homeNav}
       {path === "/docs" && docsNav}
       {path === "/mindnote/:mindnoteId" && mindnoteNav}
-      <div className="member-btn">
-        <i className="fas fa-user-alt"></i>
+      <div className="user">
+        {user ? (
+          <UserInfo user={user} />
+        ) : (
+          <button type="button" className="login-btn">
+            Log In
+          </button>
+        )}
       </div>
     </header>
+  );
+};
+
+const UserInfo = (props) => {
+  const { user } = props;
+  const [isUserPopoverDisplayed, setisUserPopoverDisplayed] = useState(false);
+  const logOut = () => {
+    auth
+      .signOut()
+      .then(() => {
+        // Sign-out successful.
+      })
+      .catch((error) => {
+        // An error happened.
+      });
+  };
+  return (
+    <div
+      className="user-info"
+      onMouseOver={(e) => setisUserPopoverDisplayed(true)}
+      onMouseLeave={(e) => setisUserPopoverDisplayed(false)}
+    >
+      <i className="fas fa-user-alt"></i>
+      <span>&nbsp;{user.email}&nbsp;</span>
+      <div
+        className="popover"
+        style={{ display: isUserPopoverDisplayed ? "block" : "none" }}
+      >
+        <div className="item" onClick={logOut}>
+          Log out
+        </div>
+      </div>
+    </div>
   );
 };
 
