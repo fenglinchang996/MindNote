@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { md } from "./mdParser";
 
 const Note = (props) => {
   const { isShowNote, closeTool } = props;
+  const [editNote, setEditNote] = useState("");
   return (
     <div
       className="tool-box note"
@@ -15,7 +17,7 @@ const Note = (props) => {
         <i className="fas fa-times"></i>
       </button>
       <Toolbar />
-      <TextArea />
+      <TextArea content={editNote} modifyContent={setEditNote} />
     </div>
   );
 };
@@ -90,17 +92,27 @@ const Toolbar = (props) => {
   );
 };
 
+const NoteView = (props) => {
+  return <div class="note-view"></div>;
+};
+
 const TextArea = (props) => {
+  const { content, modifyContent } = props;
   return (
     <div className="text-area">
-      <div className="text-view"></div>
       <div className="text-edit">
         <textarea
           className="text-content"
           placeholder="Type something..."
           rows="15"
+          value={content}
+          onChange={(e) => modifyContent(e.target.value)}
         ></textarea>
       </div>
+      <div
+        className="text-view"
+        dangerouslySetInnerHTML={{ __html: md.render(content) }}
+      ></div>
     </div>
   );
 };
