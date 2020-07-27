@@ -15,6 +15,16 @@ const styleContext = createContext({
       strokeWidth: 2,
     },
   },
+  nodeContentStyle: {
+    style: {
+      width: "100%",
+      height: "100%",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: "lightgray",
+    },
+  },
   virtualNodeStyle: {
     style: {
       rx: 5,
@@ -50,13 +60,17 @@ const styleContext = createContext({
   curvePointStyle: {
     r: 5,
     style: {
-      fill: "green",
+      stroke: "black",
+      fill: "white",
+      cursor: "pointer",
     },
   },
   curveControlStyle: {
     r: 5,
     style: {
-      fill: "green",
+      stroke: "black",
+      fill: "white",
+      cursor: "pointer",
     },
   },
   curveControlLineStyle: {

@@ -1,5 +1,6 @@
-import React, { useState, useReducer, createContext, useEffect } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useReducer, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { db } from "../firebase";
 import Header from "../Header";
 import SVG from "./SVG";
 import CommonTool from "./CommonTool";
@@ -8,11 +9,18 @@ import CurveTool from "./CurveTool";
 import Note from "./Note";
 import StyleContext from "./StyleContext";
 import ItemContext from "./ItemContext";
-import { LIST_ACTION_TYPE, SHOW_TOOL_TYPE, TOOL_TYPE } from "./enums";
+import {
+  LIST_ACTION_TYPE,
+  SHOW_TOOL_TYPE,
+  TOOL_TYPE,
+  ITEM_TYPE,
+} from "./enums";
 import "./Mindnote.css";
 
 const listReducer = (list, action) => {
   switch (action.type) {
+    case LIST_ACTION_TYPE.INIT_ITEMS:
+      return [...action.items];
     case LIST_ACTION_TYPE.ADD_ITEMS:
       return [...list, ...action.items];
     case LIST_ACTION_TYPE.UPDATE_ITEMS:
@@ -27,7 +35,7 @@ const listReducer = (list, action) => {
       return list.filter(
         (item) =>
           !action.items.some(
-            (itemToBeDeleted) => itemToBeDeleted.id === item.id
+            (itemToBeDeletedId) => itemToBeDeletedId === item.id
           )
       );
     default:
@@ -59,6 +67,7 @@ const Mindnote = (props) => {
   const [nodeList, dispatchNodes] = useReducer(listReducer, []);
   const getNode = (nodeId) => nodeList.find((node) => node.id === nodeId);
   const [curveList, dispatchCurves] = useReducer(listReducer, []);
+  const getCurve = (curveId) => curveList.find((curve) => curve.id === curveId);
   const [isShowTool, dispatchShowTool] = useReducer(showToolReducer, {
     showNode: false,
     showCurve: false,
@@ -66,37 +75,78 @@ const Mindnote = (props) => {
   });
   const [selectedItem, setSelectedItem] = useState(null);
   useEffect(() => {
-    if (selectedItem && selectedItem.type === "NODE") {
-      dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_NODE_TOOL });
+    if (selectedItem && selectedItem.type === ITEM_TYPE.NODE) {
       dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_NOTE });
     } else {
       dispatchShowTool({ type: SHOW_TOOL_TYPE.CLOSE_ALL });
     }
   }, [selectedItem]);
+
   const ItemContextValue = {
-    nodeList,
     dispatchNodes,
     getNode,
-    curveList,
+    getCurve,
     dispatchCurves,
-    selectedItem,
     setSelectedItem,
   };
-
+  const { mindnoteId } = useParams();
+  // Get mindnote data from database
+  useEffect(() => {
+    if (mindnoteId) {
+      const mindnoteRef = db.collection("mindnotes").doc(mindnoteId);
+      mindnoteRef
+        .get()
+        .then((mindnoteDoc) => {
+          if (mindnoteDoc.exists) {
+            const mindnote = mindnoteDoc.data();
+            dispatchNodes({
+              type: LIST_ACTION_TYPE.INIT_ITEMS,
+              items: mindnote.nodeList,
+            });
+            dispatchCurves({
+              type: LIST_ACTION_TYPE.INIT_ITEMS,
+              items: mindnote.curveList,
+            });
+          } else {
+            // mindnoteDoc.data() will be undefined in this case
+            console.log("No such mindnote!");
+          }
+        })
+        .catch((error) => {
+          console.log("Error getting document:", error);
+        });
+    }
+  }, []);
+  // Save(Update) mindnote data to database
+  const saveMindnoteToDB = (nodeList, curveList) => {
+    db.collection("mindnotes")
+      .doc(mindnoteId)
+      .update({
+        nodeList,
+        curveList,
+        noteList: [],
+      })
+      .then(() => {
+        console.log("Document successfully updated!");
+      })
+      .catch((error) => {
+        // The document probably doesn't exist.
+        console.error("Error updating document: ", error);
+      });
+  };
   return (
     <div className="mindnote">
-      <Header>
-        <div className="go-back-btn">
-          <Link to="/docs">
-            <i className="fas fa-chevron-left"></i>&nbsp; Back
-          </Link>
-        </div>
-      </Header>
       <div className="canvas">
         <ItemContext.Provider value={ItemContextValue}>
-          <SVG />
+          <SVG
+            nodeList={nodeList}
+            curveList={curveList}
+            selectedItem={selectedItem}
+          />
         </ItemContext.Provider>
-        <CommonTool />
+        <CommonTool
+          saveMindnoteToDB={() => saveMindnoteToDB(nodeList, curveList)}
+        />
         <NodeTool
           isShowNodeTool={isShowTool.showNodeTool}
           closeTool={() =>

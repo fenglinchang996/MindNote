@@ -44,9 +44,15 @@ const calcPointsDistance = (M, N) => {
 
 const calcOffset = (O, P) => ({ dx: P.x - O.x, dy: P.y - O.y });
 
+const calcMovingPoint = (O, movement) => ({
+  x: O.x + movement.dx,
+  y: O.y + movement.dy,
+});
+
 export {
   calcIntersectionPoint,
   calcCenterPoint,
   calcPointsDistance,
   calcOffset,
+  calcMovingPoint,
 };
