@@ -137,6 +137,19 @@
   resize: vertical;
 }
 
+.text-view ol li {
+  list-style-type: decimal;
+  list-style-position: outside;
+}
+.text-view ul li {
+  list-style-type: disc;
+  list-style-position: inside;
+}
+.text-view blockquote {
+  padding: 5px 10px;
+  background-color: #e8e8e8;
+}
+
 /* SVG */
 .connection-arrow {
   display: flex;

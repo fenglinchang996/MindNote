@@ -49,16 +49,16 @@ const Header = (props) => {
       <div className="title">
         <Link to="/home">MindNote</Link>
       </div>
-      {path === "/home" && homeNav}
+      {/* {path === "/home" && homeNav} */}
       {path === "/docs" && docsNav}
       {path === "/mindnote/:mindnoteId" && mindnoteNav}
       <div className="user">
         {user ? (
           <UserInfo user={user} />
         ) : (
-          <button type="button" className="login-btn">
+          <Link to="/member/login" className="login-btn">
             Log In
-          </button>
+          </Link>
         )}
       </div>
     </header>

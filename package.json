@@ -29,6 +29,7 @@
   "dependencies": {
     "@babel/runtime": "^7.10.5",
     "firebase": "^7.16.1",
+    "markdown-it": "^11.0.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.2.0",
