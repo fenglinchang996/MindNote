@@ -24,6 +24,11 @@ const wrapNode = (BaseNode) => (props) => {
         setIsFocused(false);
       }}
       onMouseOver={() => hoverNode(id)}
+      onKeyDown={(e) => {
+        if (e.key === "Delete" || (e.metaKey && e.key === "Backspace")) {
+          deleteNode(id);
+        }
+      }}
     >
       <BaseNode
         nodeData={{ ...nodeData, style: style || nodeStyle.style }}

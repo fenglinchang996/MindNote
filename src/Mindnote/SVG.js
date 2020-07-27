@@ -269,16 +269,23 @@ const SVG = (props) => {
           "You have to provide the action of Node and Curve relation!"
         );
     }
-        return {
-          parentNodeRelationData,
-          childNodeRelationData,
-          curveRelationData,
-        };
-      case "REMOVE":
-        break;
-      default:
-        break;
-    }
+    return {
+      parentNodeRelationData,
+      childNodeRelationData,
+      curveRelationData,
+    };
+  };
+  const getDecendents = (nodeId) => {
+    const node = getNode(nodeId);
+    if (node.childNodesId.length === 0) return [];
+    return node.childNodesId.reduce(
+      (decendents, childNodeId) => [
+        ...decendents,
+        ...getDecendents(childNodeId),
+        childNodeId,
+      ],
+      []
+    );
   };
 
   // Virtual Node
@@ -327,6 +334,20 @@ const SVG = (props) => {
       endEdge,
       style,
     };
+  };
+  const getDownstreamCurves = (nodeId) => {
+    const node = getNode(nodeId);
+    if (node.downstreamCurvesId.length === 0) return [];
+    return [
+      ...node.downstreamCurvesId,
+      ...node.childNodesId.reduce(
+        (downstreamCurves, childNodeId) => [
+          ...downstreamCurves,
+          ...getDownstreamCurves(childNodeId),
+        ],
+        []
+      ),
+    ];
   };
   // Virtual Curve
   const [virtualCurve, setVirtualCurve] = useState(null);
@@ -539,6 +560,42 @@ const SVG = (props) => {
       setVirtualCurve(virtualCurve);
     }
   };
+
+  // Delete Node (and its childNodes and downstreamCueves)
+  const deleteNode = (nodeId) => {
+    const node = getNode(nodeId);
+    const upstreamCurve = getCurve(node.upstreamCurveId);
+    const parentNode = getNode(node.parentNodeId);
+
+    const { parentNodeRelationData } = setNodeCurveRelation(
+      "REMOVE",
+      parentNode,
+      node,
+      upstreamCurve,
+      upstreamCurve.startEdge,
+      upstreamCurve.endEdge
+    );
+    const newParentNode = { ...parentNode, ...parentNodeRelationData };
+    dispatchNodes({
+      type: LIST_ACTION_TYPE.UPDATE_ITEMS,
+      items: [newParentNode],
+    });
+
+    const nodesToBeRemoved = [nodeId, ...getDecendents(nodeId)];
+    dispatchNodes({
+      type: LIST_ACTION_TYPE.DELETE_ITEMS,
+      items: [...nodesToBeRemoved],
+    });
+    const curvesToBeRemoved = [
+      node.upstreamCurveId,
+      ...getDownstreamCurves(nodeId),
+    ];
+    dispatchCurves({
+      type: LIST_ACTION_TYPE.DELETE_ITEMS,
+      items: [...curvesToBeRemoved],
+    });
+  };
+
   // Drag
   const [dragType, setDragType] = useState(null);
   const drag = (e) => {
@@ -892,6 +949,7 @@ const SVG = (props) => {
             key={node.id}
             nodeData={node}
             hoverNode={hoverNode}
+            deleteNode={deleteNode}
           />
         ))}
         {virtualNode && <VirtualNode nodeData={virtualNode} />}

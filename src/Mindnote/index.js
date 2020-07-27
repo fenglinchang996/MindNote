@@ -35,7 +35,7 @@ const listReducer = (list, action) => {
       return list.filter(
         (item) =>
           !action.items.some(
-            (itemToBeDeleted) => itemToBeDeleted.id === item.id
+            (itemToBeDeletedId) => itemToBeDeletedId === item.id
           )
       );
     default:
