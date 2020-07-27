@@ -16,6 +16,7 @@ import {
   CLOCKFACE,
   CURVE_POINT_TYPE,
   CURVE_CONTROL_TYPE,
+  CURVE_MOVE_TYPE,
 } from "./enums";
 import {
   calcIntersectionPoint,
@@ -561,7 +562,7 @@ const SVG = (props) => {
     }
   };
 
-  // Delete Node (and its childNodes and downstreamCueves)
+  // Delete Node (and its childNodes/downstreamCueves)
   const deleteNode = (nodeId) => {
     const node = getNode(nodeId);
     const upstreamCurve = getCurve(node.upstreamCurveId);
@@ -594,6 +595,48 @@ const SVG = (props) => {
       type: LIST_ACTION_TYPE.DELETE_ITEMS,
       items: [...curvesToBeRemoved],
     });
+  };
+
+  // Move Node (and its related Nodes/Curves)
+  const setMovedNode = (nodeToBeMoved, newCenter) => {
+    const newCoord = calcNodeCoord(
+      newCenter,
+      nodeToBeMoved.width,
+      nodeToBeMoved.height
+    );
+    return { ...nodeToBeMoved, center: newCenter, ...newCoord };
+  };
+  const setMovedCurve = (moveType, curveToBeMoved, movement) => {
+    return {
+      ...curveToBeMoved,
+      start:
+        moveType !== CURVE_MOVE_TYPE.MOVE_END
+          ? calcMovingPoint(curveToBeMoved.start, movement)
+          : curveToBeMoved.start,
+      end:
+        moveType !== CURVE_MOVE_TYPE.MOVE_START
+          ? calcMovingPoint(curveToBeMoved.end, movement)
+          : curveToBeMoved.end,
+      startControl:
+        moveType !== CURVE_MOVE_TYPE.MOVE_END
+          ? calcMovingPoint(curveToBeMoved.startControl, movement)
+          : curveToBeMoved.startControl,
+      endControl:
+        moveType !== CURVE_MOVE_TYPE.MOVE_START
+          ? calcMovingPoint(curveToBeMoved.endControl, movement)
+          : curveToBeMoved.endControl,
+    };
+  };
+  const moveNode = (nodeId) => {
+    setDragType(DRAG_TYPE.MOVE_NODE);
+    if (
+      selectedItem &&
+      selectedItem.type === ITEM_TYPE.NODE &&
+      selectedItem.id === nodeId
+    ) {
+      const nodeToBeMoved = getNode(nodeId);
+      setVirtualNode(nodeToBeMoved);
+    }
   };
 
   // Drag
@@ -659,6 +702,10 @@ const SVG = (props) => {
           [`${currentCurvePointType}Control`]: newControlPoint,
         };
         setVirtualCurve(newVirtualCurve);
+      } else if (dragType === DRAG_TYPE.MOVE_NODE) {
+        const newCenter = convertToSVGCoord({ x: e.clientX, y: e.clientY });
+        const newVirtualNode = setMovedNode(virtualNode, newCenter);
+        setVirtualNode(newVirtualNode);
       }
     }
   };
@@ -906,6 +953,56 @@ const SVG = (props) => {
         }
         setCurrentCurvePointType(null);
         setVirtualCurve(null);
+      } else if (dragType === DRAG_TYPE.MOVE_NODE) {
+        // set Node moving
+        const originalNode = getNode(virtualNode.id);
+        const newCenter = convertToSVGCoord({ x: e.clientX, y: e.clientY });
+        const newNode = setMovedNode(originalNode, newCenter);
+        const nodeMovement = calcOffset(originalNode.center, newNode.center);
+        // Set decendents moving
+        const decendents = getDecendents(originalNode.id);
+        const newDecendents = decendents.map((decendentId) => {
+          const decendent = getNode(decendentId);
+          const newDecendentCenter = calcMovingPoint(
+            decendent.center,
+            nodeMovement
+          );
+          const newDecendent = setMovedNode(decendent, newDecendentCenter);
+          return newDecendent;
+        });
+        // Update Node List
+        dispatchNodes({
+          type: LIST_ACTION_TYPE.UPDATE_ITEMS,
+          items: [newNode, ...newDecendents],
+        });
+        // set downstreamCurve moving
+        const downstreamCurves = getDownstreamCurves(originalNode.id);
+        const newDownstreamCurves = downstreamCurves.map(
+          (downstreamCurveId) => {
+            const downstreamCurve = getCurve(downstreamCurveId);
+            const newDownstreamCurve = setMovedCurve(
+              CURVE_MOVE_TYPE.MOVE_BOTH,
+              downstreamCurve,
+              nodeMovement
+            );
+            return newDownstreamCurve;
+          }
+        );
+        // set UpstreamCurve moving
+        const upstreamCurve = getCurve(originalNode.upstreamCurveId);
+        const newUpstreamCurve = upstreamCurve
+          ? setMovedCurve(CURVE_MOVE_TYPE.MOVE_END, upstreamCurve, nodeMovement)
+          : null;
+        // Update Curves
+        const curvesToBeUpdated = upstreamCurve
+          ? [newUpstreamCurve, ...newDownstreamCurves]
+          : [...newDownstreamCurves];
+        dispatchCurves({
+          type: LIST_ACTION_TYPE.UPDATE_ITEMS,
+          items: curvesToBeUpdated,
+        });
+        // Reset VirtualNode
+        setVirtualNode(null);
       }
       setDragType(null);
     }
@@ -950,6 +1047,7 @@ const SVG = (props) => {
             nodeData={node}
             hoverNode={hoverNode}
             deleteNode={deleteNode}
+            moveNode={moveNode}
           />
         ))}
         {virtualNode && <VirtualNode nodeData={virtualNode} />}

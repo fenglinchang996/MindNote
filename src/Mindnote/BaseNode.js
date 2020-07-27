@@ -127,7 +127,14 @@ const BaseNode = (props) => {
 const ConnectionArrow = (props) => {
   const { arrowData, fa, drawNewNode } = props;
   return (
-    <foreignObject {...arrowData} cursor="pointer" onMouseDown={drawNewNode}>
+    <foreignObject
+      {...arrowData}
+      cursor="pointer"
+      onMouseDown={(e) => {
+        e.stopPropagation();
+        drawNewNode(e);
+      }}
+    >
       <div className="connection-arrow">
         <i className={`fas fa-${fa}`}></i>
       </div>
