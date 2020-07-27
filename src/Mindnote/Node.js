@@ -5,7 +5,7 @@ import ItemContext from "./ItemContext";
 import { ITEM_TYPE } from "./enums";
 
 const wrapNode = (BaseNode) => (props) => {
-  const { nodeData } = props;
+  const { nodeData, hoverNode, deleteNode } = props;
   const { id, style } = nodeData;
   const { nodeStyle } = useContext(StyleContext);
   const { setSelectedItem } = useContext(ItemContext);
@@ -23,6 +23,7 @@ const wrapNode = (BaseNode) => (props) => {
       onBlur={() => {
         setIsFocused(false);
       }}
+      onMouseOver={() => hoverNode(id)}
     >
       <BaseNode
         nodeData={{ ...nodeData, style: style || nodeStyle.style }}

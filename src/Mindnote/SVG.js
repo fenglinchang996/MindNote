@@ -9,17 +9,20 @@ import VirtualCurve from "./VirtualCurve";
 import Curve from "./Curve";
 import {
   EDGE,
-  CURVE_IN_OUT,
+  CURVE_DIRECTION,
   LIST_ACTION_TYPE,
   ITEM_TYPE,
   DRAG_TYPE,
   CLOCKFACE,
+  CURVE_POINT_TYPE,
+  CURVE_CONTROL_TYPE,
 } from "./enums";
 import {
   calcIntersectionPoint,
   calcCenterPoint,
   calcPointsDistance,
   calcOffset,
+  calcMovingPoint,
 } from "./math";
 
 // prevent browser default zooming action
@@ -56,7 +59,9 @@ const SVG = (props) => {
   // nodeList, curveList, selectedItem
   const { nodeList, curveList, selectedItem } = props;
   // Style
-  const { SVGStyle, nodeStyle, curveStyle } = useContext(StyleContext);
+  const { SVGStyle, nodeStyle, curveStyle, curvePointStyle } = useContext(
+    StyleContext
+  );
   // Item method
   const {
     dispatchNodes,
@@ -109,7 +114,7 @@ const SVG = (props) => {
       bottomLeft
     );
     const { topCenter, rightCenter, bottomCenter, leftCenter } = edgeCenters;
-    const offset = 0.5 * nodeStyle.style.strokeWidth;
+    const offset = curvePointStyle.r;
     const connections = calcNodeEdgeConnections(
       topCenter,
       rightCenter,
@@ -129,24 +134,27 @@ const SVG = (props) => {
     width = nodeStyle.width,
     height = nodeStyle.height,
     style = null,
-    curveIn = null,
     parentNodeId = null,
     upstreamCurveId = null,
     childNodesId = [],
     downstreamCurvesId = [],
     top = {
+      direction: null,
       nodesId: [],
       curvesId: [],
     },
     right = {
+      direction: null,
       nodesId: [],
       curvesId: [],
     },
     bottom = {
+      direction: null,
       nodesId: [],
       curvesId: [],
     },
     left = {
+      direction: null,
       nodesId: [],
       curvesId: [],
     },
@@ -165,7 +173,6 @@ const SVG = (props) => {
       edgeCenters,
       connections,
       style,
-      curveIn,
       parentNodeId,
       upstreamCurveId,
       childNodesId,
@@ -184,32 +191,84 @@ const SVG = (props) => {
     startEdge,
     endEdge
   ) => {
+    let parentNodeRelationData, childNodeRelationData, curveRelationData;
     switch (actionType) {
       case "ADD":
-        const parentNodeRelationData = {
-          childNodesId: [...parentNode.childNodesId, childNode.id],
-          downstreamCurvesId: [...parentNode.downstreamCurvesId, curve.id],
+        parentNodeRelationData = {
+          childNodesId: parentNode.childNodesId.includes(childNode.id)
+            ? parentNode.childNodesId
+            : [...parentNode.childNodesId, childNode.id],
+          downstreamCurvesId: parentNode.downstreamCurvesId.includes(curve.id)
+            ? parentNode.downstreamCurvesId
+            : [...parentNode.downstreamCurvesId, curve.id],
           [startEdge]: {
-            nodesId: [...parentNode[startEdge].nodesId, childNode.id],
-            curvesId: [...parentNode[startEdge].curvesId, curve.id],
+            direction: CURVE_DIRECTION.OUT,
+            nodesId: parentNode[startEdge].nodesId.includes(childNode.id)
+              ? parentNode[startEdge].nodesId
+              : [...parentNode[startEdge].nodesId, childNode.id],
+            curvesId: parentNode[startEdge].curvesId.includes(curve.id)
+              ? parentNode[startEdge].curvesId
+              : [...parentNode[startEdge].curvesId, curve.id],
           },
         };
-        const childNodeRelationData = {
-          curveIn: endEdge,
+        childNodeRelationData = {
           parentNodeId: parentNode.id,
           upstreamCurveId: curve.id,
           [endEdge]: {
-            nodesId: [...childNode[endEdge].nodesId, parentNode.id],
-            curvesId: [...childNode[endEdge].curvesId, curve.id],
+            direction: CURVE_DIRECTION.IN,
+            nodesId: [parentNode.id],
+            curvesId: [curve.id],
           },
         };
-        const curveRelationData = {
+        curveRelationData = {
           startNodeId: parentNode.id,
           endNodeId: childNode.id,
           startEdge,
           endEdge,
         };
-
+        break;
+      case "REMOVE":
+        parentNodeRelationData = {
+          childNodesId: parentNode.childNodesId.filter(
+            (childNodeId) => childNodeId !== childNode.id
+          ),
+          downstreamCurvesId: parentNode.downstreamCurvesId.filter(
+            (downstreamCurveId) => downstreamCurveId !== curve.id
+          ),
+          [startEdge]: {
+            direction:
+              parentNode[startEdge].nodesId.length === 1
+                ? null
+                : parentNode[startEdge].direction,
+            nodesId: parentNode[startEdge].nodesId.filter(
+              (nodeId) => nodeId !== childNode.id
+            ),
+            curvesId: parentNode[startEdge].curvesId.filter(
+              (curveId) => curveId !== curve.id
+            ),
+          },
+        };
+        childNodeRelationData = {
+          parentNodeId: null,
+          upstreamCurveId: null,
+          [endEdge]: {
+            direction: null,
+            nodesId: [],
+            curvesId: [],
+          },
+        };
+        curveRelationData = {
+          startNodeId: null,
+          endNodeId: null,
+          startEdge: null,
+          endEdge: null,
+        };
+        break;
+      default:
+        throw new Error(
+          "You have to provide the action of Node and Curve relation!"
+        );
+    }
         return {
           parentNodeRelationData,
           childNodeRelationData,
@@ -301,6 +360,7 @@ const SVG = (props) => {
 
   // Draw new Node
   const [currentStartNode, setCurrentStartNode] = useState(null);
+  const [currentStartEdge, setCurrentStartEdge] = useState(null);
   const calcCurveConnections = (startNode, endNode) => {
     const topIntersect = calcIntersectionPoint(
       startNode.center,
@@ -391,9 +451,10 @@ const SVG = (props) => {
     // Get Start Node
     const startNode = getNode(startNodeId);
     // If edge is not in, then draw a new node
-    if (startNode.curveIn !== startEdge) {
+    if (startNode[startEdge].direction !== CURVE_DIRECTION.IN) {
       setDragType(DRAG_TYPE.DRAW_NEW_NODE);
       setCurrentStartNode(startNode);
+      setCurrentStartEdge(startEdge);
       // Set End Node
       const endCenter = convertToSVGCoord({ x: e.clientX, y: e.clientY });
       const endNode = createNode({ center: endCenter });
@@ -410,7 +471,7 @@ const SVG = (props) => {
     }
   };
 
-  // Modify Curve
+  // Modify Curve Control
   const [currentCurveControlType, setCurrentCurveControlType] = useState(null);
   const modifyCurveControl = (e, curveId, controlType) => {
     if (
@@ -425,6 +486,59 @@ const SVG = (props) => {
     }
   };
 
+  // Move Curve
+  const [currentCurvePointType, setCurrentCurvePointType] = useState(null);
+  const [hoveredNode, setHoveredNode] = useState(null);
+  const hoverNode = (nodeId) => setHoveredNode(getNode(nodeId));
+  const clacMinDistanceEdge = (newCurvePoint, newConnectionNode) => {
+    const curveToEdge = [
+      {
+        edge: EDGE.TOP,
+        d: calcPointsDistance(
+          newCurvePoint,
+          newConnectionNode.edgeCenters[`${EDGE.TOP}Center`]
+        ),
+      },
+      {
+        edge: EDGE.RIGHT,
+        d: calcPointsDistance(
+          newCurvePoint,
+          newConnectionNode.edgeCenters[`${EDGE.RIGHT}Center`]
+        ),
+      },
+      {
+        edge: EDGE.BOTTOM,
+        d: calcPointsDistance(
+          newCurvePoint,
+          newConnectionNode.edgeCenters[`${EDGE.BOTTOM}Center`]
+        ),
+      },
+      {
+        edge: EDGE.LEFT,
+        d: calcPointsDistance(
+          newCurvePoint,
+          newConnectionNode.edgeCenters[`${EDGE.LEFT}Center`]
+        ),
+      },
+    ];
+    const minDistanceEdge = curveToEdge.reduce((prev, current) =>
+      current.d < prev.d ? current : prev
+    );
+
+    return minDistanceEdge.edge;
+  };
+  const moveCurve = (e, curveId, pointType) => {
+    if (
+      selectedItem &&
+      selectedItem.type === ITEM_TYPE.CURVE &&
+      selectedItem.id === curveId
+    ) {
+      setDragType(DRAG_TYPE.MOVE_CURVE);
+      setCurrentCurvePointType(pointType);
+      const virtualCurve = { ...getCurve(selectedItem.id) };
+      setVirtualCurve(virtualCurve);
+    }
+  };
   // Drag
   const [dragType, setDragType] = useState(null);
   const drag = (e) => {
@@ -456,7 +570,7 @@ const SVG = (props) => {
         const curveConnection = calcCurveConnections(startNode, endNode);
         // Set Curve
         const virtualCurve = createCurve({
-          start: curveConnection.start,
+          start: currentStartNode.connections[`${currentStartEdge}Connection`], // curveConnection.start,
           end: curveConnection.end,
         });
         // Set Virtual Node and Virtual Curve
@@ -470,6 +584,22 @@ const SVG = (props) => {
         const newVirtualCurve = {
           ...virtualCurve,
           [currentCurveControlType]: newControlPoint,
+        };
+        setVirtualCurve(newVirtualCurve);
+      } else if (dragType === DRAG_TYPE.MOVE_CURVE) {
+        const newCurvePoint = convertToSVGCoord({ x: e.clientX, y: e.clientY });
+        const curveMovement = calcOffset(
+          virtualCurve[currentCurvePointType],
+          newCurvePoint
+        );
+        const newControlPoint = calcMovingPoint(
+          virtualCurve[`${currentCurvePointType}Control`],
+          curveMovement
+        );
+        const newVirtualCurve = {
+          ...virtualCurve,
+          [currentCurvePointType]: newCurvePoint,
+          [`${currentCurvePointType}Control`]: newControlPoint,
         };
         setVirtualCurve(newVirtualCurve);
       }
@@ -494,7 +624,7 @@ const SVG = (props) => {
         // Create Curve
         const curve = createCurve({
           id: uuid(),
-          start: curveConnection.start,
+          start: currentStartNode.connections[`${currentStartEdge}Connection`], // curveConnection.start,
           end: curveConnection.end,
         });
         // Set Node and Curve Relation
@@ -507,10 +637,9 @@ const SVG = (props) => {
           startNode,
           endNode,
           curve,
-          curveConnection.startEdge,
+          currentStartEdge, // curveConnection.startEdge,
           curveConnection.endEdge
         );
-        console.log(parentNodeRelationData);
         const newStartNode = { ...startNode, ...parentNodeRelationData };
         const newEndNode = { ...endNode, ...childNodeRelationData };
         const newCurve = { ...curve, ...curveRelationData };
@@ -546,6 +675,180 @@ const SVG = (props) => {
         });
         setCurrentCurveControlType(null);
         setVirtualCurve(null);
+      } else if (dragType === DRAG_TYPE.MOVE_CURVE) {
+        const newConnectionNode = hoveredNode;
+        const movingCurve = getCurve(selectedItem.id);
+        if (newConnectionNode) {
+          if (
+            (currentCurvePointType === CURVE_POINT_TYPE.END &&
+              newConnectionNode.id === movingCurve.endNodeId) ||
+            (currentCurvePointType === CURVE_POINT_TYPE.START &&
+              newConnectionNode.id !== movingCurve.endNodeId &&
+              !getNode(movingCurve.endNodeId).childNodesId.some(
+                (childId) => childId === newConnectionNode.id
+              ))
+          ) {
+            const newCurvePoint = convertToSVGCoord({
+              x: e.clientX,
+              y: e.clientY,
+            });
+            const newConnectionEdge = clacMinDistanceEdge(
+              newCurvePoint,
+              newConnectionNode
+            );
+            if (
+              (currentCurvePointType === CURVE_POINT_TYPE.END &&
+                newConnectionNode[newConnectionEdge].direction !==
+                  CURVE_DIRECTION.OUT) ||
+              (currentCurvePointType === CURVE_POINT_TYPE.START &&
+                newConnectionNode[newConnectionEdge].direction !==
+                  CURVE_DIRECTION.IN)
+            ) {
+              const newConnectionPoint =
+                newConnectionNode.connections[`${newConnectionEdge}Connection`];
+              const curveMovement = calcOffset(
+                movingCurve[currentCurvePointType],
+                newConnectionPoint
+              );
+              const newControlPoint = calcMovingPoint(
+                movingCurve[`${currentCurvePointType}Control`],
+                curveMovement
+              );
+
+              const originalEndNode = getNode(movingCurve.endNodeId);
+              const originalStartNode = getNode(movingCurve.startNodeId);
+
+              let newStartNode, updatedOriginalStartNode, newEndNode, newCurve;
+              let removeRelation, addRelation;
+              switch (currentCurvePointType) {
+                case CURVE_POINT_TYPE.END:
+                  removeRelation = setNodeCurveRelation(
+                    "REMOVE",
+                    originalStartNode,
+                    originalEndNode,
+                    movingCurve,
+                    movingCurve.startEdge,
+                    movingCurve.endEdge
+                  );
+                  newStartNode = {
+                    ...originalStartNode,
+                    ...removeRelation.parentNodeRelationData,
+                  };
+                  newCurve = {
+                    ...movingCurve,
+                    ...removeRelation.curveRelationData,
+                  };
+                  newEndNode = {
+                    ...originalEndNode,
+                    ...removeRelation.childNodeRelationData,
+                  };
+                  addRelation = setNodeCurveRelation(
+                    "ADD",
+                    originalStartNode,
+                    newConnectionNode,
+                    movingCurve,
+                    movingCurve.startEdge,
+                    newConnectionEdge
+                  );
+                  newStartNode = {
+                    ...newStartNode,
+                    ...addRelation.parentNodeRelationData,
+                  };
+                  newCurve = { ...newCurve, ...addRelation.curveRelationData };
+                  newEndNode = {
+                    ...newEndNode,
+                    ...addRelation.childNodeRelationData,
+                  };
+                  dispatchNodes({
+                    type: LIST_ACTION_TYPE.UPDATE_ITEMS,
+                    items: [newStartNode, newEndNode],
+                  });
+                  newCurve = {
+                    ...newCurve,
+                    [CURVE_POINT_TYPE.END]: newConnectionPoint,
+                    [CURVE_CONTROL_TYPE.END_CONTROL]: newControlPoint,
+                  };
+                  dispatchCurves({
+                    type: LIST_ACTION_TYPE.UPDATE_ITEMS,
+                    items: [newCurve],
+                  });
+                  break;
+                case CURVE_POINT_TYPE.START:
+                  removeRelation = setNodeCurveRelation(
+                    "REMOVE",
+                    originalStartNode,
+                    originalEndNode,
+                    movingCurve,
+                    movingCurve.startEdge,
+                    movingCurve.endEdge
+                  );
+                  updatedOriginalStartNode = {
+                    ...originalStartNode,
+                    ...removeRelation.parentNodeRelationData,
+                  };
+                  newCurve = {
+                    ...movingCurve,
+                    ...removeRelation.curveRelationData,
+                  };
+                  newEndNode = {
+                    ...originalEndNode,
+                    ...removeRelation.childNodeRelationData,
+                  };
+                  addRelation = setNodeCurveRelation(
+                    "ADD",
+                    newConnectionNode,
+                    originalEndNode,
+                    movingCurve,
+                    newConnectionEdge,
+                    movingCurve.endEdge
+                  );
+
+                  newCurve = { ...newCurve, ...addRelation.curveRelationData };
+                  newEndNode = {
+                    ...newEndNode,
+                    ...addRelation.childNodeRelationData,
+                  };
+                  if (originalStartNode.id === newConnectionNode.id) {
+                    newStartNode = {
+                      ...updatedOriginalStartNode,
+                      ...addRelation.parentNodeRelationData,
+                    };
+                    dispatchNodes({
+                      type: LIST_ACTION_TYPE.UPDATE_ITEMS,
+                      items: [newStartNode, newEndNode],
+                    });
+                  } else {
+                    newStartNode = {
+                      ...newConnectionNode,
+                      ...addRelation.parentNodeRelationData,
+                    };
+                    dispatchNodes({
+                      type: LIST_ACTION_TYPE.UPDATE_ITEMS,
+                      items: [
+                        updatedOriginalStartNode,
+                        newStartNode,
+                        newEndNode,
+                      ],
+                    });
+                  }
+                  newCurve = {
+                    ...newCurve,
+                    [CURVE_POINT_TYPE.START]: newConnectionPoint,
+                    [CURVE_CONTROL_TYPE.START_CONTROL]: newControlPoint,
+                  };
+                  dispatchCurves({
+                    type: LIST_ACTION_TYPE.UPDATE_ITEMS,
+                    items: [newCurve],
+                  });
+                  break;
+                default:
+                  break;
+              }
+            }
+          }
+        }
+        setCurrentCurvePointType(null);
+        setVirtualCurve(null);
       }
       setDragType(null);
     }
@@ -578,12 +881,18 @@ const SVG = (props) => {
       onMouseMove={drag}
       onMouseUp={drop}
     >
-      <SVGContext.Provider value={{ drawNewNode, modifyCurveControl }}>
+      <SVGContext.Provider
+        value={{ drawNewNode, modifyCurveControl, moveCurve }}
+      >
         {curveList.map((curve) => (
           <Curve key={curve.id} curveData={curve} />
         ))}
         {nodeList.map((node) => (
-          <Node key={node.id} nodeData={node} />
+          <Node
+            key={node.id}
+            nodeData={node}
+            hoverNode={hoverNode}
+          />
         ))}
         {virtualNode && <VirtualNode nodeData={virtualNode} />}
         {virtualCurve && <VirtualCurve curveData={virtualCurve} />}

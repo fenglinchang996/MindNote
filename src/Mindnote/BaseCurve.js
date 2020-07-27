@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useContext } from "react";
 import StyleContext from "./StyleContext";
 import SVGContext from "./SVGContext";
-import { CURVE_CONTROL_TYPE } from "./enums";
+import { CURVE_CONTROL_TYPE, CURVE_POINT_TYPE } from "./enums";
 
 const BaseCurve = (props) => {
   const { curveData, isFocused } = props;
   const { id, start, end, startControl, endControl, style } = curveData;
   // use SVGContext
-  const { modifyCurveControl } = useContext(SVGContext);
+  const { modifyCurveControl, moveCurve } = useContext(SVGContext);
   // Use StyleContext
   const {
     curvePointStyle,
@@ -63,8 +63,18 @@ const BaseCurve = (props) => {
       <g display={isFocused ? "block" : "none"}>
         <line {...startControlLine} />
         <line {...endControlLine} />
-        <circle {...startCircle} />
-        <circle {...endCircle} />
+        <circle
+          {...startCircle}
+          onMouseDown={(e) => {
+            moveCurve(e, id, CURVE_POINT_TYPE.START);
+          }}
+        />
+        <circle
+          {...endCircle}
+          onMouseDown={(e) => {
+            moveCurve(e, id, CURVE_POINT_TYPE.END);
+          }}
+        />
         <circle
           {...startControlCircle}
           onMouseDown={(e) =>
