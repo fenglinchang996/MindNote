@@ -15,6 +15,14 @@ const styleContext = createContext({
       strokeWidth: 2,
     },
   },
+  nodePointStyle: {
+    r: 5,
+    style: {
+      stroke: "black",
+      fill: "white",
+      cursor: "pointer",
+    },
+  },
   nodeContentStyle: {
     style: {
       width: "100%",
