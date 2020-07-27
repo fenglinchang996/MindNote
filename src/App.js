@@ -65,6 +65,7 @@ const App = () => {
               <Mindnote />
             </AuthToLogInRoute>
             <Route path="/member">
+              <Header />
               <Member />
             </Route>
             <AuthToMyDocsRoute path="/home">

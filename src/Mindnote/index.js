@@ -74,14 +74,6 @@ const Mindnote = (props) => {
     showNote: false,
   });
   const [selectedItem, setSelectedItem] = useState(null);
-  useEffect(() => {
-    if (selectedItem && selectedItem.type === ITEM_TYPE.NODE) {
-      dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_NOTE });
-    } else {
-      dispatchShowTool({ type: SHOW_TOOL_TYPE.CLOSE_ALL });
-    }
-  }, [selectedItem]);
-
   const ItemContextValue = {
     dispatchNodes,
     getNode,
@@ -146,6 +138,13 @@ const Mindnote = (props) => {
         </ItemContext.Provider>
         <CommonTool
           saveMindnoteToDB={() => saveMindnoteToDB(nodeList, curveList)}
+          showNodeTool={() =>
+            dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_NODE_TOOL })
+          }
+          showCurveTool={() =>
+            dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_CURVE_TOOL })
+          }
+          showNote={() => dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_NOTE })}
         />
         <NodeTool
           isShowNodeTool={isShowTool.showNodeTool}
