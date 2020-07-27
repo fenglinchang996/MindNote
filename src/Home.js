@@ -25,7 +25,7 @@ const Home = (props) => {
           </button>
           <div className="main-block">
             Already had mindnotes?&nbsp;
-            <Link className="link" to="/docs">
+            <Link className="link" to="/member/login">
               Log in
             </Link>
             &nbsp;here.
