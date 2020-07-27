@@ -51,8 +51,8 @@ const SVG = (props) => {
   };
   const SVGRef = useRef(null);
   const [SVGSize, setSVGSize] = useState({
-    width: 1920,
-    height: 1080,
+    width: 960,
+    height: 540,
   });
   const [SVGSizeRatio, setSVGSizeRatio] = useState(1);
   const [viewBoxOrigin, setViewBoxOrigin] = useState({ x: 0, y: 0 });
