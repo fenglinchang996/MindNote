@@ -1,7 +1,7 @@
 import React from "react";
 
 const CommonTool = (props) => {
-  const { saveMindnoteToDB } = props;
+  const { saveMindnoteToDB, showNodeTool, showNote, showCurveTool } = props;
   return (
     <div className="tool-box common-tool">
       <ToolItem fa="eye" />
@@ -10,9 +10,9 @@ const CommonTool = (props) => {
       <ToolItem fa="undo-alt" />
       <ToolItem fa="redo-alt" />
       <span className="verti-sep"></span>
-      <ToolItem fa="draw-polygon" />
-      <ToolItem fa="slash" />
-      <ToolItem fa="edit" />
+      <ToolItem fa="draw-polygon" action={showNodeTool} />
+      <ToolItem fa="slash" action={showCurveTool} />
+      <ToolItem fa="edit" action={showNote} />
       <span className="verti-sep"></span>
       <ToolItem fa="save" action={saveMindnoteToDB} />
     </div>
