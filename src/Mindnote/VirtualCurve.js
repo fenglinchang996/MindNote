@@ -7,7 +7,7 @@ const wrapVirtualCurve = (BaseCurve) => (props) => {
   const { virtualCurveStyle } = useContext(StyleContext);
 
   return (
-    <g tabIndex={-1}>
+    <g tabIndex={-1} pointerEvents="none">
       <BaseCurve
         curveData={{
           ...curveData,

@@ -30,23 +30,38 @@
 }
 
 .new-doc {
-  align-self: stretch;
+  height: 245px;
   display: flex;
   justify-content: center;
   align-items: center;
   border: 1px dashed #a8a8a8;
+  margin: 60px;
 }
 
 .new-doc:hover {
   box-shadow: none;
 }
 
-.new-doc > .add-mindnote-btn {
+.add-mindnote-btn {
   font-size: 36px;
   color: #1d3557;
 }
 
-.new-doc > .add-mindnote-btn:hover {
+.add-mindnote-btn:hover {
   font-size: 48px;
   color: #457b9d;
+}
+
+.first-doc {
+  height: calc(100vh - 130px);
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.first-doc > .add-first-doc-text {
+  width: 100%;
+  font-size: 1.2rem;
 }

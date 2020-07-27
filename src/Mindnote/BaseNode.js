@@ -25,7 +25,7 @@ const BaseNode = (props) => {
     left,
     bottom,
   } = nodeData;
-  const { connectionArrowStyle } = useContext(StyleContext);
+  const { nodeContentStyle, connectionArrowStyle } = useContext(StyleContext);
   const { drawNewNode } = useContext(SVGContext);
 
   // Origin
@@ -73,6 +73,25 @@ const BaseNode = (props) => {
         height={height}
         style={style}
       ></rect>
+      <foreignObject
+        x={origin.x + 0.05 * width}
+        y={origin.y + 0.1 * height}
+        width={0.9 * width}
+        height={0.8 * height}
+      >
+        <div style={nodeContentStyle.style}>
+          <div style={{ textAlign: "center" }}>{id ? id.slice(0, 8) : ""}</div>
+          <input
+            type="text"
+            style={{
+              display: "none",
+              width: "100%",
+              border: "none",
+              margin: "5px",
+            }}
+          />
+        </div>
+      </foreignObject>
       <g display={isFocused ? "block" : "none"}>
         {connectionArrows ? (
           <>
@@ -108,7 +127,14 @@ const BaseNode = (props) => {
 const ConnectionArrow = (props) => {
   const { arrowData, fa, drawNewNode } = props;
   return (
-    <foreignObject {...arrowData} cursor="pointer" onMouseDown={drawNewNode}>
+    <foreignObject
+      {...arrowData}
+      cursor="pointer"
+      onMouseDown={(e) => {
+        e.stopPropagation();
+        drawNewNode(e);
+      }}
+    >
       <div className="connection-arrow">
         <i className={`fas fa-${fa}`}></i>
       </div>
