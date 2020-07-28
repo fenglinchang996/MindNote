@@ -1,23 +1,109 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { ITEM_TYPE, LIST_ACTION_TYPE } from "./enums";
+import ItemContext from "./ItemContext";
 import { md } from "./mdParser";
 
 const Note = (props) => {
-  const { isShowNote, closeTool } = props;
-  const [editNote, setEditNote] = useState("");
+  const { isShowNote, closeTool, selectedItem, selectedNote } = props;
+  const { dispatchNotes, dispatchNodes, getNote, getNode } = useContext(
+    ItemContext
+  );
+  const [note, setNote] = useState(null);
+  useEffect(() => {
+    setNote(getNote(selectedNote));
+  }, [selectedNote]);
+  const [editContent, setEditContent] = useState("");
+  useEffect(() => {
+    if (note) {
+      setEditContent(note.content);
+    }
+  }, [note]);
+  const modifyContent = (newContent) => {
+    setEditContent(newContent);
+    dispatchNotes({
+      type: LIST_ACTION_TYPE.UPDATE_ITEMS,
+      items: [{ ...note, content: newContent }],
+    });
+  };
+  const [editTitle, setEditTitle] = useState("");
+  useEffect(() => {
+    if (note) {
+      setEditTitle(note.title);
+    }
+  }, [note]);
+  const modifyTitle = (newTitle) => {
+    setEditTitle(newTitle);
+    dispatchNotes({
+      type: LIST_ACTION_TYPE.UPDATE_ITEMS,
+      items: [{ ...note, title: newTitle }],
+    });
+    dispatchNodes({
+      type: LIST_ACTION_TYPE.UPDATE_ITEMS,
+      items: [{ ...getNode(selectedItem.id), title: newTitle }],
+    });
+  };
   return (
     <div
       className="tool-box note"
-      style={{ display: isShowNote ? "block" : "none" }}
+      style={{
+        display: isShowNote ? "block" : "none",
+      }}
     >
       <div className="tool-main-title">
         Note
         <hr className="hori-sep" />
       </div>
-      <button type="button" className="tool-close-btn" onClick={closeTool}>
+      {/* <button type="button" className="tool-close-btn" onClick={closeTool}>
         <i className="fas fa-times"></i>
-      </button>
-      <Toolbar />
-      <TextArea content={editNote} modifyContent={setEditNote} />
+      </button> */}
+      {note ? (
+        <>
+          <NoteTitle title={editTitle} modifyTitle={modifyTitle} />
+          <TextArea content={editContent} modifyContent={modifyContent} />
+        </>
+      ) : (
+        <div className="no-note">Please select a node to edit note.</div>
+      )}
+    </div>
+  );
+};
+
+const NoteTitle = (props) => {
+  const { title, modifyTitle } = props;
+  return (
+    <div className="note-title">
+      <input
+        type="text"
+        name="note-title"
+        className="title-content"
+        value={title}
+        placeholder="Add Note Title Here..."
+        onChange={(e) => modifyTitle(e.target.value)}
+      />
+    </div>
+  );
+};
+
+const NoteView = (props) => {
+  const { content } = props;
+  return (
+    <div
+      className="text-view"
+      dangerouslySetInnerHTML={{ __html: md.render(content) }}
+    ></div>
+  );
+};
+
+const TextArea = (props) => {
+  const { content, modifyContent } = props;
+  return (
+    <div className="text-edit">
+      <textarea
+        className="text-content"
+        placeholder="Type your note..."
+        value={content}
+        onChange={(e) => modifyContent(e.target.value)}
+      ></textarea>
     </div>
   );
 };
@@ -88,31 +174,6 @@ const Toolbar = (props) => {
           </div>
         </div>
       </div>
-    </div>
-  );
-};
-
-const NoteView = (props) => {
-  return <div class="note-view"></div>;
-};
-
-const TextArea = (props) => {
-  const { content, modifyContent } = props;
-  return (
-    <div className="text-area">
-      <div className="text-edit">
-        <textarea
-          className="text-content"
-          placeholder="Type something..."
-          rows="15"
-          value={content}
-          onChange={(e) => modifyContent(e.target.value)}
-        ></textarea>
-      </div>
-      <div
-        className="text-view"
-        dangerouslySetInnerHTML={{ __html: md.render(content) }}
-      ></div>
     </div>
   );
 };

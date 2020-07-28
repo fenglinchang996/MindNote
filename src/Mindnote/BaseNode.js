@@ -9,6 +9,8 @@ const BaseNode = (props) => {
   const { nodeData, isFocused } = props;
   const {
     id,
+    noteId,
+    title,
     center,
     width,
     height,
@@ -110,7 +112,9 @@ const BaseNode = (props) => {
         height={0.8 * height}
       >
         <div style={nodeContentStyle.style}>
-          <div style={{ textAlign: "center" }}>{id ? id.slice(0, 8) : ""}</div>
+          <div style={{ textAlign: "center" }}>
+            {title ? title : "Click to Add Note"}
+          </div>
           <input
             type="text"
             style={{
