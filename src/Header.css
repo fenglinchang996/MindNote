@@ -61,9 +61,10 @@ header > .go-back-btn:hover {
 .header > .user > .user-info > .popover {
   position: absolute; /* relative to user-info */
   display: none;
+  width: 100%;
   background-color: #ffffff;
   border-radius: 5px;
-  bottom: -45px;
+  top: 35px;
   left: 50%;
   transform: translateX(-50%);
   box-shadow: 0 0 12px 0 #a8a8a8;
@@ -80,10 +81,16 @@ header > .user > .user-info > .popover:after {
   border-bottom-color: #ffffff;
   border-width: 8px;
 }
+
+.header > .user > .user-info > .popover:hover,
+.header > .user > .user-info > .popover:after:hover {
+  display: block;
+}
+
 header > .user > .user-info > .popover > .item {
   margin: 5px 10px;
   cursor: pointer;
-  text-align: end;
+  text-align: center;
 }
 header > .user > .user-info > .popover > .item:hover {
   color: #457b9d;

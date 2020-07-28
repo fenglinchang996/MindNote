@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 const CurveTool = (props) => {
-  const { isShowCurveTool } = props;
+  const { isShowCurveTool, closeTool } = props;
   return (
     <div
       className="tool-box"
@@ -14,7 +14,7 @@ const CurveTool = (props) => {
       <div className="tool-main-title">
         Curve <hr className="hori-sep" />
       </div>
-      <button type="button" className="tool-close-btn">
+      <button type="button" className="tool-close-btn" onClick={closeTool}>
         <i className="fas fa-times"></i>
       </button>
       <div className="tool-list">
