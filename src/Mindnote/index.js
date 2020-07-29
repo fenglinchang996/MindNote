@@ -173,21 +173,6 @@ const Mindnote = (props) => {
     } catch (error) {
       console.error("Error updating document: ", error);
     }
-    // db.collection("mindnotes")
-    //   .doc(mindnoteId)
-    //   .update({
-    //     nodeList,
-    //     curveList,
-    //     noteList,
-    //   })
-    //   .then(() => {
-    //     setIsSaving(false);
-    //     console.log("Document successfully updated!");
-    //   })
-    //   .catch((error) => {
-    //     // The document probably doesn't exist.
-    //     console.error("Error updating document: ", error);
-    //   });
   };
   return (
     <div className="mindnote">
