@@ -18,8 +18,7 @@
 
 .common-tool {
   top: 30px;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 5%;
 }
 
 .tool-item {

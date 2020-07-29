@@ -626,6 +626,8 @@ const SVG = (props) => {
       type: LIST_ACTION_TYPE.DELETE_ITEMS,
       items: [...curvesToBeRemoved],
     });
+    // Re-set selectedItem
+    setSelectedItem(null);
   };
 
   // Move Node (and its related Nodes/Curves)

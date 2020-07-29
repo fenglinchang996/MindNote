@@ -4,7 +4,7 @@ import ItemContext from "./ItemContext";
 import { md } from "./mdParser";
 
 const Note = (props) => {
-  const { isShowNote, closeTool, selectedItem, selectedNote } = props;
+  const { isShowNote, selectedItem, selectedNote } = props;
   const { dispatchNotes, dispatchNodes, getNote, getNode } = useContext(
     ItemContext
   );
