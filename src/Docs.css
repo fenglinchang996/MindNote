@@ -30,10 +30,15 @@
 
 .doc .delete-doc-btn {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 15px;
+  right: 15px;
   font-size: 1rem;
   cursor: pointer;
+}
+
+.doc .delete-doc-btn:hover {
+  color: #457b9d;
+  font-size: 1.2rem;
 }
 
 .new-doc {

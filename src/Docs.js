@@ -131,6 +131,37 @@ const DocList = (props) => {
     }
   }, [path]);
 
+  // Delete doc
+  const deleteDoc = async (doc) => {
+    setIsLoading(true);
+    const { creatorId, mindnoteId, id: docId } = doc;
+    // Remove docId from owner ownDocs
+    try {
+      const ownerRef = db.collection("users").doc(creatorId);
+      await ownerRef.update({ ownDocs: DB.FieldValue.arrayRemove(docId) });
+      console.log("Doc successfully removed from owner ownDocs!");
+    } catch (error) {
+      console.error("Error removing doc from owner ownDocs: ", error);
+    }
+    // Remove mindnote
+    try {
+      await db.collection("mindnotes").doc(mindnoteId).delete();
+      console.log("Mindnote successfully deleted!");
+    } catch (error) {
+      console.log("Error removing mindnote!");
+    }
+    // Remove doc
+    try {
+      await db.collection("docs").doc(docId).delete();
+      console.log("Doc successfully deleted!");
+    } catch (error) {
+      console.log("Error removing doc!");
+    }
+    // Re-get docs
+    getMyDocsFromDB();
+    setIsLoading(false);
+  };
+
   return (
     <div>
       <div className="doc-list">
@@ -139,7 +170,7 @@ const DocList = (props) => {
             const { id, title, mindnoteId } = doc;
             return (
               <div key={id} className="doc">
-                <div className="delete-doc-btn">
+                <div className="delete-doc-btn" onClick={() => deleteDoc(doc)}>
                   <i className="fas fa-trash-alt"></i>
                 </div>
                 <Link to={`/mindnote/${id}/${mindnoteId}`}>
