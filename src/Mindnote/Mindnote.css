@@ -81,6 +81,18 @@
   cursor: pointer;
 }
 
+.tool-input:hover,
+.tool-input:focus-within {
+  background-color: initial;
+  border-bottom: 2px solid #e8e8e8;
+}
+
+.doc-title-input {
+  border: none;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
 .tool-btn {
   cursor: pointer;
 }
@@ -122,19 +134,44 @@
 
 /* Note Tool */
 .note {
+  width: 300px;
+  height: 70%;
   right: 20px;
-  top: 120px;
+  top: 50%;
+  z-index: 99;
+  transform: translateY(-50%);
 }
 
-.text-area {
-  margin: 5px;
+.note-title {
+  width: 100%;
+}
+
+.title-content {
+  width: 100%;
+  border: none;
+  margin: 5px auto;
+  padding: 0 15px;
+  text-align: start;
+  font-size: 1.1rem;
+}
+
+.text-edit {
+  height: 80%;
 }
 .text-content {
   width: 100%;
+  height: 100%;
   border-radius: 5px;
-  border-color: #a8a8a8;
+  /* border: 1px solid #a8a8a8; */
+  border: none;
+  outline: none;
   padding: 15px;
-  resize: vertical;
+  resize: none;
+}
+
+.no-note {
+  text-align: center;
+  margin: 10px;
 }
 
 .text-view ol li {

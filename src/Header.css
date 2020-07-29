@@ -1,11 +1,17 @@
 /* Header */
 
 .header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1;
   display: flex;
   align-items: center;
   padding: 10px;
   height: 50px;
-  border-bottom: 2px solid #e8e8ee;
+  border-bottom: 2px solid #457b9d;
+  background-color: #ffffff;
 }
 
 header > .title {
@@ -39,6 +45,13 @@ header > .go-back-btn:hover {
   color: #457b9d;
 }
 
+.header > .navbar > .navbar-item-selected {
+  color: #457b9d;
+  border: 2px solid #457b9d;
+  border-radius: 3px;
+  padding: 5px 10px;
+}
+
 .header > .user {
   margin: 0 10px 0 auto;
 }
@@ -61,9 +74,10 @@ header > .go-back-btn:hover {
 .header > .user > .user-info > .popover {
   position: absolute; /* relative to user-info */
   display: none;
+  width: 100%;
   background-color: #ffffff;
   border-radius: 5px;
-  bottom: -45px;
+  top: 35px;
   left: 50%;
   transform: translateX(-50%);
   box-shadow: 0 0 12px 0 #a8a8a8;
@@ -80,11 +94,24 @@ header > .user > .user-info > .popover:after {
   border-bottom-color: #ffffff;
   border-width: 8px;
 }
+
+.header > .user > .user-info > .popover:hover,
+.header > .user > .user-info > .popover:after:hover {
+  display: block;
+}
+
 header > .user > .user-info > .popover > .item {
   margin: 5px 10px;
   cursor: pointer;
-  text-align: end;
+  text-align: center;
 }
 header > .user > .user-info > .popover > .item:hover {
   color: #457b9d;
+}
+
+/* Header Separation */
+
+.header-sep {
+  width: 100%;
+  height: 50px;
 }

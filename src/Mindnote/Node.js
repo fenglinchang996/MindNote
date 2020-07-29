@@ -5,7 +5,7 @@ import ItemContext from "./ItemContext";
 import { ITEM_TYPE } from "./enums";
 
 const wrapNode = (BaseNode) => (props) => {
-  const { nodeData, hoverNode, deleteNode, moveNode } = props;
+  const { nodeData, hoverNode, deleteNode, moveNode, isSelected } = props;
   const { id, style } = nodeData;
   const { nodeStyle } = useContext(StyleContext);
   const { setSelectedItem } = useContext(ItemContext);
@@ -38,7 +38,7 @@ const wrapNode = (BaseNode) => (props) => {
     >
       <BaseNode
         nodeData={{ ...nodeData, style: style || nodeStyle.style }}
-        isFocused={isFocused}
+        isFocused={isSelected}
       />
     </g>
   );
