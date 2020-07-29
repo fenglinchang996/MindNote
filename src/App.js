@@ -60,7 +60,7 @@ const App = () => {
               <Header />
               <Docs />
             </Route>
-            <AuthToLogInRoute path="/mindnote/:mindnoteId">
+            <AuthToLogInRoute path="/mindnote/:docId/:mindnoteId">
               <Header />
               <Mindnote />
             </AuthToLogInRoute>

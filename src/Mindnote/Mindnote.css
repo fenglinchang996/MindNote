@@ -81,6 +81,18 @@
   cursor: pointer;
 }
 
+.tool-input:hover,
+.tool-input:focus-within {
+  background-color: initial;
+  border-bottom: 2px solid #e8e8e8;
+}
+
+.doc-title-input {
+  border: none;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
 .tool-btn {
   cursor: pointer;
 }
@@ -120,36 +132,10 @@
   box-shadow: 0 0 10px #a8a8a8;
 }
 
-.loading {
-  width: 100vw;
-  height: 100vh;
-  position: fixed;
-  top: 0;
-  left: 0;
-  background-color: #a8a8a880;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.loading-icon {
-  width: 4rem;
-  height: 4rem;
-  line-height: 4rem;
-  text-align: center;
-  font-size: 3rem;
-  animation: spin 1s linear infinite;
-}
-@keyframes spin {
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
 /* Note Tool */
 .note {
   width: 300px;
-  height: 80%;
+  height: 70%;
   right: 20px;
   top: 50%;
   z-index: 99;
