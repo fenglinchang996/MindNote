@@ -64,6 +64,7 @@ const showToolReducer = (isShowTool, action) => {
 };
 
 const Mindnote = (props) => {
+  // Mindnote Data
   const [nodeList, dispatchNodes] = useReducer(listReducer, []);
   const getNode = (nodeId) => nodeList.find((node) => node.id === nodeId);
   const [curveList, dispatchCurves] = useReducer(listReducer, []);
@@ -96,7 +97,7 @@ const Mindnote = (props) => {
     getNote,
     setSelectedItem,
   };
-  const { mindnoteId } = useParams();
+  const { docId, mindnoteId } = useParams();
   // Get mindnote data from database
   useEffect(() => {
     if (mindnoteId) {
@@ -126,30 +127,67 @@ const Mindnote = (props) => {
           }
         })
         .catch((error) => {
-          console.log("Error getting document:", error);
+          console.log("Error getting mindnote:", error);
         });
     }
   }, []);
-
+  // Doc Data
+  const [doc, setDoc] = useState(null);
+  // Get doc data from database
+  useEffect(() => {
+    if (docId) {
+      const docRef = db.collection("docs").doc(docId);
+      docRef
+        .get()
+        .then((docDoc) => {
+          if (docDoc.exists) {
+            const doc = docDoc.data();
+            setDoc(doc);
+          } else {
+            // docDoc.data() will be undefined in this case
+            console.log("No such doc!");
+          }
+        })
+        .catch((error) => {
+          console.log("Error getting doc:", error);
+        });
+    }
+  }, []);
+  const modifyDocTitle = (newTitle) => {
+    setDoc({ ...doc, title: newTitle });
+  };
   const [isSaving, setIsSaving] = useState(false);
-  // Save(Update) mindnote data to database
-  const saveMindnoteToDB = (nodeList, curveList, noteList) => {
+  // Save(Update) doc/mindnote data to database
+  const saveMindnoteToDB = async (doc, nodeList, curveList, noteList) => {
     setIsSaving(true);
-    db.collection("mindnotes")
-      .doc(mindnoteId)
-      .update({
+    try {
+      const mindnoteRef = db.collection("mindnotes").doc(mindnoteId);
+      await mindnoteRef.update({
         nodeList,
         curveList,
         noteList,
-      })
-      .then(() => {
-        setIsSaving(false);
-        console.log("Document successfully updated!");
-      })
-      .catch((error) => {
-        // The document probably doesn't exist.
-        console.error("Error updating document: ", error);
       });
+      const docRef = db.collection("docs").doc(docId);
+      await docRef.set(doc);
+      setIsSaving(false);
+    } catch (error) {
+      console.error("Error updating document: ", error);
+    }
+    // db.collection("mindnotes")
+    //   .doc(mindnoteId)
+    //   .update({
+    //     nodeList,
+    //     curveList,
+    //     noteList,
+    //   })
+    //   .then(() => {
+    //     setIsSaving(false);
+    //     console.log("Document successfully updated!");
+    //   })
+    //   .catch((error) => {
+    //     // The document probably doesn't exist.
+    //     console.error("Error updating document: ", error);
+    //   });
   };
   return (
     <div className="mindnote">
@@ -163,7 +201,7 @@ const Mindnote = (props) => {
           />
           <CommonTool
             saveMindnoteToDB={() =>
-              saveMindnoteToDB(nodeList, curveList, noteList)
+              saveMindnoteToDB(doc, nodeList, curveList, noteList)
             }
             showNodeTool={() =>
               dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_NODE_TOOL })
@@ -175,6 +213,8 @@ const Mindnote = (props) => {
               dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_NOTE })
             }
             selectedItem={selectedItem}
+            docTitle={doc ? doc.title : ""}
+            modifyDocTitle={modifyDocTitle}
           />
           <NodeTool
             isShowNodeTool={isShowTool.showNodeTool}

@@ -50,7 +50,7 @@ const wrapNewDoc = (isFirstNewDoc) => (props) => {
         // Create doc
         const mindnoteId = mindnoteRef.id;
         const docRef = await db.collection("docs").add({
-          title: "Utitled Mindnote",
+          title: "",
           creatorId: user.uid,
           createDate: DB.Timestamp.fromDate(new Date()),
           modifyData: DB.Timestamp.fromDate(new Date()),
@@ -138,16 +138,21 @@ const DocList = (props) => {
           docList.map((doc) => {
             const { id, title, mindnoteId } = doc;
             return (
-              <Link key={id} to={`/mindnote/${mindnoteId}`}>
-                <div className="doc">
+              <div key={id} className="doc">
+                <div className="delete-doc-btn">
+                  <i className="fas fa-trash-alt"></i>
+                </div>
+                <Link to={`/mindnote/${id}/${mindnoteId}`}>
                   <div className="doc-diagram">
                     <img src={docPic} />
                   </div>
                   <div className="doc-info">
-                    <span className="doc-title">{title}</span>
+                    <span className="doc-title">
+                      {title && title !== "" ? title : "Untitled Mindnote"}
+                    </span>
                   </div>
-                </div>
-              </Link>
+                </Link>
+              </div>
             );
           })}
       </div>

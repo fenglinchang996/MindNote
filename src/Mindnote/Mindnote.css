@@ -81,6 +81,18 @@
   cursor: pointer;
 }
 
+.tool-input:hover,
+.tool-input:focus-within {
+  background-color: initial;
+  border-bottom: 2px solid #e8e8e8;
+}
+
+.doc-title-input {
+  border: none;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
 .tool-btn {
   cursor: pointer;
 }
@@ -149,7 +161,7 @@
 /* Note Tool */
 .note {
   width: 300px;
-  height: 80%;
+  height: 70%;
   right: 20px;
   top: 50%;
   z-index: 99;

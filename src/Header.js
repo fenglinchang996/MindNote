@@ -51,7 +51,7 @@ const Header = (props) => {
       </div>
       {/* {path === "/home" && homeNav} */}
       {path === "/docs" && docsNav}
-      {path === "/mindnote/:mindnoteId" && mindnoteNav}
+      {path === "/mindnote/:docId/:mindnoteId" && mindnoteNav}
       <div className="user">
         {user ? (
           <UserInfo user={user} />
@@ -82,7 +82,7 @@ const UserInfo = (props) => {
     <div
       className="user-info"
       onMouseOver={(e) => setisUserPopoverDisplayed(true)}
-      onMouseLeave={(e) => setisUserPopoverDisplayed(false)}
+      onMouseOut={(e) => setisUserPopoverDisplayed(false)}
     >
       <i className="fas fa-user-alt"></i>
       <span>&nbsp;{user.email}&nbsp;</span>
