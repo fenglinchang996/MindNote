@@ -1,15 +1,12 @@
-import React, { useState, useContext } from "react";
+import React, { useContext } from "react";
 import BaseCurve from "./BaseCurve";
 import StyleContext from "./StyleContext";
-import SVGContext from "./SVGContext";
 import { CURVE_CONTROL_TYPE, CURVE_POINT_TYPE } from "./enums";
 
 const SelectedCurve = (props) => {
-  const { curveData } = props;
+  const { curveData, modifyCurveControl, moveCurve } = props;
   const { id, start, end, startControl, endControl, style } = curveData;
   const { curveStyle } = useContext(StyleContext);
-  // use SVGContext
-  const { modifyCurveControl, moveCurve } = useContext(SVGContext);
   // Use StyleContext
   const {
     curvePointStyle,
