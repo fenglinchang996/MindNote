@@ -119,7 +119,9 @@ const TitleEdit = (props) => {
 const TitleView = (props) => {
   const { title } = props;
   return (
-    <div className="title-view" title={title}>{`${title.slice(0, 24)}...`}</div>
+    <div className="title-view" title={title}>
+      {title.length > 24 ? `${title.slice(0, 24)}...` : title}
+    </div>
   );
 };
 

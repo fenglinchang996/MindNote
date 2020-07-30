@@ -12,7 +12,7 @@
   display: flex;
   padding: 10px;
   border-radius: 5px;
-  box-shadow: 0 0 10px #a8a8a8;
+  box-shadow: 0 0 10px #457b9d;
   background-color: #ffffff;
 }
 
@@ -203,6 +203,8 @@
   overflow: auto;
 }
 
+/* Markdown Formate */
+
 .text-view ol li {
   list-style-type: decimal;
   list-style-position: outside;
@@ -214,6 +216,10 @@
 .text-view blockquote {
   padding: 5px 10px;
   background-color: #e8e8e8;
+}
+
+.text-view img {
+  width: 100%;
 }
 
 /* SVG */
