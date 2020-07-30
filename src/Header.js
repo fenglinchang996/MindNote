@@ -28,12 +28,20 @@ const Header = (props) => {
   );
   const docsNav = (
     <nav className="navbar">
-      <div className="navbar-item">
-        <NavLink to="/docs/public">Public Mindnotes</NavLink>
-      </div>
-      <div className="navbar-item">
-        <NavLink to="/docs/my">My Mindnotes</NavLink>
-      </div>
+      <NavLink
+        className="navbar-item"
+        to="/docs/public"
+        activeClassName="navbar-item-selected"
+      >
+        Public Mindnotes
+      </NavLink>
+      <NavLink
+        className="navbar-item"
+        to="/docs/my"
+        activeClassName="navbar-item-selected"
+      >
+        My Mindnotes
+      </NavLink>
     </nav>
   );
 
@@ -45,23 +53,26 @@ const Header = (props) => {
   );
 
   return (
-    <header className="header">
-      <div className="title">
-        <Link to="/home">MindNote</Link>
-      </div>
-      {/* {path === "/home" && homeNav} */}
-      {path === "/docs" && docsNav}
-      {path === "/mindnote/:mindnoteId" && mindnoteNav}
-      <div className="user">
-        {user ? (
-          <UserInfo user={user} />
-        ) : (
-          <Link to="/member/login" className="login-btn">
-            Log In
-          </Link>
-        )}
-      </div>
-    </header>
+    <>
+      <header className="header">
+        <div className="title">
+          <Link to="/home">MindNote</Link>
+        </div>
+        {/* {path === "/home" && homeNav} */}
+        {path === "/docs" && docsNav}
+        {path === "/mindnote/:docId/:mindnoteId" && mindnoteNav}
+        <div className="user">
+          {user ? (
+            <UserInfo user={user} />
+          ) : (
+            <Link to="/member/login" className="login-btn">
+              Log In
+            </Link>
+          )}
+        </div>
+      </header>
+      <div className="header-sep"></div>
+    </>
   );
 };
 
@@ -82,7 +93,7 @@ const UserInfo = (props) => {
     <div
       className="user-info"
       onMouseOver={(e) => setisUserPopoverDisplayed(true)}
-      onMouseLeave={(e) => setisUserPopoverDisplayed(false)}
+      onMouseOut={(e) => setisUserPopoverDisplayed(false)}
     >
       <i className="fas fa-user-alt"></i>
       <span>&nbsp;{user.email}&nbsp;</span>

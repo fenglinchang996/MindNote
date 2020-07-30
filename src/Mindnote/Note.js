@@ -1,23 +1,150 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { ITEM_TYPE, LIST_ACTION_TYPE, NOTE_MODE } from "./enums";
+import ItemContext from "./ItemContext";
 import { md } from "./mdParser";
 
 const Note = (props) => {
-  const { isShowNote, closeTool } = props;
-  const [editNote, setEditNote] = useState("");
+  const { isShowNote, selectedItem, selectedNote } = props;
+  const { dispatchNotes, dispatchNodes, getNote, getNode } = useContext(
+    ItemContext
+  );
+  const [noteMode, setNoteMode] = useState(NOTE_MODE.EDIT_MODE);
+  // Note
+  const [note, setNote] = useState(null);
+  useEffect(() => {
+    setNote(getNote(selectedNote));
+  }, [selectedNote]);
+  // Note title
+  const [editTitle, setEditTitle] = useState("");
+  // Note content
+  const [editContent, setEditContent] = useState("");
+  useEffect(() => {
+    if (note) {
+      setEditContent(note.content);
+      setEditTitle(note.title);
+    }
+  }, [note]);
+  useEffect(() => {
+    if (note) {
+      dispatchNotes({
+        type: LIST_ACTION_TYPE.UPDATE_ITEMS,
+        items: [{ ...note, title: editTitle, content: editContent }],
+      });
+      dispatchNodes({
+        type: LIST_ACTION_TYPE.UPDATE_ITEMS,
+        items: [{ ...getNode(selectedItem.id), title: editTitle }],
+      });
+    }
+  }, [editTitle, editContent]);
+  const modifyContent = (newContent) => {
+    setEditContent(newContent);
+  };
+  const modifyTitle = (newTitle) => {
+    setEditTitle(newTitle);
+  };
   return (
     <div
       className="tool-box note"
-      style={{ display: isShowNote ? "block" : "none" }}
+      style={{
+        display: isShowNote ? "block" : "none",
+      }}
     >
       <div className="tool-main-title">
         Note
         <hr className="hori-sep" />
       </div>
-      <button type="button" className="tool-close-btn" onClick={closeTool}>
-        <i className="fas fa-times"></i>
-      </button>
-      <Toolbar />
-      <TextArea content={editNote} modifyContent={setEditNote} />
+      {noteMode === NOTE_MODE.EDIT_MODE ? (
+        <button
+          type="button"
+          className="tool-item edit-mode-btn"
+          onClick={() => setNoteMode(NOTE_MODE.VIEW_MODE)}
+        >
+          <i className="fas fa-eye"></i>
+        </button>
+      ) : (
+        ""
+      )}
+      {noteMode === NOTE_MODE.VIEW_MODE ? (
+        <button
+          type="button"
+          className="tool-item view-mode-btn"
+          onClick={() => setNoteMode(NOTE_MODE.EDIT_MODE)}
+        >
+          <i className="fas fa-pen"></i>
+        </button>
+      ) : (
+        ""
+      )}
+      {note ? (
+        <>
+          {noteMode === NOTE_MODE.EDIT_MODE ? (
+            <>
+              <TitleEdit title={editTitle} modifyTitle={modifyTitle} />
+              <TextEdit content={editContent} modifyContent={modifyContent} />
+            </>
+          ) : (
+            ""
+          )}
+          {noteMode === NOTE_MODE.VIEW_MODE ? (
+            <>
+              <TitleView title={editTitle} />
+              <TextView content={editContent} />
+            </>
+          ) : (
+            ""
+          )}
+        </>
+      ) : (
+        <div className="no-note">Please select a node to edit note.</div>
+      )}
+    </div>
+  );
+};
+
+const TitleEdit = (props) => {
+  const { title, modifyTitle } = props;
+  return (
+    <div className="title-edit">
+      <input
+        type="text"
+        className="title-content"
+        value={title}
+        placeholder="Add Note Title Here..."
+        onChange={(e) => modifyTitle(e.target.value)}
+      />
+    </div>
+  );
+};
+
+const TitleView = (props) => {
+  const { title } = props;
+  return (
+    <div className="title-view" title={title}>
+      {title.length > 24 ? `${title.slice(0, 24)}...` : title}
+    </div>
+  );
+};
+
+const TextView = (props) => {
+  const { content } = props;
+  return (
+    <div
+      className="text-view"
+      dangerouslySetInnerHTML={{ __html: md.render(content) }}
+    ></div>
+  );
+};
+
+const TextEdit = (props) => {
+  const { content, modifyContent } = props;
+  return (
+    <div className="text-edit">
+      <textarea
+        className="textarea"
+        placeholder="Type your note..."
+        value={content}
+        onChange={(e) => modifyContent(e.target.value)}
+      ></textarea>
     </div>
   );
 };
@@ -88,31 +215,6 @@ const Toolbar = (props) => {
           </div>
         </div>
       </div>
-    </div>
-  );
-};
-
-const NoteView = (props) => {
-  return <div class="note-view"></div>;
-};
-
-const TextArea = (props) => {
-  const { content, modifyContent } = props;
-  return (
-    <div className="text-area">
-      <div className="text-edit">
-        <textarea
-          className="text-content"
-          placeholder="Type something..."
-          rows="15"
-          value={content}
-          onChange={(e) => modifyContent(e.target.value)}
-        ></textarea>
-      </div>
-      <div
-        className="text-view"
-        dangerouslySetInnerHTML={{ __html: md.render(content) }}
-      ></div>
     </div>
   );
 };

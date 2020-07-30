@@ -2,13 +2,15 @@ import React, { useState, useEffect, useContext } from "react";
 import StyleContext from "./StyleContext";
 import ItemContext from "./ItemContext";
 import SVGContext from "./SVGContext";
-import { ITEM_TYPE } from "./enums";
+import { ITEM_TYPE, NODE_POINT_TYPE } from "./enums";
 import { EDGE } from "./enums";
 
 const BaseNode = (props) => {
   const { nodeData, isFocused } = props;
   const {
     id,
+    noteId,
+    title,
     center,
     width,
     height,
@@ -25,8 +27,10 @@ const BaseNode = (props) => {
     left,
     bottom,
   } = nodeData;
-  const { nodeContentStyle, connectionArrowStyle } = useContext(StyleContext);
-  const { drawNewNode } = useContext(SVGContext);
+  const { nodePointStyle, nodeContentStyle, connectionArrowStyle } = useContext(
+    StyleContext
+  );
+  const { drawNewNode, resizeNode } = useContext(SVGContext);
 
   // Origin
   const [origin, setOrigin] = useState({ x: 0, y: 0 });
@@ -64,6 +68,34 @@ const BaseNode = (props) => {
     },
   };
 
+  // Corner Circle
+  const cornerCircles = {
+    topLeft: {
+      cx: corners.topLeft.x,
+      cy: corners.topLeft.y,
+      r: nodePointStyle.r,
+      style: nodePointStyle.style,
+    },
+    topRight: {
+      cx: corners.topRight.x,
+      cy: corners.topRight.y,
+      r: nodePointStyle.r,
+      style: nodePointStyle.style,
+    },
+    bottomRight: {
+      cx: corners.bottomRight.x,
+      cy: corners.bottomRight.y,
+      r: nodePointStyle.r,
+      style: nodePointStyle.style,
+    },
+    bottomLeft: {
+      cx: corners.bottomLeft.x,
+      cy: corners.bottomLeft.y,
+      r: nodePointStyle.r,
+      style: nodePointStyle.style,
+    },
+  };
+
   return (
     <g>
       <rect
@@ -80,7 +112,9 @@ const BaseNode = (props) => {
         height={0.8 * height}
       >
         <div style={nodeContentStyle.style}>
-          <div style={{ textAlign: "center" }}>{id ? id.slice(0, 8) : ""}</div>
+          <div style={{ textAlign: "center" }}>
+            {title ? title : "Click to Add Note"}
+          </div>
           <input
             type="text"
             style={{
@@ -114,6 +148,42 @@ const BaseNode = (props) => {
               arrowData={connectionArrows.left}
               fa="caret-left"
               drawNewNode={(e) => drawNewNode(e, id, EDGE.LEFT)}
+            />
+          </>
+        ) : (
+          ""
+        )}
+      </g>
+      <g display={isFocused ? "block" : "none"}>
+        {cornerCircles ? (
+          <>
+            <circle
+              {...cornerCircles.topLeft}
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                resizeNode(id, NODE_POINT_TYPE.TOP_LEFT);
+              }}
+            />
+            <circle
+              {...cornerCircles.topRight}
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                resizeNode(id, NODE_POINT_TYPE.TOP_RIGHT);
+              }}
+            />
+            <circle
+              {...cornerCircles.bottomRight}
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                resizeNode(id, NODE_POINT_TYPE.BOTTOM_RIGHT);
+              }}
+            />
+            <circle
+              {...cornerCircles.bottomLeft}
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                resizeNode(id, NODE_POINT_TYPE.BOTTOM_LEFT);
+              }}
             />
           </>
         ) : (

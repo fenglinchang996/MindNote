@@ -5,7 +5,7 @@ import { ITEM_TYPE } from "./enums";
 import ItemContext from "./ItemContext";
 
 const wrapCurve = (BaseCurve) => (props) => {
-  const { curveData } = props;
+  const { curveData, isSelected } = props;
   const { id, style } = curveData;
   const { curveStyle } = useContext(StyleContext);
 
@@ -29,7 +29,7 @@ const wrapCurve = (BaseCurve) => (props) => {
     >
       <BaseCurve
         curveData={{ ...curveData, style: style || curveStyle.style }}
-        isFocused={isFocused}
+        isFocused={isSelected}
       />
     </g>
   );

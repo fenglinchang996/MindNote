@@ -17,6 +17,7 @@ import {
   CURVE_POINT_TYPE,
   CURVE_CONTROL_TYPE,
   CURVE_MOVE_TYPE,
+  NODE_POINT_TYPE,
 } from "./enums";
 import {
   calcIntersectionPoint,
@@ -51,14 +52,14 @@ const SVG = (props) => {
   };
   const SVGRef = useRef(null);
   const [SVGSize, setSVGSize] = useState({
-    width: 1920,
-    height: 1080,
+    width: 960,
+    height: 540,
   });
   const [SVGSizeRatio, setSVGSizeRatio] = useState(1);
   const [viewBoxOrigin, setViewBoxOrigin] = useState({ x: 0, y: 0 });
 
   // nodeList, curveList, selectedItem
-  const { nodeList, curveList, selectedItem } = props;
+  const { nodeList, curveList, noteList, selectedItem } = props;
   // Style
   const { SVGStyle, nodeStyle, curveStyle, curvePointStyle } = useContext(
     StyleContext
@@ -69,6 +70,8 @@ const SVG = (props) => {
     getNode,
     dispatchCurves,
     getCurve,
+    dispatchNotes,
+    getNote,
     setSelectedItem,
   } = useContext(ItemContext);
 
@@ -131,6 +134,8 @@ const SVG = (props) => {
   };
   const createNode = ({
     id = null,
+    noteId = null,
+    title = "",
     center,
     width = nodeStyle.width,
     height = nodeStyle.height,
@@ -167,6 +172,8 @@ const SVG = (props) => {
     );
     return {
       id,
+      noteId,
+      title,
       center,
       width,
       height,
@@ -183,6 +190,9 @@ const SVG = (props) => {
       bottom,
       left,
     };
+  };
+  const createNote = (nodeId) => {
+    return { id: uuid(), nodeId, title: "", content: "" };
   };
   const setNodeCurveRelation = (
     actionType,
@@ -356,13 +366,24 @@ const SVG = (props) => {
   // Initialize Canvas
   useEffect(() => {
     // Create Center Node if no nodeList Data
-    if (SVGSize.height !== 0 && SVGSize.width !== 0 && nodeList.length === 0) {
+    if (
+      SVGSize.height !== 0 &&
+      SVGSize.width !== 0 &&
+      (nodeList.length === 0 || noteList.length === 0)
+    ) {
       const center = {
         x: 0.5 * SVGSize.width,
         y: 0.5 * SVGSize.height,
       };
-      const centerNode = createNode({ id: uuid(), center });
-      dispatchNodes({ type: LIST_ACTION_TYPE.ADD_ITEMS, items: [centerNode] });
+      const centerNodeId = uuid();
+      const centerNote = createNote(centerNodeId);
+      const centerNode = createNode({
+        id: centerNodeId,
+        noteId: centerNote.id,
+        center,
+      });
+      dispatchNodes({ type: LIST_ACTION_TYPE.INIT_ITEMS, items: [centerNode] });
+      dispatchNotes({ type: LIST_ACTION_TYPE.INIT_ITEMS, items: [centerNote] });
     }
   }, [SVGSize, nodeList]);
 
@@ -576,17 +597,27 @@ const SVG = (props) => {
       upstreamCurve.startEdge,
       upstreamCurve.endEdge
     );
+    // Update Parent Node's childNodes and DownstreamCurves
     const newParentNode = { ...parentNode, ...parentNodeRelationData };
     dispatchNodes({
       type: LIST_ACTION_TYPE.UPDATE_ITEMS,
       items: [newParentNode],
     });
-
+    // Delete Nodes
     const nodesToBeRemoved = [nodeId, ...getDecendents(nodeId)];
     dispatchNodes({
       type: LIST_ACTION_TYPE.DELETE_ITEMS,
       items: [...nodesToBeRemoved],
     });
+    // Delete Notes
+    const notesToBeRemoved = nodesToBeRemoved.map(
+      (nodeId) => getNode(nodeId).noteId
+    );
+    dispatchNotes({
+      type: LIST_ACTION_TYPE.DELETE_ITEMS,
+      items: [...notesToBeRemoved],
+    });
+    // Delete Curves
     const curvesToBeRemoved = [
       node.upstreamCurveId,
       ...getDownstreamCurves(nodeId),
@@ -595,6 +626,8 @@ const SVG = (props) => {
       type: LIST_ACTION_TYPE.DELETE_ITEMS,
       items: [...curvesToBeRemoved],
     });
+    // Re-set selectedItem
+    setSelectedItem(null);
   };
 
   // Move Node (and its related Nodes/Curves)
@@ -636,6 +669,67 @@ const SVG = (props) => {
     ) {
       const nodeToBeMoved = getNode(nodeId);
       setVirtualNode(nodeToBeMoved);
+    }
+  };
+
+  // Resize Node
+  const [currentResizedCornerType, setCurrentResizedCornerType] = useState(
+    null
+  );
+  const setResizedNode = (originalNode, newCorner, cornerType) => {
+    let movement;
+    let newWidth, newHeight;
+    switch (cornerType) {
+      case NODE_POINT_TYPE.TOP_LEFT:
+        movement = calcOffset(originalNode.corners.topLeft, newCorner);
+        newWidth = originalNode.width - movement.dx;
+        newHeight = originalNode.height - movement.dy;
+        break;
+      case NODE_POINT_TYPE.TOP_RIGHT:
+        movement = calcOffset(originalNode.corners.topRight, newCorner);
+        newWidth = originalNode.width + movement.dx;
+        newHeight = originalNode.height - movement.dy;
+        break;
+      case NODE_POINT_TYPE.BOTTOM_RIGHT:
+        movement = calcOffset(originalNode.corners.bottomRight, newCorner);
+        newWidth = originalNode.width + movement.dx;
+        newHeight = originalNode.height + movement.dy;
+        break;
+      case NODE_POINT_TYPE.BOTTOM_LEFT:
+        movement = calcOffset(originalNode.corners.bottomLeft, newCorner);
+        newWidth = originalNode.width - movement.dx;
+        newHeight = originalNode.height + movement.dy;
+        break;
+      default:
+        break;
+    }
+    const newCenter = {
+      x: originalNode.center.x + 0.5 * movement.dx,
+      y: originalNode.center.y + 0.5 * movement.dy,
+    };
+    if (newWidth >= 0 && newHeight >= 0) {
+      const newCoord = calcNodeCoord(newCenter, newWidth, newHeight);
+      return {
+        ...originalNode,
+        center: newCenter,
+        height: newHeight,
+        width: newWidth,
+        ...newCoord,
+      };
+    } else {
+      return null;
+    }
+  };
+  const resizeNode = (nodeId, resizedCornerType) => {
+    setDragType(DRAG_TYPE.RESIZE_NODE);
+    if (
+      selectedItem &&
+      selectedItem.type === ITEM_TYPE.NODE &&
+      selectedItem.id === nodeId
+    ) {
+      setCurrentResizedCornerType(resizedCornerType);
+      const nodeToBeResized = getNode(nodeId);
+      setVirtualNode(nodeToBeResized);
     }
   };
 
@@ -706,6 +800,16 @@ const SVG = (props) => {
         const newCenter = convertToSVGCoord({ x: e.clientX, y: e.clientY });
         const newVirtualNode = setMovedNode(virtualNode, newCenter);
         setVirtualNode(newVirtualNode);
+      } else if (dragType === DRAG_TYPE.RESIZE_NODE) {
+        const newCorner = convertToSVGCoord({ x: e.clientX, y: e.clientY });
+        const newVirtualNode = setResizedNode(
+          virtualNode,
+          newCorner,
+          currentResizedCornerType
+        );
+        if (newVirtualNode) {
+          setVirtualNode(newVirtualNode);
+        }
       }
     }
   };
@@ -717,10 +821,14 @@ const SVG = (props) => {
       } else if (dragType === DRAG_TYPE.DRAW_NEW_NODE) {
         // Get Start Node
         const startNode = currentStartNode;
-        // Create End Node
         const endCenter = convertToSVGCoord({ x: e.clientX, y: e.clientY });
+        const endNodeId = uuid();
+        // Create End Note
+        const newNote = createNote(endNodeId);
+        // Create End Node
         const endNode = createNode({
-          id: uuid(),
+          id: endNodeId,
+          noteId: newNote.id,
           center: endCenter,
         });
         // Get Curve Connection
@@ -760,6 +868,7 @@ const SVG = (props) => {
           type: LIST_ACTION_TYPE.ADD_ITEMS,
           items: [newCurve],
         });
+        dispatchNotes({ type: LIST_ACTION_TYPE.ADD_ITEMS, items: [newNote] });
         // Set Virtual Node and Virtual Curve
         setVirtualNode(null);
         setVirtualCurve(null);
@@ -1003,6 +1112,58 @@ const SVG = (props) => {
         });
         // Reset VirtualNode
         setVirtualNode(null);
+      } else if (dragType === DRAG_TYPE.RESIZE_NODE) {
+        const newCorner = convertToSVGCoord({ x: e.clientX, y: e.clientY });
+        const originalNode = getNode(virtualNode.id);
+        // Resize Node
+        const newNode = setResizedNode(
+          originalNode,
+          newCorner,
+          currentResizedCornerType
+        );
+        if (newNode) {
+          // Update Node
+          dispatchNodes({
+            type: LIST_ACTION_TYPE.UPDATE_ITEMS,
+            items: [newNode],
+          });
+          // Move Curve
+          const curvesToBeMoved = [
+            EDGE.TOP,
+            EDGE.RIGHT,
+            EDGE.BOTTOM,
+            EDGE.LEFT,
+          ].reduce((allCurves, edge) => {
+            const edgeCurves = newNode[edge].curvesId.map((curveId) => {
+              const curve = getCurve(curveId);
+              const newCurve =
+                newNode[edge].direction === CURVE_DIRECTION.IN
+                  ? setMovedCurve(
+                      CURVE_MOVE_TYPE.MOVE_END,
+                      curve,
+                      calcOffset(
+                        originalNode.connections[`${edge}Connection`],
+                        newNode.connections[`${edge}Connection`]
+                      )
+                    )
+                  : setMovedCurve(
+                      CURVE_MOVE_TYPE.MOVE_START,
+                      curve,
+                      calcOffset(
+                        originalNode.connections[`${edge}Connection`],
+                        newNode.connections[`${edge}Connection`]
+                      )
+                    );
+              return newCurve;
+            });
+            return [...allCurves, ...edgeCurves];
+          }, []);
+          dispatchCurves({
+            type: LIST_ACTION_TYPE.UPDATE_ITEMS,
+            items: curvesToBeMoved,
+          });
+        }
+        setVirtualNode(null);
       }
       setDragType(null);
     }
@@ -1036,10 +1197,18 @@ const SVG = (props) => {
       onMouseUp={drop}
     >
       <SVGContext.Provider
-        value={{ drawNewNode, modifyCurveControl, moveCurve }}
+        value={{ drawNewNode, resizeNode, modifyCurveControl, moveCurve }}
       >
         {curveList.map((curve) => (
-          <Curve key={curve.id} curveData={curve} />
+          <Curve
+            key={curve.id}
+            curveData={curve}
+            isSelected={
+              selectedItem &&
+              selectedItem.type === ITEM_TYPE.CURVE &&
+              selectedItem.id === curve.id
+            }
+          />
         ))}
         {nodeList.map((node) => (
           <Node
@@ -1048,6 +1217,11 @@ const SVG = (props) => {
             hoverNode={hoverNode}
             deleteNode={deleteNode}
             moveNode={moveNode}
+            isSelected={
+              selectedItem &&
+              selectedItem.type === ITEM_TYPE.NODE &&
+              selectedItem.id === node.id
+            }
           />
         ))}
         {virtualNode && <VirtualNode nodeData={virtualNode} />}
