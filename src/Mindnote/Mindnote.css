@@ -141,6 +141,7 @@
 
 /* Note Tool */
 .note {
+  display: block;
   width: 300px;
   height: 70%;
   right: 20px;
