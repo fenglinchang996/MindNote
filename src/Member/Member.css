@@ -1,9 +1,16 @@
+.form-wrapper {
+  display: flex;
+  height: calc(100vh - 65px);
+  justify-content: center;
+  align-items: center;
+}
+
 .form {
   width: 400px;
   margin: 40px auto;
   padding: 20px 50px;
   border-radius: 5px;
-  box-shadow: 0 0 5px #bbbbbb;
+  box-shadow: 0 0 10px #457b9d;
 }
 
 .form .title {
@@ -49,6 +56,12 @@
   color: #457b9d;
   background-color: #ffffff;
   font-size: 1rem;
+}
+
+.form .native-login-btn:hover,
+.form .native-login-btn:active {
+  color: #ffffff;
+  background-color: #457b9d;
 }
 
 .form .fb-login-btn {
