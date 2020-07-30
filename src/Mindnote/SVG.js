@@ -6,6 +6,7 @@ import SVGContext from "./SVGContext";
 import VirtualNode from "./VirtualNode";
 import Node from "./Node";
 import VirtualCurve from "./VirtualCurve";
+import SelectedCurve from "./SelectedCurve";
 import Curve from "./Curve";
 import {
   EDGE,
@@ -363,6 +364,15 @@ const SVG = (props) => {
   // Virtual Curve
   const [virtualCurve, setVirtualCurve] = useState(null);
 
+  // Selected Curve
+  const [selectedCurve, setSelectedCurve] = useState(null);
+  useEffect(() => {
+    selectedItem && selectedItem.type === ITEM_TYPE.CURVE
+      ? setSelectedCurve(getCurve(selectedItem.id))
+      : setSelectedCurve(null);
+    selectedItem && console.log(selectedItem.type);
+  }, [selectedItem, curveList]);
+
   // Initialize Canvas
   useEffect(() => {
     // Create Center Node if no nodeList Data
@@ -626,7 +636,7 @@ const SVG = (props) => {
       type: LIST_ACTION_TYPE.DELETE_ITEMS,
       items: [...curvesToBeRemoved],
     });
-    // Re-set selectedItem
+    // Reset selectedItem
     setSelectedItem(null);
   };
 
@@ -1171,7 +1181,6 @@ const SVG = (props) => {
 
   return (
     <svg
-      tabIndex={-1}
       id="svg"
       className="svg"
       xmlns="http://www.w3.org/2000/svg"
@@ -1182,7 +1191,6 @@ const SVG = (props) => {
         SVGSizeRatio * SVGSize.width
       } ${SVGSizeRatio * SVGSize.height}`}
       style={SVGStyle.style}
-      onFocus={() => setSelectedItem({ type: ITEM_TYPE.SVG })}
       onWheel={(e) => {
         if (e.ctrlKey) {
           resizeCanvas(0.0002 * e.deltaY);
@@ -1200,15 +1208,7 @@ const SVG = (props) => {
         value={{ drawNewNode, resizeNode, modifyCurveControl, moveCurve }}
       >
         {curveList.map((curve) => (
-          <Curve
-            key={curve.id}
-            curveData={curve}
-            isSelected={
-              selectedItem &&
-              selectedItem.type === ITEM_TYPE.CURVE &&
-              selectedItem.id === curve.id
-            }
-          />
+          <Curve key={curve.id} curveData={curve} />
         ))}
         {nodeList.map((node) => (
           <Node
@@ -1224,6 +1224,7 @@ const SVG = (props) => {
             }
           />
         ))}
+        {selectedCurve && <SelectedCurve curveData={selectedCurve} />}
         {virtualNode && <VirtualNode nodeData={virtualNode} />}
         {virtualCurve && <VirtualCurve curveData={virtualCurve} />}
       </SVGContext.Provider>
