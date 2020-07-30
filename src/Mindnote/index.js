@@ -79,13 +79,15 @@ const Mindnote = (props) => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [selectedNote, setSelectedNote] = useState(null);
   useEffect(() => {
-    if (selectedItem && selectedItem.type === ITEM_TYPE.NODE) {
-      const node = getNode(selectedItem.id);
-      setSelectedNote(node.noteId);
-      dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_NOTE });
-    } else {
-      setSelectedNote(null);
-      dispatchShowTool({ type: SHOW_TOOL_TYPE.CLOSE_NOTE });
+    if (selectedItem) {
+      if (selectedItem.type === ITEM_TYPE.NODE) {
+        const node = getNode(selectedItem.id);
+        setSelectedNote(node.noteId);
+        dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_NOTE });
+      } else {
+        setSelectedNote(null);
+        dispatchShowTool({ type: SHOW_TOOL_TYPE.CLOSE_NOTE });
+      }
     }
   }, [selectedItem]);
   const ItemContextValue = {
