@@ -4,7 +4,7 @@ import ItemContext from "./ItemContext";
 import { md } from "./mdParser";
 
 const Note = (props) => {
-  const { isShowNote, selectedItem, selectedNote } = props;
+  const { selectedItem, selectedNote } = props;
   const { dispatchNotes, dispatchNodes, getNote, getNode } = useContext(
     ItemContext
   );
@@ -14,41 +14,28 @@ const Note = (props) => {
   useEffect(() => {
     setNote(getNote(selectedNote));
   }, [selectedNote]);
-  // Note title
-  const [editTitle, setEditTitle] = useState("");
-  // Note content
-  const [editContent, setEditContent] = useState("");
-  useEffect(() => {
-    if (note) {
-      setEditContent(note.content);
-      setEditTitle(note.title);
-    }
-  }, [note]);
-  useEffect(() => {
-    if (note) {
-      dispatchNotes({
-        type: LIST_ACTION_TYPE.UPDATE_ITEMS,
-        items: [{ ...note, title: editTitle, content: editContent }],
-      });
-      dispatchNodes({
-        type: LIST_ACTION_TYPE.UPDATE_ITEMS,
-        items: [{ ...getNode(selectedItem.id), title: editTitle }],
-      });
-    }
-  }, [editTitle, editContent]);
   const modifyContent = (newContent) => {
-    setEditContent(newContent);
+    const newNote = { ...note, content: newContent };
+    setNote(newNote);
+    dispatchNotes({
+      type: LIST_ACTION_TYPE.UPDATE_ITEMS,
+      items: [newNote],
+    });
   };
   const modifyTitle = (newTitle) => {
-    setEditTitle(newTitle);
+    const newNote = { ...note, title: newTitle };
+    setNote(newNote);
+    dispatchNotes({
+      type: LIST_ACTION_TYPE.UPDATE_ITEMS,
+      items: [newNote],
+    });
+    dispatchNodes({
+      type: LIST_ACTION_TYPE.UPDATE_ITEMS,
+      items: [{ ...getNode(selectedItem.id), title: newTitle }],
+    });
   };
   return (
-    <div
-      className="tool-box note"
-      style={{
-        display: isShowNote ? "block" : "none",
-      }}
-    >
+    <div className="tool-box note">
       <div className="tool-main-title">
         Note
         <hr className="hori-sep" />
@@ -79,16 +66,16 @@ const Note = (props) => {
         <>
           {noteMode === NOTE_MODE.EDIT_MODE ? (
             <>
-              <TitleEdit title={editTitle} modifyTitle={modifyTitle} />
-              <TextEdit content={editContent} modifyContent={modifyContent} />
+              <TitleEdit title={note.title} modifyTitle={modifyTitle} />
+              <TextEdit content={note.content} modifyContent={modifyContent} />
             </>
           ) : (
             ""
           )}
           {noteMode === NOTE_MODE.VIEW_MODE ? (
             <>
-              <TitleView title={editTitle} />
-              <TextView content={editContent} />
+              <TitleView title={note.title} />
+              <TextView content={note.content} />
             </>
           ) : (
             ""

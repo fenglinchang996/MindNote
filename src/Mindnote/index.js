@@ -215,14 +215,17 @@ const Mindnote = (props) => {
               dispatchShowTool({ type: SHOW_TOOL_TYPE.CLOSE_CURVE_TOOL })
             }
           />
-          <Note
-            isShowNote={isShowTool.showNote}
-            closeTool={() =>
-              dispatchShowTool({ type: SHOW_TOOL_TYPE.CLOSE_NOTE })
-            }
-            selectedItem={selectedItem}
-            selectedNote={selectedNote}
-          />
+          {isShowTool.showNote ? (
+            <Note
+              closeTool={() =>
+                dispatchShowTool({ type: SHOW_TOOL_TYPE.CLOSE_NOTE })
+              }
+              selectedItem={selectedItem}
+              selectedNote={selectedNote}
+            />
+          ) : (
+            ""
+          )}
         </ItemContext.Provider>
         {isSaving ? <Saving /> : ""}
       </div>

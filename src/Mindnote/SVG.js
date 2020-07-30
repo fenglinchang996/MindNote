@@ -2,10 +2,11 @@ import React, { useState, useEffect, useContext, useRef } from "react";
 import { v4 as uuid } from "uuid";
 import StyleContext from "./StyleContext";
 import ItemContext from "./ItemContext";
-import SVGContext from "./SVGContext";
 import VirtualNode from "./VirtualNode";
+import SelectedNode from "./SelectedNode";
 import Node from "./Node";
 import VirtualCurve from "./VirtualCurve";
+import SelectedCurve from "./SelectedCurve";
 import Curve from "./Curve";
 import {
   EDGE,
@@ -298,9 +299,15 @@ const SVG = (props) => {
       []
     );
   };
-
   // Virtual Node
   const [virtualNode, setVirtualNode] = useState(null);
+  // Selected Node
+  const [selectedNode, setSelectedNode] = useState(null);
+  useEffect(() => {
+    selectedItem && selectedItem.type === ITEM_TYPE.NODE
+      ? setSelectedNode(getNode(selectedItem.id))
+      : setSelectedNode(null);
+  }, [selectedItem, nodeList]);
 
   // Curve
   const calcCurveControl = (start, end) => {
@@ -362,6 +369,14 @@ const SVG = (props) => {
   };
   // Virtual Curve
   const [virtualCurve, setVirtualCurve] = useState(null);
+
+  // Selected Curve
+  const [selectedCurve, setSelectedCurve] = useState(null);
+  useEffect(() => {
+    selectedItem && selectedItem.type === ITEM_TYPE.CURVE
+      ? setSelectedCurve(getCurve(selectedItem.id))
+      : setSelectedCurve(null);
+  }, [selectedItem, curveList]);
 
   // Initialize Canvas
   useEffect(() => {
@@ -626,7 +641,7 @@ const SVG = (props) => {
       type: LIST_ACTION_TYPE.DELETE_ITEMS,
       items: [...curvesToBeRemoved],
     });
-    // Re-set selectedItem
+    // Reset selectedItem
     setSelectedItem(null);
   };
 
@@ -1182,10 +1197,14 @@ const SVG = (props) => {
         SVGSizeRatio * SVGSize.width
       } ${SVGSizeRatio * SVGSize.height}`}
       style={SVGStyle.style}
-      onFocus={() => setSelectedItem({ type: ITEM_TYPE.SVG })}
       onWheel={(e) => {
         if (e.ctrlKey) {
           resizeCanvas(0.0002 * e.deltaY);
+        }
+      }}
+      onFocus={() => {
+        if (dragType === null || dragType === DRAG_TYPE.MOVE_CANVAS) {
+          setSelectedItem({ tyep: ITEM_TYPE.SVG });
         }
       }}
       onMouseDown={(e) => {
@@ -1196,37 +1215,30 @@ const SVG = (props) => {
       onMouseMove={drag}
       onMouseUp={drop}
     >
-      <SVGContext.Provider
-        value={{ drawNewNode, resizeNode, modifyCurveControl, moveCurve }}
-      >
-        {curveList.map((curve) => (
-          <Curve
-            key={curve.id}
-            curveData={curve}
-            isSelected={
-              selectedItem &&
-              selectedItem.type === ITEM_TYPE.CURVE &&
-              selectedItem.id === curve.id
-            }
-          />
-        ))}
-        {nodeList.map((node) => (
-          <Node
-            key={node.id}
-            nodeData={node}
-            hoverNode={hoverNode}
-            deleteNode={deleteNode}
-            moveNode={moveNode}
-            isSelected={
-              selectedItem &&
-              selectedItem.type === ITEM_TYPE.NODE &&
-              selectedItem.id === node.id
-            }
-          />
-        ))}
-        {virtualNode && <VirtualNode nodeData={virtualNode} />}
-        {virtualCurve && <VirtualCurve curveData={virtualCurve} />}
-      </SVGContext.Provider>
+      {curveList.map((curve) => (
+        <Curve key={curve.id} curveData={curve} />
+      ))}
+      {nodeList.map((node) => (
+        <Node key={node.id} nodeData={node} hoverNode={hoverNode} />
+      ))}
+      {selectedNode && (
+        <SelectedNode
+          nodeData={selectedNode}
+          deleteNode={deleteNode}
+          moveNode={moveNode}
+          drawNewNode={drawNewNode}
+          resizeNode={resizeNode}
+        />
+      )}
+      {selectedCurve && (
+        <SelectedCurve
+          curveData={selectedCurve}
+          modifyCurveControl={modifyCurveControl}
+          moveCurve={moveCurve}
+        />
+      )}
+      {virtualNode && <VirtualNode nodeData={virtualNode} />}
+      {virtualCurve && <VirtualCurve curveData={virtualCurve} />}
     </svg>
   );
 };
