@@ -79,13 +79,15 @@ const Mindnote = (props) => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [selectedNote, setSelectedNote] = useState(null);
   useEffect(() => {
-    if (selectedItem && selectedItem.type === ITEM_TYPE.NODE) {
-      const node = getNode(selectedItem.id);
-      setSelectedNote(node.noteId);
-      dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_NOTE });
-    } else {
-      setSelectedNote(null);
-      dispatchShowTool({ type: SHOW_TOOL_TYPE.CLOSE_NOTE });
+    if (selectedItem) {
+      if (selectedItem.type === ITEM_TYPE.NODE) {
+        const node = getNode(selectedItem.id);
+        setSelectedNote(node.noteId);
+        dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_NOTE });
+      } else {
+        setSelectedNote(null);
+        dispatchShowTool({ type: SHOW_TOOL_TYPE.CLOSE_NOTE });
+      }
     }
   }, [selectedItem]);
   const ItemContextValue = {
@@ -173,21 +175,6 @@ const Mindnote = (props) => {
     } catch (error) {
       console.error("Error updating document: ", error);
     }
-    // db.collection("mindnotes")
-    //   .doc(mindnoteId)
-    //   .update({
-    //     nodeList,
-    //     curveList,
-    //     noteList,
-    //   })
-    //   .then(() => {
-    //     setIsSaving(false);
-    //     console.log("Document successfully updated!");
-    //   })
-    //   .catch((error) => {
-    //     // The document probably doesn't exist.
-    //     console.error("Error updating document: ", error);
-    //   });
   };
   return (
     <div className="mindnote">

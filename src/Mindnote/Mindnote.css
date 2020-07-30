@@ -12,14 +12,13 @@
   display: flex;
   padding: 10px;
   border-radius: 5px;
-  box-shadow: 0 0 10px #a8a8a8;
+  box-shadow: 0 0 10px #457b9d;
   background-color: #ffffff;
 }
 
 .common-tool {
   top: 30px;
-  left: 50%;
-  transform: translateX(-50%);
+  left: 5%;
 }
 
 .tool-item {
@@ -57,6 +56,14 @@
   position: absolute; /* relative to .tool-box */
   padding: 5px;
   top: 10px;
+  right: 15px;
+}
+
+.edit-mode-btn,
+.view-mode-btn {
+  position: absolute; /* relative to .tool-box */
+  padding: 5px;
+  top: 12px;
   right: 15px;
 }
 
@@ -142,28 +149,42 @@
   transform: translateY(-50%);
 }
 
-.note-title {
-  width: 100%;
+.title-edit {
+  padding: 5px 15px;
+  margin: 5px;
+  margin-bottom: 10px;
+  border: 1px solid #a8a8a8;
+  border-radius: 5px;
 }
 
 .title-content {
-  width: 100%;
+  padding: 0;
   border: none;
-  margin: 5px auto;
-  padding: 0 15px;
-  text-align: start;
   font-size: 1.1rem;
 }
 
-.text-edit {
-  height: 80%;
+.title-view {
+  height: 35px;
+  font-size: 1.1rem;
+  padding: 5px 15px;
+  margin: 5px;
+  margin-bottom: 10px;
+  border: 1px solid #ffffff;
+  overflow: hidden;
 }
-.text-content {
+
+.text-edit {
+  height: calc(100% - 110px);
+  margin: 0 5px;
+}
+
+.textarea {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1rem;
   width: 100%;
   height: 100%;
   border-radius: 5px;
-  /* border: 1px solid #a8a8a8; */
-  border: none;
+  border: 1px solid #a8a8a8;
   outline: none;
   padding: 15px;
   resize: none;
@@ -173,6 +194,16 @@
   text-align: center;
   margin: 10px;
 }
+
+.text-view {
+  margin: 5px;
+  padding: 15px;
+  height: calc(100% - 110px);
+  border: 1px solid #ffffff;
+  overflow: auto;
+}
+
+/* Markdown Formate */
 
 .text-view ol li {
   list-style-type: decimal;
@@ -185,6 +216,10 @@
 .text-view blockquote {
   padding: 5px 10px;
   background-color: #e8e8e8;
+}
+
+.text-view img {
+  width: 100%;
 }
 
 /* SVG */

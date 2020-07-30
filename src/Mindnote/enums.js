@@ -86,6 +86,11 @@ const DRAG_TYPE = {
   RESIZE_NODE: "RESIZE_NODE",
 };
 
+const NOTE_MODE = {
+  VIEW_MODE: "VIEW_MODE",
+  EDIT_MODE: "EDIT_MODE",
+};
+
 export {
   LIST_ACTION_TYPE,
   EDGE,
@@ -99,4 +104,5 @@ export {
   TOOL_TYPE,
   ITEM_TYPE,
   DRAG_TYPE,
+  NOTE_MODE,
 };

@@ -1,46 +1,46 @@
 import React, { useState, useEffect, useContext } from "react";
-import { ITEM_TYPE, LIST_ACTION_TYPE } from "./enums";
+import { ITEM_TYPE, LIST_ACTION_TYPE, NOTE_MODE } from "./enums";
 import ItemContext from "./ItemContext";
 import { md } from "./mdParser";
 
 const Note = (props) => {
-  const { isShowNote, closeTool, selectedItem, selectedNote } = props;
+  const { isShowNote, selectedItem, selectedNote } = props;
   const { dispatchNotes, dispatchNodes, getNote, getNode } = useContext(
     ItemContext
   );
+  const [noteMode, setNoteMode] = useState(NOTE_MODE.EDIT_MODE);
+  // Note
   const [note, setNote] = useState(null);
   useEffect(() => {
     setNote(getNote(selectedNote));
   }, [selectedNote]);
+  // Note title
+  const [editTitle, setEditTitle] = useState("");
+  // Note content
   const [editContent, setEditContent] = useState("");
   useEffect(() => {
     if (note) {
       setEditContent(note.content);
-    }
-  }, [note]);
-  const modifyContent = (newContent) => {
-    setEditContent(newContent);
-    dispatchNotes({
-      type: LIST_ACTION_TYPE.UPDATE_ITEMS,
-      items: [{ ...note, content: newContent }],
-    });
-  };
-  const [editTitle, setEditTitle] = useState("");
-  useEffect(() => {
-    if (note) {
       setEditTitle(note.title);
     }
   }, [note]);
+  useEffect(() => {
+    if (note) {
+      dispatchNotes({
+        type: LIST_ACTION_TYPE.UPDATE_ITEMS,
+        items: [{ ...note, title: editTitle, content: editContent }],
+      });
+      dispatchNodes({
+        type: LIST_ACTION_TYPE.UPDATE_ITEMS,
+        items: [{ ...getNode(selectedItem.id), title: editTitle }],
+      });
+    }
+  }, [editTitle, editContent]);
+  const modifyContent = (newContent) => {
+    setEditContent(newContent);
+  };
   const modifyTitle = (newTitle) => {
     setEditTitle(newTitle);
-    dispatchNotes({
-      type: LIST_ACTION_TYPE.UPDATE_ITEMS,
-      items: [{ ...note, title: newTitle }],
-    });
-    dispatchNodes({
-      type: LIST_ACTION_TYPE.UPDATE_ITEMS,
-      items: [{ ...getNode(selectedItem.id), title: newTitle }],
-    });
   };
   return (
     <div
@@ -53,13 +53,46 @@ const Note = (props) => {
         Note
         <hr className="hori-sep" />
       </div>
-      {/* <button type="button" className="tool-close-btn" onClick={closeTool}>
-        <i className="fas fa-times"></i>
-      </button> */}
+      {noteMode === NOTE_MODE.EDIT_MODE ? (
+        <button
+          type="button"
+          className="tool-item edit-mode-btn"
+          onClick={() => setNoteMode(NOTE_MODE.VIEW_MODE)}
+        >
+          <i className="fas fa-eye"></i>
+        </button>
+      ) : (
+        ""
+      )}
+      {noteMode === NOTE_MODE.VIEW_MODE ? (
+        <button
+          type="button"
+          className="tool-item view-mode-btn"
+          onClick={() => setNoteMode(NOTE_MODE.EDIT_MODE)}
+        >
+          <i className="fas fa-pen"></i>
+        </button>
+      ) : (
+        ""
+      )}
       {note ? (
         <>
-          <NoteTitle title={editTitle} modifyTitle={modifyTitle} />
-          <TextArea content={editContent} modifyContent={modifyContent} />
+          {noteMode === NOTE_MODE.EDIT_MODE ? (
+            <>
+              <TitleEdit title={editTitle} modifyTitle={modifyTitle} />
+              <TextEdit content={editContent} modifyContent={modifyContent} />
+            </>
+          ) : (
+            ""
+          )}
+          {noteMode === NOTE_MODE.VIEW_MODE ? (
+            <>
+              <TitleView title={editTitle} />
+              <TextView content={editContent} />
+            </>
+          ) : (
+            ""
+          )}
         </>
       ) : (
         <div className="no-note">Please select a node to edit note.</div>
@@ -68,13 +101,12 @@ const Note = (props) => {
   );
 };
 
-const NoteTitle = (props) => {
+const TitleEdit = (props) => {
   const { title, modifyTitle } = props;
   return (
-    <div className="note-title">
+    <div className="title-edit">
       <input
         type="text"
-        name="note-title"
         className="title-content"
         value={title}
         placeholder="Add Note Title Here..."
@@ -84,7 +116,16 @@ const NoteTitle = (props) => {
   );
 };
 
-const NoteView = (props) => {
+const TitleView = (props) => {
+  const { title } = props;
+  return (
+    <div className="title-view" title={title}>
+      {title.length > 24 ? `${title.slice(0, 24)}...` : title}
+    </div>
+  );
+};
+
+const TextView = (props) => {
   const { content } = props;
   return (
     <div
@@ -94,12 +135,12 @@ const NoteView = (props) => {
   );
 };
 
-const TextArea = (props) => {
+const TextEdit = (props) => {
   const { content, modifyContent } = props;
   return (
     <div className="text-edit">
       <textarea
-        className="text-content"
+        className="textarea"
         placeholder="Type your note..."
         value={content}
         onChange={(e) => modifyContent(e.target.value)}
