@@ -1,65 +1,81 @@
 import React, { useState, useEffect, useContext } from "react";
-import { ITEM_TYPE, LIST_ACTION_TYPE } from "./enums";
+import { ITEM_TYPE, LIST_ACTION_TYPE, NOTE_MODE, MINDNOTE_MODE } from "./enums";
 import ItemContext from "./ItemContext";
 import { md } from "./mdParser";
 
 const Note = (props) => {
-  const { isShowNote, closeTool, selectedItem, selectedNote } = props;
+  const { selectedItem, selectedNote, mindnoteMode } = props;
   const { dispatchNotes, dispatchNodes, getNote, getNode } = useContext(
     ItemContext
   );
+  const [noteMode, setNoteMode] = useState(NOTE_MODE.EDIT_MODE);
+  useEffect(() => {
+    switch (mindnoteMode) {
+      case MINDNOTE_MODE.VIEW_MODE:
+        setNoteMode(NOTE_MODE.VIEW_MODE);
+        break;
+      case MINDNOTE_MODE.EDIT_MODE:
+        setNoteMode(NOTE_MODE.EDIT_MODE);
+        break;
+      default:
+        break;
+    }
+  }, [mindnoteMode]);
+  // Note
   const [note, setNote] = useState(null);
   useEffect(() => {
     setNote(getNote(selectedNote));
   }, [selectedNote]);
-  const [editContent, setEditContent] = useState("");
-  useEffect(() => {
-    if (note) {
-      setEditContent(note.content);
-    }
-  }, [note]);
   const modifyContent = (newContent) => {
-    setEditContent(newContent);
+    const newNote = { ...note, content: newContent };
+    setNote(newNote);
     dispatchNotes({
       type: LIST_ACTION_TYPE.UPDATE_ITEMS,
-      items: [{ ...note, content: newContent }],
+      items: [newNote],
     });
   };
-  const [editTitle, setEditTitle] = useState("");
-  useEffect(() => {
-    if (note) {
-      setEditTitle(note.title);
-    }
-  }, [note]);
   const modifyTitle = (newTitle) => {
-    setEditTitle(newTitle);
+    const newNote = { ...note, title: newTitle };
+    setNote(newNote);
     dispatchNotes({
       type: LIST_ACTION_TYPE.UPDATE_ITEMS,
-      items: [{ ...note, title: newTitle }],
+      items: [newNote],
     });
     dispatchNodes({
       type: LIST_ACTION_TYPE.UPDATE_ITEMS,
       items: [{ ...getNode(selectedItem.id), title: newTitle }],
     });
   };
+
   return (
-    <div
-      className="tool-box note"
-      style={{
-        display: isShowNote ? "block" : "none",
-      }}
-    >
+    <div className="tool-box note">
       <div className="tool-main-title">
         Note
         <hr className="hori-sep" />
       </div>
-      {/* <button type="button" className="tool-close-btn" onClick={closeTool}>
-        <i className="fas fa-times"></i>
-      </button> */}
+      <NoteModeBtn
+        mindnoteMode={mindnoteMode}
+        noteMode={noteMode}
+        setNoteMode={setNoteMode}
+      />
       {note ? (
         <>
-          <NoteTitle title={editTitle} modifyTitle={modifyTitle} />
-          <TextArea content={editContent} modifyContent={modifyContent} />
+          {noteMode === NOTE_MODE.EDIT_MODE ? (
+            <>
+              <TitleEdit title={note.title} modifyTitle={modifyTitle} />
+              <TextEdit content={note.content} modifyContent={modifyContent} />
+            </>
+          ) : (
+            ""
+          )}
+          {noteMode === NOTE_MODE.VIEW_MODE ? (
+            <>
+              <TitleView title={note.title} />
+              <TextView content={note.content} />
+            </>
+          ) : (
+            ""
+          )}
         </>
       ) : (
         <div className="no-note">Please select a node to edit note.</div>
@@ -68,13 +84,44 @@ const Note = (props) => {
   );
 };
 
-const NoteTitle = (props) => {
+const NoteModeBtn = (props) => {
+  const { mindnoteMode, noteMode, setNoteMode } = props;
+  if (mindnoteMode === MINDNOTE_MODE.EDIT_MODE) {
+    switch (noteMode) {
+      case NOTE_MODE.VIEW_MODE:
+        return (
+          <button
+            type="button"
+            className="tool-item edit-mode-btn"
+            onClick={() => setNoteMode(NOTE_MODE.EDIT_MODE)}
+          >
+            <i className="fas fa-pen"></i>
+          </button>
+        );
+      case NOTE_MODE.EDIT_MODE:
+        return (
+          <button
+            type="button"
+            className="tool-item view-mode-btn"
+            onClick={() => setNoteMode(NOTE_MODE.VIEW_MODE)}
+          >
+            <i className="fas fa-eye"></i>
+          </button>
+        );
+      default:
+        return <></>;
+    }
+  } else {
+    return <></>;
+  }
+};
+
+const TitleEdit = (props) => {
   const { title, modifyTitle } = props;
   return (
-    <div className="note-title">
+    <div className="title-edit">
       <input
         type="text"
-        name="note-title"
         className="title-content"
         value={title}
         placeholder="Add Note Title Here..."
@@ -84,7 +131,16 @@ const NoteTitle = (props) => {
   );
 };
 
-const NoteView = (props) => {
+const TitleView = (props) => {
+  const { title } = props;
+  return (
+    <div className="title-view" title={title}>
+      {title.length > 24 ? `${title.slice(0, 24)}...` : title}
+    </div>
+  );
+};
+
+const TextView = (props) => {
   const { content } = props;
   return (
     <div
@@ -94,12 +150,12 @@ const NoteView = (props) => {
   );
 };
 
-const TextArea = (props) => {
+const TextEdit = (props) => {
   const { content, modifyContent } = props;
   return (
     <div className="text-edit">
       <textarea
-        className="text-content"
+        className="textarea"
         placeholder="Type your note..."
         value={content}
         onChange={(e) => modifyContent(e.target.value)}

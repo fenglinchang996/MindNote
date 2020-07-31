@@ -1,11 +1,17 @@
 /* Header */
 
 .header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1;
   display: flex;
   align-items: center;
   padding: 10px;
   height: 50px;
-  border-bottom: 2px solid #e8e8ee;
+  border-bottom: 2px solid #457b9d;
+  background-color: #ffffff;
 }
 
 header > .title {
@@ -37,6 +43,13 @@ header > .go-back-btn:hover {
 }
 .header > .navbar > .navbar-item:hover {
   color: #457b9d;
+}
+
+.header > .navbar > .navbar-item-selected {
+  color: #457b9d;
+  border: 2px solid #457b9d;
+  border-radius: 3px;
+  padding: 5px 10px;
 }
 
 .header > .user {
@@ -94,4 +107,11 @@ header > .user > .user-info > .popover > .item {
 }
 header > .user > .user-info > .popover > .item:hover {
   color: #457b9d;
+}
+
+/* Header Separation */
+
+.header-sep {
+  width: 100%;
+  height: 50px;
 }

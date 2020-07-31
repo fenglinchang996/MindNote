@@ -20,7 +20,7 @@ import { AuthToLogInRoute, AuthToMyDocsRoute } from "./AuthRoute";
 import UserContext from "./UserContext";
 
 const App = () => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(undefined);
   // Check Log In Status and retrive user data
   useEffect(() => {
     auth.onAuthStateChanged((authUser) => {
@@ -60,10 +60,10 @@ const App = () => {
               <Header />
               <Docs />
             </Route>
-            <AuthToLogInRoute path="/mindnote/:mindnoteId">
+            <Route path="/mindnote/:docId/:mindnoteId">
               <Header />
               <Mindnote />
-            </AuthToLogInRoute>
+            </Route>
             <Route path="/member">
               <Header />
               <Member />

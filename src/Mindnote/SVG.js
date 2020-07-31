@@ -2,10 +2,13 @@ import React, { useState, useEffect, useContext, useRef } from "react";
 import { v4 as uuid } from "uuid";
 import StyleContext from "./StyleContext";
 import ItemContext from "./ItemContext";
-import SVGContext from "./SVGContext";
 import VirtualNode from "./VirtualNode";
+import SelectedNode from "./SelectedNode";
+import ViewNode from "./ViewNode";
 import Node from "./Node";
 import VirtualCurve from "./VirtualCurve";
+import SelectedCurve from "./SelectedCurve";
+import ViewCurve from "./ViewCurve";
 import Curve from "./Curve";
 import {
   EDGE,
@@ -18,6 +21,7 @@ import {
   CURVE_CONTROL_TYPE,
   CURVE_MOVE_TYPE,
   NODE_POINT_TYPE,
+  MINDNOTE_MODE,
 } from "./enums";
 import {
   calcIntersectionPoint,
@@ -298,7 +302,6 @@ const SVG = (props) => {
       []
     );
   };
-
   // Virtual Node
   const [virtualNode, setVirtualNode] = useState(null);
 
@@ -363,6 +366,50 @@ const SVG = (props) => {
   // Virtual Curve
   const [virtualCurve, setVirtualCurve] = useState(null);
 
+  // Mindnote Mode
+  const { mindnoteMode } = props;
+  // Selected Node
+  const [selectedNode, setSelectedNode] = useState(null);
+  // View Node
+  const [viewNode, setViewNode] = useState(null);
+  // Show Selected Node or View Node based on mindnoteMode
+  useEffect(() => {
+    if (selectedItem && selectedItem.type === ITEM_TYPE.NODE) {
+      switch (mindnoteMode) {
+        case MINDNOTE_MODE.EDIT_MODE:
+          setSelectedNode(getNode(selectedItem.id));
+          break;
+        case MINDNOTE_MODE.VIEW_MODE:
+          setViewNode(getNode(selectedItem.id));
+        default:
+          break;
+      }
+    } else {
+      setSelectedNode(null);
+      setViewNode(null);
+    }
+  }, [selectedItem, nodeList]);
+  // Selected Curve
+  const [selectedCurve, setSelectedCurve] = useState(null);
+  // View Curve
+  const [viewCurve, setViewCurve] = useState(null);
+  // Show Selected Curve or View Curve based on mindnoteMode
+  useEffect(() => {
+    if (selectedItem && selectedItem.type === ITEM_TYPE.CURVE) {
+      switch (mindnoteMode) {
+        case MINDNOTE_MODE.EDIT_MODE:
+          setSelectedCurve(getCurve(selectedItem.id));
+          break;
+        case MINDNOTE_MODE.VIEW_MODE:
+          setViewCurve(getCurve(selectedItem.id));
+        default:
+          break;
+      }
+    } else {
+      setSelectedCurve(null);
+      setViewCurve(null);
+    }
+  }, [selectedItem, curveList]);
   // Initialize Canvas
   useEffect(() => {
     // Create Center Node if no nodeList Data
@@ -626,6 +673,8 @@ const SVG = (props) => {
       type: LIST_ACTION_TYPE.DELETE_ITEMS,
       items: [...curvesToBeRemoved],
     });
+    // Reset selectedItem
+    setSelectedItem(null);
   };
 
   // Move Node (and its related Nodes/Curves)
@@ -1180,10 +1229,14 @@ const SVG = (props) => {
         SVGSizeRatio * SVGSize.width
       } ${SVGSizeRatio * SVGSize.height}`}
       style={SVGStyle.style}
-      onFocus={() => setSelectedItem({ type: ITEM_TYPE.SVG })}
       onWheel={(e) => {
         if (e.ctrlKey) {
           resizeCanvas(0.0002 * e.deltaY);
+        }
+      }}
+      onFocus={() => {
+        if (dragType === null || dragType === DRAG_TYPE.MOVE_CANVAS) {
+          setSelectedItem({ tyep: ITEM_TYPE.SVG });
         }
       }}
       onMouseDown={(e) => {
@@ -1194,37 +1247,32 @@ const SVG = (props) => {
       onMouseMove={drag}
       onMouseUp={drop}
     >
-      <SVGContext.Provider
-        value={{ drawNewNode, resizeNode, modifyCurveControl, moveCurve }}
-      >
-        {curveList.map((curve) => (
-          <Curve
-            key={curve.id}
-            curveData={curve}
-            isSelected={
-              selectedItem &&
-              selectedItem.type === ITEM_TYPE.CURVE &&
-              selectedItem.id === curve.id
-            }
-          />
-        ))}
-        {nodeList.map((node) => (
-          <Node
-            key={node.id}
-            nodeData={node}
-            hoverNode={hoverNode}
-            deleteNode={deleteNode}
-            moveNode={moveNode}
-            isSelected={
-              selectedItem &&
-              selectedItem.type === ITEM_TYPE.NODE &&
-              selectedItem.id === node.id
-            }
-          />
-        ))}
-        {virtualNode && <VirtualNode nodeData={virtualNode} />}
-        {virtualCurve && <VirtualCurve curveData={virtualCurve} />}
-      </SVGContext.Provider>
+      {curveList.map((curve) => (
+        <Curve key={curve.id} curveData={curve} />
+      ))}
+      {nodeList.map((node) => (
+        <Node key={node.id} nodeData={node} hoverNode={hoverNode} />
+      ))}
+      {viewNode && <ViewNode nodeData={viewNode} />}
+      {viewCurve && <ViewCurve curveData={viewCurve} />}
+      {selectedNode && (
+        <SelectedNode
+          nodeData={selectedNode}
+          deleteNode={deleteNode}
+          moveNode={moveNode}
+          drawNewNode={drawNewNode}
+          resizeNode={resizeNode}
+        />
+      )}
+      {selectedCurve && (
+        <SelectedCurve
+          curveData={selectedCurve}
+          modifyCurveControl={modifyCurveControl}
+          moveCurve={moveCurve}
+        />
+      )}
+      {virtualNode && <VirtualNode nodeData={virtualNode} />}
+      {virtualCurve && <VirtualCurve curveData={virtualCurve} />}
     </svg>
   );
 };

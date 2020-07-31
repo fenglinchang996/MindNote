@@ -13,23 +13,26 @@ import docPic from "./Mind-Map-Paper.svg";
 import { db, DB } from "./firebase";
 import { AuthToLogInRoute } from "./AuthRoute";
 import UserContext from "./UserContext";
+import Loading from "./Loading";
 
 const Docs = (props) => {
   const { path, url } = useRouteMatch();
+  const [isLoading, setIsLoading] = useState(false);
 
   return (
     <div className="docs">
       <Switch>
         <Route path={`${path}/public`}>
-          <DocList />
+          <PublicDocList setIsLoading={setIsLoading} />
         </Route>
         <AuthToLogInRoute path={`${path}/my`}>
-          <DocList />
+          <MyDocList setIsLoading={setIsLoading} />
         </AuthToLogInRoute>
         <Route path={`${path}`}>
           <Redirect to={`${path}/public`} />
         </Route>
       </Switch>
+      {isLoading ? <Loading /> : ""}
     </div>
   );
 };
@@ -37,9 +40,11 @@ const Docs = (props) => {
 const wrapNewDoc = (isFirstNewDoc) => (props) => {
   const user = useContext(UserContext);
   const history = useHistory();
+  const { setIsLoading } = props;
   // Create new mindnote
   const createNewMindnoteToDB = async () => {
     if (user) {
+      setIsLoading(true);
       try {
         // Create mindnote
         const mindnoteRef = await db.collection("mindnotes").add({
@@ -50,7 +55,7 @@ const wrapNewDoc = (isFirstNewDoc) => (props) => {
         // Create doc
         const mindnoteId = mindnoteRef.id;
         const docRef = await db.collection("docs").add({
-          title: "Utitled Mindnote",
+          title: "",
           creatorId: user.uid,
           createDate: DB.Timestamp.fromDate(new Date()),
           modifyData: DB.Timestamp.fromDate(new Date()),
@@ -64,8 +69,10 @@ const wrapNewDoc = (isFirstNewDoc) => (props) => {
           .update({
             ownDocs: DB.FieldValue.arrayUnion(docId),
           });
-        history.push(`/mindnote/${mindnoteId}`);
+        setIsLoading(false);
+        history.push(`/mindnote/${docId}/${mindnoteId}`);
       } catch (error) {
+        setIsLoading(false);
         console.error(error);
       }
     }
@@ -94,15 +101,35 @@ const wrapNewDoc = (isFirstNewDoc) => (props) => {
 const FirstNewDoc = wrapNewDoc(true);
 const NewDoc = wrapNewDoc(false);
 
-const DocList = (props) => {
-  const { path, url } = useRouteMatch();
+const MyDocList = (props) => {
+  const { path } = useRouteMatch();
   const [docList, setDocList] = useState([]);
   const user = useContext(UserContext);
+  const { setIsLoading } = props;
+
+  const getMyDocsFromDB = () => {
+    setIsLoading(true);
+    db.collection("docs")
+      .where("creatorId", "==", user.uid)
+      .get()
+      .then((querySnapshot) => {
+        const myDocList = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setDocList(myDocList);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.error("Erroe get myDoc: ", error);
+      });
+  };
 
   // Get docs from DB
   useEffect(() => {
     switch (path) {
       case "/docs/public":
+        setIsLoading(true);
         db.collection("docs")
           .get()
           .then((querySnapshot) => {
@@ -111,25 +138,50 @@ const DocList = (props) => {
               ...doc.data(),
             }));
             setDocList(publicDocList);
+            setIsLoading(false);
+          })
+          .catch((error) => {
+            console.error("Erroe get myDoc: ", error);
           });
         break;
       case "/docs/my":
-        db.collection("docs")
-          .where("creatorId", "==", user.uid)
-          .get()
-          .then((querySnapshot) => {
-            const myDocList = querySnapshot.docs.map((doc) => ({
-              id: doc.id,
-              ...doc.data(),
-            }));
-            setDocList(myDocList);
-          });
-        setDocList([]);
+        getMyDocsFromDB();
         break;
       default:
         break;
     }
   }, [path]);
+
+  // Delete doc
+  const deleteDoc = async (doc) => {
+    setIsLoading(true);
+    const { creatorId, mindnoteId, id: docId } = doc;
+    // Remove docId from owner ownDocs
+    try {
+      const ownerRef = db.collection("users").doc(creatorId);
+      await ownerRef.update({ ownDocs: DB.FieldValue.arrayRemove(docId) });
+      console.log("Doc successfully removed from owner ownDocs!");
+    } catch (error) {
+      console.error("Error removing doc from owner ownDocs: ", error);
+    }
+    // Remove mindnote
+    try {
+      await db.collection("mindnotes").doc(mindnoteId).delete();
+      console.log("Mindnote successfully deleted!");
+    } catch (error) {
+      console.log("Error removing mindnote!");
+    }
+    // Remove doc
+    try {
+      await db.collection("docs").doc(docId).delete();
+      console.log("Doc successfully deleted!");
+    } catch (error) {
+      console.log("Error removing doc!");
+    }
+    // Re-get docs
+    getMyDocsFromDB();
+    setIsLoading(false);
+  };
 
   return (
     <div>
@@ -138,21 +190,74 @@ const DocList = (props) => {
           docList.map((doc) => {
             const { id, title, mindnoteId } = doc;
             return (
-              <Link key={id} to={`/mindnote/${mindnoteId}`}>
-                <div className="doc">
+              <div key={id} className="doc">
+                <div className="delete-doc-btn" onClick={() => deleteDoc(doc)}>
+                  <i className="fas fa-trash-alt"></i>
+                </div>
+                <Link to={`/mindnote/${id}/${mindnoteId}`}>
                   <div className="doc-diagram">
                     <img src={docPic} />
                   </div>
                   <div className="doc-info">
-                    <span className="doc-title">{title}</span>
+                    <span className="doc-title">
+                      {title && title !== "" ? title : "Untitled Mindnote"}
+                    </span>
                   </div>
-                </div>
-              </Link>
+                </Link>
+              </div>
             );
           })}
       </div>
       {path === "/docs/my" &&
-        (docList.length === 0 ? <FirstNewDoc /> : <NewDoc />)}
+        (docList.length === 0 ? (
+          <FirstNewDoc setIsLoading={setIsLoading} />
+        ) : (
+          <NewDoc setIsLoading={setIsLoading} />
+        ))}
+    </div>
+  );
+};
+
+const PublicDocList = (props) => {
+  const { path } = useRouteMatch();
+  const [docList, setDocList] = useState([]);
+  const { setIsLoading } = props;
+
+  // Get docs from DB
+  useEffect(() => {
+    setIsLoading(true);
+    db.collection("docs")
+      .get()
+      .then((querySnapshot) => {
+        const publicDocList = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setDocList(publicDocList);
+        setIsLoading(false);
+      });
+  }, [path]);
+
+  return (
+    <div className="doc-list">
+      {docList.length > 0 &&
+        docList.map((doc) => {
+          const { id, title, mindnoteId } = doc;
+          return (
+            <div key={id} className="doc">
+              <Link to={`/mindnote/${id}/${mindnoteId}`}>
+                <div className="doc-diagram">
+                  <img src={docPic} />
+                </div>
+                <div className="doc-info">
+                  <span className="doc-title">
+                    {title && title !== "" ? title : "Untitled Mindnote"}
+                  </span>
+                </div>
+              </Link>
+            </div>
+          );
+        })}
     </div>
   );
 };

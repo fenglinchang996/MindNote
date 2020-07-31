@@ -10,31 +10,39 @@ import {
 } from "react-router-dom";
 import { auth, db } from "../firebase";
 import { AuthToMyDocsRoute } from "../AuthRoute";
+import Loading from "../Loading";
 
 const Member = (props) => {
   let { path, url } = useRouteMatch();
+  const [isLoading, setIsLoading] = useState(false);
   return (
-    <div className="form">
-      <Switch>
-        <AuthToMyDocsRoute path={`${path}/signup`}>
-          <SignUp />
-        </AuthToMyDocsRoute>
-        <AuthToMyDocsRoute path={`${path}/login`}>
-          <LogIn />
-        </AuthToMyDocsRoute>
-        <Route path={`${path}`}>
-          <Redirect to={`${url}/login`} />
-        </Route>
-      </Switch>
+    <div className="form-wrapper">
+      <div className="form">
+        <Switch>
+          <Route path={`${path}/signup`}>
+            <SignUp setIsLoading={setIsLoading} />
+          </Route>
+          <AuthToMyDocsRoute path={`${path}/login`}>
+            <LogIn setIsLoading={setIsLoading} />
+          </AuthToMyDocsRoute>
+          <Route path={`${path}`}>
+            <Redirect to={`${url}/login`} />
+          </Route>
+        </Switch>
+      </div>
+      {isLoading ? <Loading /> : ""}
     </div>
   );
 };
 
 const SignUp = (props) => {
+  const history = useHistory();
+  const { setIsLoading } = props;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const createUser = (email, password, name) => {
+    setIsLoading(true);
     auth
       .createUserWithEmailAndPassword(email, password)
       .then((userCredential) => {
@@ -50,6 +58,8 @@ const SignUp = (props) => {
           })
           .then(() => {
             console.log("User successfully added!");
+            setIsLoading(false);
+            history.push("/member/login");
           })
           .catch((error) => {
             console.error("Error adding user: ", error);
@@ -96,14 +106,14 @@ const SignUp = (props) => {
       >
         Sign Up
       </button>
-      <div className="login-separator">
+      {/* <div className="login-separator">
         <div className="line"></div>
         <div>or</div>
         <div className="line"></div>
       </div>
       <button type="button" className="btn fb-login-btn">
         Sign up with Facebook
-      </button>
+      </button> */}
       <p>
         Already have an account？
         <Link to="./login">&nbsp;Log In&nbsp;</Link>
@@ -113,13 +123,21 @@ const SignUp = (props) => {
 };
 
 const LogIn = (props) => {
+  const { setIsLoading } = props;
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const LogInUser = (email, password) => {
-    auth.signInWithEmailAndPassword(email, password).catch((error) => {
-      // Handle Errors here.
-      console.log(`${error.code}: ${error.message}`);
-    });
+    setIsLoading(true);
+    auth
+      .signInWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        console.log(userCredential);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        // Handle Errors here.
+        console.log(`${error.code}: ${error.message}`);
+      });
   };
   return (
     <>
@@ -147,14 +165,14 @@ const LogIn = (props) => {
       >
         Log In
       </button>
-      <div className="login-separator">
+      {/* <div className="login-separator">
         <div className="line"></div>
         <div>or</div>
         <div className="line"></div>
       </div>
       <button type="button" className="btn fb-login-btn">
         Log in with Facebook
-      </button>
+      </button> */}
       <p>
         Dont't have an account？
         <Link to="./signup">&nbsp;Sign Up&nbsp;</Link>

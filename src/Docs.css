@@ -1,5 +1,3 @@
-/* Header */
-
 /* Doc List */
 
 .doc-list {
@@ -10,6 +8,7 @@
 }
 
 .doc {
+  position: relative;
   width: 200px;
   border: 1px solid #a8a8a8;
   border-radius: 5px;
@@ -20,13 +19,26 @@
   box-shadow: 0 0 10px 5px #a8a8a8;
 }
 
-.doc > .doc-diagram > img {
+.doc .doc-diagram > img {
   width: 100%;
 }
 
-.doc > .doc-info {
+.doc .doc-info {
   border-top: 1px solid #a8a8a8;
   padding: 10px;
+}
+
+.doc .delete-doc-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.doc .delete-doc-btn:hover {
+  color: #457b9d;
+  font-size: 1.2rem;
 }
 
 .new-doc {
