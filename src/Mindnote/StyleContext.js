@@ -11,7 +11,7 @@ const styleContext = createContext({
       rx: 5,
       ry: 5,
       fill: "white",
-      stroke: "red",
+      stroke: "black",
       strokeWidth: 2,
     },
   },
@@ -44,6 +44,16 @@ const styleContext = createContext({
       strokeDasharray: "5, 5",
     },
   },
+  selectedNodeStyle: {
+    style: {
+      stroke: "red",
+    },
+  },
+  viewNodeStyle: {
+    style: {
+      stroke: "red",
+    },
+  },
   connectionArrowStyle: {
     style: {
       fill: "blue",
@@ -65,6 +75,9 @@ const styleContext = createContext({
       strokeWidth: 5,
       strokeDasharray: "10, 5",
     },
+  },
+  viewCurveStyle: {
+    style: {},
   },
   curvePointStyle: {
     r: 5,

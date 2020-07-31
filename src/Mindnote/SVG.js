@@ -4,9 +4,11 @@ import StyleContext from "./StyleContext";
 import ItemContext from "./ItemContext";
 import VirtualNode from "./VirtualNode";
 import SelectedNode from "./SelectedNode";
+import ViewNode from "./ViewNode";
 import Node from "./Node";
 import VirtualCurve from "./VirtualCurve";
 import SelectedCurve from "./SelectedCurve";
+import ViewCurve from "./ViewCurve";
 import Curve from "./Curve";
 import {
   EDGE,
@@ -19,6 +21,7 @@ import {
   CURVE_CONTROL_TYPE,
   CURVE_MOVE_TYPE,
   NODE_POINT_TYPE,
+  MINDNOTE_MODE,
 } from "./enums";
 import {
   calcIntersectionPoint,
@@ -301,13 +304,6 @@ const SVG = (props) => {
   };
   // Virtual Node
   const [virtualNode, setVirtualNode] = useState(null);
-  // Selected Node
-  const [selectedNode, setSelectedNode] = useState(null);
-  useEffect(() => {
-    selectedItem && selectedItem.type === ITEM_TYPE.NODE
-      ? setSelectedNode(getNode(selectedItem.id))
-      : setSelectedNode(null);
-  }, [selectedItem, nodeList]);
 
   // Curve
   const calcCurveControl = (start, end) => {
@@ -370,14 +366,50 @@ const SVG = (props) => {
   // Virtual Curve
   const [virtualCurve, setVirtualCurve] = useState(null);
 
+  // Mindnote Mode
+  const { mindnoteMode } = props;
+  // Selected Node
+  const [selectedNode, setSelectedNode] = useState(null);
+  // View Node
+  const [viewNode, setViewNode] = useState(null);
+  // Show Selected Node or View Node based on mindnoteMode
+  useEffect(() => {
+    if (selectedItem && selectedItem.type === ITEM_TYPE.NODE) {
+      switch (mindnoteMode) {
+        case MINDNOTE_MODE.EDIT_MODE:
+          setSelectedNode(getNode(selectedItem.id));
+          break;
+        case MINDNOTE_MODE.VIEW_MODE:
+          setViewNode(getNode(selectedItem.id));
+        default:
+          break;
+      }
+    } else {
+      setSelectedNode(null);
+      setViewNode(null);
+    }
+  }, [selectedItem, nodeList]);
   // Selected Curve
   const [selectedCurve, setSelectedCurve] = useState(null);
+  // View Curve
+  const [viewCurve, setViewCurve] = useState(null);
+  // Show Selected Curve or View Curve based on mindnoteMode
   useEffect(() => {
-    selectedItem && selectedItem.type === ITEM_TYPE.CURVE
-      ? setSelectedCurve(getCurve(selectedItem.id))
-      : setSelectedCurve(null);
+    if (selectedItem && selectedItem.type === ITEM_TYPE.CURVE) {
+      switch (mindnoteMode) {
+        case MINDNOTE_MODE.EDIT_MODE:
+          setSelectedCurve(getCurve(selectedItem.id));
+          break;
+        case MINDNOTE_MODE.VIEW_MODE:
+          setViewCurve(getCurve(selectedItem.id));
+        default:
+          break;
+      }
+    } else {
+      setSelectedCurve(null);
+      setViewCurve(null);
+    }
   }, [selectedItem, curveList]);
-
   // Initialize Canvas
   useEffect(() => {
     // Create Center Node if no nodeList Data
@@ -1221,6 +1253,8 @@ const SVG = (props) => {
       {nodeList.map((node) => (
         <Node key={node.id} nodeData={node} hoverNode={hoverNode} />
       ))}
+      {viewNode && <ViewNode nodeData={viewNode} />}
+      {viewCurve && <ViewCurve curveData={viewCurve} />}
       {selectedNode && (
         <SelectedNode
           nodeData={selectedNode}

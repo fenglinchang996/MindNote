@@ -1,19 +1,19 @@
-import React, { useState, useReducer, useEffect } from "react";
+import React, { useState, useReducer, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
 import { db } from "../firebase";
-import Header from "../Header";
 import SVG from "./SVG";
 import CommonTool from "./CommonTool";
 import NodeTool from "./NodeTool";
 import CurveTool from "./CurveTool";
 import Note from "./Note";
-import StyleContext from "./StyleContext";
+import Loading from "../Loading";
 import ItemContext from "./ItemContext";
+import UserContext from "../UserContext";
 import {
   LIST_ACTION_TYPE,
   SHOW_TOOL_TYPE,
-  TOOL_TYPE,
   ITEM_TYPE,
+  MINDNOTE_MODE,
 } from "./enums";
 import "./Mindnote.css";
 
@@ -64,45 +64,11 @@ const showToolReducer = (isShowTool, action) => {
 };
 
 const Mindnote = (props) => {
-  // Mindnote Data
-  const [nodeList, dispatchNodes] = useReducer(listReducer, []);
-  const getNode = (nodeId) => nodeList.find((node) => node.id === nodeId);
-  const [curveList, dispatchCurves] = useReducer(listReducer, []);
-  const getCurve = (curveId) => curveList.find((curve) => curve.id === curveId);
-  const [noteList, dispatchNotes] = useReducer(listReducer, []);
-  const getNote = (noteId) => noteList.find((note) => note.id === noteId);
-  const [isShowTool, dispatchShowTool] = useReducer(showToolReducer, {
-    showNode: false,
-    showCurve: false,
-    showNote: false,
-  });
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [selectedNote, setSelectedNote] = useState(null);
-  useEffect(() => {
-    if (selectedItem) {
-      if (selectedItem.type === ITEM_TYPE.NODE) {
-        const node = getNode(selectedItem.id);
-        setSelectedNote(node.noteId);
-        dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_NOTE });
-      } else {
-        setSelectedNote(null);
-        dispatchShowTool({ type: SHOW_TOOL_TYPE.CLOSE_NOTE });
-      }
-    }
-  }, [selectedItem]);
-  const ItemContextValue = {
-    dispatchNodes,
-    getNode,
-    dispatchCurves,
-    getCurve,
-    dispatchNotes,
-    getNote,
-    setSelectedItem,
-  };
   const { docId, mindnoteId } = useParams();
   // Get mindnote data from database
   useEffect(() => {
     if (mindnoteId) {
+      setIsSaving(true);
       const mindnoteRef = db.collection("mindnotes").doc(mindnoteId);
       mindnoteRef
         .get()
@@ -122,6 +88,7 @@ const Mindnote = (props) => {
                 type: LIST_ACTION_TYPE.INIT_ITEMS,
                 items: mindnote.noteList,
               });
+              setIsSaving(false);
             }
           } else {
             // mindnoteDoc.data() will be undefined in this case
@@ -155,9 +122,59 @@ const Mindnote = (props) => {
         });
     }
   }, []);
+  // Mindnote data
+  const [nodeList, dispatchNodes] = useReducer(listReducer, []);
+  const getNode = (nodeId) => nodeList.find((node) => node.id === nodeId);
+  const [curveList, dispatchCurves] = useReducer(listReducer, []);
+  const getCurve = (curveId) => curveList.find((curve) => curve.id === curveId);
+  const [noteList, dispatchNotes] = useReducer(listReducer, []);
+  const getNote = (noteId) => noteList.find((note) => note.id === noteId);
+  const [isShowTool, dispatchShowTool] = useReducer(showToolReducer, {
+    showNode: false,
+    showCurve: false,
+    showNote: false,
+  });
+  // Mindnote mode
+  const user = useContext(UserContext);
+  const [mindnoteMode, setMindnoteMode] = useState(MINDNOTE_MODE.VIEW_MODE);
+  useEffect(() => {
+    if (user && doc && user.uid === doc.creatorId) {
+      setMindnoteMode(MINDNOTE_MODE.EDIT_MODE);
+    } else {
+      setMindnoteMode(MINDNOTE_MODE.VIEW_MODE);
+    }
+  }, [user, doc]);
+  // selectedItem, selectedNote
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedNote, setSelectedNote] = useState(null);
+  useEffect(() => {
+    if (selectedItem) {
+      if (selectedItem.type === ITEM_TYPE.NODE) {
+        const node = getNode(selectedItem.id);
+        setSelectedNote(node.noteId);
+        dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_NOTE });
+      } else {
+        setSelectedNote(null);
+        dispatchShowTool({ type: SHOW_TOOL_TYPE.CLOSE_NOTE });
+      }
+    } else {
+      dispatchShowTool({ type: SHOW_TOOL_TYPE.CLOSE_NOTE });
+    }
+  }, [selectedItem]);
+  const ItemContextValue = {
+    dispatchNodes,
+    getNode,
+    dispatchCurves,
+    getCurve,
+    dispatchNotes,
+    getNote,
+    setSelectedItem,
+    mindnoteMode,
+  };
   const modifyDocTitle = (newTitle) => {
     setDoc({ ...doc, title: newTitle });
   };
+  // Saving status
   const [isSaving, setIsSaving] = useState(false);
   // Save(Update) doc/mindnote data to database
   const saveMindnoteToDB = async (doc, nodeList, curveList, noteList) => {
@@ -185,59 +202,54 @@ const Mindnote = (props) => {
             curveList={curveList}
             noteList={noteList}
             selectedItem={selectedItem}
+            mindnoteMode={mindnoteMode}
           />
-          <CommonTool
-            saveMindnoteToDB={() =>
-              saveMindnoteToDB(doc, nodeList, curveList, noteList)
-            }
-            showNodeTool={() =>
-              dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_NODE_TOOL })
-            }
-            showCurveTool={() =>
-              dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_CURVE_TOOL })
-            }
-            showNote={() =>
-              dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_NOTE })
-            }
-            selectedItem={selectedItem}
-            docTitle={doc ? doc.title : ""}
-            modifyDocTitle={modifyDocTitle}
-          />
-          <NodeTool
-            isShowNodeTool={isShowTool.showNodeTool}
-            closeTool={() =>
-              dispatchShowTool({ type: SHOW_TOOL_TYPE.CLOSE_NODE_TOOL })
-            }
-          />
-          <CurveTool
-            isShowCurveTool={isShowTool.showCurveTool}
-            closeTool={() =>
-              dispatchShowTool({ type: SHOW_TOOL_TYPE.CLOSE_CURVE_TOOL })
-            }
-          />
+          {mindnoteMode === MINDNOTE_MODE.EDIT_MODE ? (
+            <>
+              <CommonTool
+                saveMindnoteToDB={() =>
+                  saveMindnoteToDB(doc, nodeList, curveList, noteList)
+                }
+                showNodeTool={() =>
+                  dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_NODE_TOOL })
+                }
+                showCurveTool={() =>
+                  dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_CURVE_TOOL })
+                }
+                showNote={() =>
+                  dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_NOTE })
+                }
+                selectedItem={selectedItem}
+                docTitle={doc ? doc.title : ""}
+                modifyDocTitle={modifyDocTitle}
+              />
+              <NodeTool
+                isShowNodeTool={isShowTool.showNodeTool}
+                closeTool={() =>
+                  dispatchShowTool({ type: SHOW_TOOL_TYPE.CLOSE_NODE_TOOL })
+                }
+              />
+              <CurveTool
+                isShowCurveTool={isShowTool.showCurveTool}
+                closeTool={() =>
+                  dispatchShowTool({ type: SHOW_TOOL_TYPE.CLOSE_CURVE_TOOL })
+                }
+              />
+            </>
+          ) : (
+            ""
+          )}
           {isShowTool.showNote ? (
             <Note
-              closeTool={() =>
-                dispatchShowTool({ type: SHOW_TOOL_TYPE.CLOSE_NOTE })
-              }
               selectedItem={selectedItem}
               selectedNote={selectedNote}
+              mindnoteMode={mindnoteMode}
             />
           ) : (
             ""
           )}
         </ItemContext.Provider>
-        {isSaving ? <Saving /> : ""}
-      </div>
-    </div>
-  );
-};
-
-const Saving = (props) => {
-  return (
-    <div className="loading">
-      <div className="loading-icon">
-        <i className="fas fa-spinner"></i>
+        {isSaving ? <Loading /> : ""}
       </div>
     </div>
   );

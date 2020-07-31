@@ -60,10 +60,10 @@ const App = () => {
               <Header />
               <Docs />
             </Route>
-            <AuthToLogInRoute path="/mindnote/:docId/:mindnoteId">
+            <Route path="/mindnote/:docId/:mindnoteId">
               <Header />
               <Mindnote />
-            </AuthToLogInRoute>
+            </Route>
             <Route path="/member">
               <Header />
               <Member />
