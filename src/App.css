@@ -76,10 +76,11 @@ g {
 }
 
 .loading-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 4rem;
   height: 4rem;
-  line-height: 4rem;
-  text-align: center;
   font-size: 3rem;
   animation: spin 1s linear infinite;
 }
