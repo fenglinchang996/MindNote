@@ -1,13 +1,26 @@
-import React, { useState, useContext } from "react";
+import React, { useContext } from "react";
 import BaseNode from "./BaseNode";
 import StyleContext from "./StyleContext";
 import { NODE_POINT_TYPE, EDGE } from "./enums";
 
 const SelectedNode = (props) => {
   const { nodeData, deleteNode, moveNode, drawNewNode, resizeNode } = props;
-  const { id, style, corners, connections } = nodeData;
-  const { nodeStyle } = useContext(StyleContext);
-  const { nodePointStyle, connectionArrowStyle } = useContext(StyleContext);
+  const {
+    id,
+    style,
+    corners,
+    connections,
+    top,
+    right,
+    bottom,
+    left,
+  } = nodeData;
+  const {
+    nodeStyle,
+    selectedNodeStyle,
+    nodePointStyle,
+    connectionArrowStyle,
+  } = useContext(StyleContext);
   // Connection Arrow
   const connectionBlockLength = 20;
   const connectionArrows = {
@@ -76,7 +89,14 @@ const SelectedNode = (props) => {
         moveNode(id);
       }}
     >
-      <BaseNode nodeData={{ ...nodeData, style: style || nodeStyle.style }} />
+      <BaseNode
+        nodeData={{
+          ...nodeData,
+          style: style
+            ? { ...style, ...selectedNodeStyle.style }
+            : { ...nodeStyle.style, ...selectedNodeStyle.style },
+        }}
+      />
       {connectionArrows && (
         <>
           <ConnectionArrow
