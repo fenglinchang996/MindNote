@@ -576,7 +576,7 @@ const SVG = (props) => {
     }
   };
 
-  // Move Curve
+  // Move Curve manually
   const [currentCurvePointType, setCurrentCurvePointType] = useState(null);
   const [hoveredNode, setHoveredNode] = useState(null);
   const hoverNode = (nodeId) => setHoveredNode(getNode(nodeId));
@@ -686,6 +686,7 @@ const SVG = (props) => {
     );
     return { ...nodeToBeMoved, center: newCenter, ...newCoord };
   };
+  // Move Curve due to Moved Node
   const setMovedCurve = (moveType, curveToBeMoved, movement) => {
     return {
       ...curveToBeMoved,
@@ -706,6 +707,42 @@ const SVG = (props) => {
           ? calcMovingPoint(curveToBeMoved.endControl, movement)
           : curveToBeMoved.endControl,
     };
+  };
+  // Move one point Curve
+  const setOnePointMovedCurves = (originalNode, newNode) => {
+    const curvesToBeMoved = [
+      EDGE.TOP,
+      EDGE.RIGHT,
+      EDGE.BOTTOM,
+      EDGE.LEFT,
+    ].reduce((allCurves, edge) => {
+      const edgeCurves = newNode[edge].curvesId.map((curveId) => {
+        const curve = getCurve(curveId);
+        const newCurve =
+          newNode[edge].direction === CURVE_DIRECTION.IN
+            ? // Move UpstreamCurve
+              setMovedCurve(
+                CURVE_MOVE_TYPE.MOVE_END,
+                curve,
+                calcOffset(
+                  originalNode.connections[`${edge}Connection`],
+                  newNode.connections[`${edge}Connection`]
+                )
+              )
+            : // Move DownstreamCurves
+              setMovedCurve(
+                CURVE_MOVE_TYPE.MOVE_START,
+                curve,
+                calcOffset(
+                  originalNode.connections[`${edge}Connection`],
+                  newNode.connections[`${edge}Connection`]
+                )
+              );
+        return newCurve;
+      });
+      return [...allCurves, ...edgeCurves];
+    }, []);
+    return curvesToBeMoved;
   };
   const moveNode = (nodeId) => {
     setDragType(DRAG_TYPE.MOVE_NODE);
@@ -780,6 +817,47 @@ const SVG = (props) => {
     }
   };
 
+  // Automatically Resize Node
+  const autoResizeNode = (nodeId, clientTopLeft, clientBottomRight) => {
+    const originalNode = getNode(nodeId);
+    const newContentTopLeft = convertToSVGCoord(clientTopLeft);
+    const newContentBottomRight = convertToSVGCoord(clientBottomRight);
+    const newContentWidth = Math.abs(
+      newContentBottomRight.x - newContentTopLeft.x
+    );
+    const newContentHeight = Math.abs(
+      newContentBottomRight.y - newContentTopLeft.y
+    );
+    if (
+      newContentWidth > 0.95 * originalNode.width ||
+      newContentWidth < 0.85 * originalNode.width ||
+      newContentHeight > 0.85 * originalNode.height ||
+      newContentHeight < 0.75 * originalNode.height
+    ) {
+      let newWidth = 1.1 * newContentWidth;
+      let newHeight = 1.25 * newContentHeight;
+      newWidth = newWidth > nodeStyle.width ? newWidth : nodeStyle.width;
+      newHeight = newHeight > nodeStyle.height ? newHeight : nodeStyle.height;
+      const newCoord = calcNodeCoord(originalNode.center, newWidth, newHeight);
+      const newNode = {
+        ...originalNode,
+        width: newWidth,
+        height: newHeight,
+        ...newCoord,
+      };
+      // Update Node
+      dispatchNodes({
+        type: LIST_ACTION_TYPE.UPDATE_ITEMS,
+        items: [newNode],
+      });
+      // Move Curve
+      const curvesToBeMoved = setOnePointMovedCurves(originalNode, newNode);
+      dispatchCurves({
+        type: LIST_ACTION_TYPE.UPDATE_ITEMS,
+        items: curvesToBeMoved,
+      });
+    }
+  };
   // Drag
   const [dragType, setDragType] = useState(null);
   const drag = (e) => {
@@ -1175,36 +1253,7 @@ const SVG = (props) => {
             items: [newNode],
           });
           // Move Curve
-          const curvesToBeMoved = [
-            EDGE.TOP,
-            EDGE.RIGHT,
-            EDGE.BOTTOM,
-            EDGE.LEFT,
-          ].reduce((allCurves, edge) => {
-            const edgeCurves = newNode[edge].curvesId.map((curveId) => {
-              const curve = getCurve(curveId);
-              const newCurve =
-                newNode[edge].direction === CURVE_DIRECTION.IN
-                  ? setMovedCurve(
-                      CURVE_MOVE_TYPE.MOVE_END,
-                      curve,
-                      calcOffset(
-                        originalNode.connections[`${edge}Connection`],
-                        newNode.connections[`${edge}Connection`]
-                      )
-                    )
-                  : setMovedCurve(
-                      CURVE_MOVE_TYPE.MOVE_START,
-                      curve,
-                      calcOffset(
-                        originalNode.connections[`${edge}Connection`],
-                        newNode.connections[`${edge}Connection`]
-                      )
-                    );
-              return newCurve;
-            });
-            return [...allCurves, ...edgeCurves];
-          }, []);
+          const curvesToBeMoved = setOnePointMovedCurves(originalNode, newNode);
           dispatchCurves({
             type: LIST_ACTION_TYPE.UPDATE_ITEMS,
             items: curvesToBeMoved,
@@ -1262,6 +1311,7 @@ const SVG = (props) => {
           moveNode={moveNode}
           drawNewNode={drawNewNode}
           resizeNode={resizeNode}
+          autoResizeNode={autoResizeNode}
         />
       )}
       {selectedCurve && (

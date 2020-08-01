@@ -24,6 +24,8 @@ const styleContext = createContext({
     },
   },
   nodeContentStyle: {
+    widthRatio: 0.9,
+    heightRatio: 0.8,
     style: {
       fontSize: "0.8rem",
       width: "100%",
@@ -31,7 +33,7 @@ const styleContext = createContext({
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: "none",
+      backgroundColor: "#ffffff",
     },
   },
   virtualNodeStyle: {
