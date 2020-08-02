@@ -7,6 +7,7 @@ import NodeTool from "./NodeTool";
 import CurveTool from "./CurveTool";
 import Note from "./Note";
 import Loading from "../Loading";
+import StyleContext from "./StyleContext";
 import ItemContext from "./ItemContext";
 import UserContext from "../UserContext";
 import {
@@ -14,6 +15,7 @@ import {
   SHOW_TOOL_TYPE,
   ITEM_TYPE,
   MINDNOTE_MODE,
+  DRAG_TYPE,
 } from "./enums";
 import "./Mindnote.css";
 
@@ -174,6 +176,26 @@ const Mindnote = (props) => {
   const modifyDocTitle = (newTitle) => {
     setDoc({ ...doc, title: newTitle });
   };
+  const { noteStyle } = useContext(StyleContext);
+  // Resize Note
+  const [noteWidth, setNoteWidth] = useState(noteStyle.defaultWidth);
+  const resizeNote = () => {
+    setDragType(DRAG_TYPE.RESIZE_NOTE);
+  };
+  // Drag Event
+  const [dragType, setDragType] = useState(null);
+  const drag = (e) => {
+    if (dragType === DRAG_TYPE.RESIZE_NOTE) {
+      let newNoteWidth = noteWidth - e.movementX;
+      newNoteWidth =
+        newNoteWidth > noteStyle.minWidth ? newNoteWidth : noteStyle.minWidth;
+      setNoteWidth(newNoteWidth);
+    }
+  };
+  // Drop Event
+  const drop = (e) => {
+    setDragType(null);
+  };
   // Saving status
   const [isSaving, setIsSaving] = useState(false);
   // Save(Update) doc/mindnote data to database
@@ -195,7 +217,7 @@ const Mindnote = (props) => {
   };
   return (
     <div className="mindnote">
-      <div className="canvas">
+      <div className="canvas" onMouseMove={drag} onMouseUp={drop}>
         <ItemContext.Provider value={ItemContextValue}>
           <SVG
             nodeList={nodeList}
@@ -241,6 +263,8 @@ const Mindnote = (props) => {
           )}
           {isShowTool.showNote ? (
             <Note
+              width={noteWidth}
+              resizeNote={resizeNote}
               selectedItem={selectedItem}
               selectedNote={selectedNote}
               mindnoteMode={mindnoteMode}

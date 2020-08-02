@@ -580,6 +580,7 @@ const SVG = (props) => {
   const [currentCurvePointType, setCurrentCurvePointType] = useState(null);
   const [hoveredNode, setHoveredNode] = useState(null);
   const hoverNode = (nodeId) => setHoveredNode(getNode(nodeId));
+  const unHoverNode = () => setHoveredNode(null);
   const clacMinDistanceEdge = (newCurvePoint, newConnectionNode) => {
     const curveToEdge = [
       {
@@ -1187,6 +1188,7 @@ const SVG = (props) => {
         }
         setCurrentCurvePointType(null);
         setVirtualCurve(null);
+        setHoveredNode(null);
       } else if (dragType === DRAG_TYPE.MOVE_NODE) {
         // set Node moving
         const originalNode = getNode(virtualNode.id);
@@ -1293,14 +1295,23 @@ const SVG = (props) => {
           moveCanvas();
         }
       }}
-      onMouseMove={drag}
-      onMouseUp={drop}
+      onMouseMove={(e) => {
+        drag(e);
+      }}
+      onMouseUp={(e) => {
+        drop(e);
+      }}
     >
       {curveList.map((curve) => (
         <Curve key={curve.id} curveData={curve} />
       ))}
       {nodeList.map((node) => (
-        <Node key={node.id} nodeData={node} hoverNode={hoverNode} />
+        <Node
+          key={node.id}
+          nodeData={node}
+          hoverNode={hoverNode}
+          unHoverNode={unHoverNode}
+        />
       ))}
       {viewNode && <ViewNode nodeData={viewNode} />}
       {viewCurve && <ViewCurve curveData={viewCurve} />}

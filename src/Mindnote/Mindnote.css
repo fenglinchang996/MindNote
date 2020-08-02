@@ -142,12 +142,22 @@
 /* Note Tool */
 .note {
   display: block;
-  width: 300px;
+  width: 400px;
   height: 70%;
   right: 20px;
   top: 50%;
   z-index: 99;
   transform: translateY(-50%);
+}
+
+.note-left-edge {
+  position: absolute; /* Relative to .tool-box .note */
+  left: -5px;
+  top: 0;
+  width: 10px;
+  height: 100%;
+  background-color: transparent;
+  cursor: ew-resize;
 }
 
 .title-edit {
