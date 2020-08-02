@@ -1,12 +1,22 @@
-import React, { useContext } from "react";
+import React, { useEffect, useContext, useRef } from "react";
 import BaseNode from "./BaseNode";
 import StyleContext from "./StyleContext";
 import { NODE_POINT_TYPE, EDGE } from "./enums";
 
 const SelectedNode = (props) => {
-  const { nodeData, deleteNode, moveNode, drawNewNode, resizeNode } = props;
+  const {
+    nodeData,
+    deleteNode,
+    moveNode,
+    drawNewNode,
+    resizeNode,
+    autoResizeNode,
+  } = props;
   const {
     id,
+    center,
+    width,
+    height,
     style,
     corners,
     connections,
@@ -14,9 +24,11 @@ const SelectedNode = (props) => {
     right,
     bottom,
     left,
+    title,
   } = nodeData;
   const {
     nodeStyle,
+    nodeContentStyle,
     selectedNodeStyle,
     nodePointStyle,
     connectionArrowStyle,
@@ -76,6 +88,23 @@ const SelectedNode = (props) => {
       style: { ...nodePointStyle.style, cursor: "nesw-resize" },
     },
   };
+
+  // Origin
+  const origin = { x: center.x - 0.5 * width, y: center.y - 0.5 * height };
+  // Content reference
+  const contentRef = useRef(null);
+  // Add mount reference
+  const mount = useRef(false);
+  useEffect(() => {
+    if (!mount.current) {
+      mount.current = true;
+    } else {
+      const rect = contentRef.current.getBoundingClientRect();
+      const clientTopLeft = { x: rect.left, y: rect.top };
+      const clientBottomRight = { x: rect.right, y: rect.bottom };
+      autoResizeNode(id, clientTopLeft, clientBottomRight);
+    }
+  }, [title]);
   return (
     <g
       tabIndex={-1}
@@ -121,7 +150,6 @@ const SelectedNode = (props) => {
           />
         </>
       )}
-
       {cornerCircles && (
         <>
           <circle
@@ -154,6 +182,27 @@ const SelectedNode = (props) => {
           />
         </>
       )}
+      <foreignObject
+        x={origin.x + 0.05 * width}
+        y={origin.y + 0.1 * height}
+        width={0.9 * width}
+        height={0.8 * height}
+      >
+        <div style={nodeContentStyle.style}>
+          <div style={{ textAlign: "center" }} ref={contentRef}>
+            {title ? title : "Untitled"}
+          </div>
+          <input
+            type="text"
+            style={{
+              display: "none",
+              width: "100%",
+              border: "none",
+              margin: "5px",
+            }}
+          />
+        </div>
+      </foreignObject>
     </g>
   );
 };
