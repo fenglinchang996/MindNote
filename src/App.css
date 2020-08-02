@@ -11,7 +11,7 @@ Color: #1d3557, #457b9d, #e8e8e8, #a8a8a8, #c8c8c8, #e63946
 }
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Arial, Helvetica, "Microsoft JhengHei", sans-serif;
   margin: 0;
   padding: 0;
   color: #1d3557;
@@ -47,6 +47,20 @@ path,
 line,
 g {
   outline: none;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #e8e8e8;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-track {
+  display: none;
 }
 
 /* Common */

@@ -204,11 +204,19 @@
   overflow: auto;
 }
 
-/* Markdown Formate */
+/* Markdown Format */
+
+.text-view p {
+  margin: 5px 0;
+}
+
+.text-view ol {
+  padding: 0;
+}
 
 .text-view ol li {
   list-style-type: decimal;
-  list-style-position: outside;
+  list-style-position: inside;
 }
 .text-view ul li {
   list-style-type: disc;
@@ -216,11 +224,47 @@
 }
 .text-view blockquote {
   padding: 5px 10px;
-  background-color: #e8e8e8;
+  margin: 10px 0;
+  border-left: 2px solid #a8a8a8;
 }
 
 .text-view img {
   width: 100%;
+}
+
+.text-view code {
+  font-family: Menlo, "Courier New", Courier, monospace;
+}
+
+.text-view p code {
+  font-size: 0.8rem;
+  padding: 5px;
+  color: #eb5757;
+  border-radius: 2px;
+  background-color: #e8e8e8;
+}
+
+.text-view pre {
+  font-size: 0.8rem;
+  padding: 10px;
+  background-color: #e8e8e8;
+  overflow-x: scroll;
+}
+
+.text-view table {
+  margin: 10px auto;
+  border-collapse: collapse;
+}
+
+.text-view table,
+.text-view th,
+.text-view td {
+  border: 1px solid #000000;
+}
+
+.text-view th,
+.text-view td {
+  padding: 5px;
 }
 
 /* SVG */

@@ -105,6 +105,10 @@ const styleContext = createContext({
       strokeDasharray: "2, 2",
     },
   },
+  noteStyle: {
+    defaultWidth: 300,
+    minWidth: 250,
+  },
 });
 
 export default styleContext;
