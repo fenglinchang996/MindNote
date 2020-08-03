@@ -1,9 +1,13 @@
-.main {
+.main-block,
+.second-block {
+  height: calc(100vh - 50px);
+}
+
+.main-block {
   display: flex;
   align-content: center;
   flex-wrap: wrap;
   text-align: center;
-  height: calc(100vh - 50px);
 }
 
 .main-title {
@@ -16,8 +20,9 @@
   width: 100%;
 }
 
-.main-block {
-  margin: 40px 0;
+.main-content {
+  width: 100%;
+  margin: 20px 0;
 }
 
 .main-btn {
@@ -45,4 +50,35 @@
 
 .link:hover {
   color: #457b9d;
+}
+
+.second-block {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 1.2rem;
+  margin: 0 auto;
+  width: 70%;
+  max-width: 1200px;
+}
+
+.second-desc {
+  width: 45%;
+}
+
+.second-desc h3 {
+  text-align: left;
+}
+
+.second-desc p {
+  width: 100%;
+  text-align: justify;
+}
+
+.mind-map-pic {
+  width: 55%;
+}
+
+.note-taking-pic {
+  width: 35%;
 }
