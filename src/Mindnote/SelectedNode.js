@@ -3,6 +3,14 @@ import BaseNode from "./BaseNode";
 import StyleContext from "./StyleContext";
 import { NODE_POINT_TYPE, EDGE } from "./enums";
 
+const usePrevious = (value) => {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+};
+
 const SelectedNode = (props) => {
   const {
     nodeData,
@@ -95,16 +103,21 @@ const SelectedNode = (props) => {
   const contentRef = useRef(null);
   // Add mount reference
   const mount = useRef(false);
+  // Compare prev id
+  const prevId = usePrevious(id);
+  // Automatically resize Node
   useEffect(() => {
     if (!mount.current) {
       mount.current = true;
     } else {
-      const rect = contentRef.current.getBoundingClientRect();
-      const clientTopLeft = { x: rect.left, y: rect.top };
-      const clientBottomRight = { x: rect.right, y: rect.bottom };
-      autoResizeNode(id, clientTopLeft, clientBottomRight);
+      if (prevId === id) {
+        const rect = contentRef.current.getBoundingClientRect();
+        const clientTopLeft = { x: rect.left, y: rect.top };
+        const clientBottomRight = { x: rect.right, y: rect.bottom };
+        autoResizeNode(id, clientTopLeft, clientBottomRight);
+      }
     }
-  }, [title]);
+  }, [title, id]);
   return (
     <g
       tabIndex={-1}

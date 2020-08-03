@@ -90,8 +90,8 @@ const Mindnote = (props) => {
                 type: LIST_ACTION_TYPE.INIT_ITEMS,
                 items: mindnote.noteList,
               });
-              setIsSaving(false);
             }
+            setIsSaving(false);
           } else {
             // mindnoteDoc.data() will be undefined in this case
             console.log("No such mindnote!");

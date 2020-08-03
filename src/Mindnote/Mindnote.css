@@ -248,7 +248,7 @@
 
 .text-view p code {
   font-size: 0.8rem;
-  padding: 5px;
+  padding: 2px 3px;
   color: #eb5757;
   border-radius: 2px;
   background-color: #e8e8e8;
@@ -257,6 +257,7 @@
 .text-view pre {
   font-size: 0.8rem;
   padding: 10px;
+
   background-color: #e8e8e8;
   overflow-x: scroll;
 }
