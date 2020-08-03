@@ -5,6 +5,7 @@ module.exports = {
   entry: "./src/index.js",
   output: {
     path: path.resolve(__dirname, "dist/"),
+    publicPath: "/",
   },
   module: {
     rules: [
@@ -33,6 +34,10 @@ module.exports = {
             loader: "css-loader",
           },
         ],
+      },
+      {
+        test: /\.(png|svg|jpg|gif)$/,
+        use: { loader: "file-loader" },
       },
     ],
   },

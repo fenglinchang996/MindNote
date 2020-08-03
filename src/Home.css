@@ -1,49 +1,48 @@
-/* Header */
-
-.home > .header {
+.main {
   display: flex;
-  align-items: center;
-  padding: 10px;
-  height: 50px;
-}
-
-.home > .header > .title {
-  font-family: "Lucida Sans", sans-serif;
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #457b9d;
-  margin-right: 20px;
-}
-
-.home > .header > .navbar {
-  display: flex;
-  align-items: center;
-  margin: 0 30px;
-}
-
-.home > .header > .navbar > .navbar-item {
-  margin: 0 10px;
-  padding: 10px;
-  cursor: pointer;
-}
-
-.home > .header > .member {
-  width: 35px;
-  height: 35px;
-  line-height: 35px;
+  align-content: center;
+  flex-wrap: wrap;
   text-align: center;
-  margin: 0 10px 0 auto;
-  font-size: 1.2rem;
-  border: 1px solid #1d3557;
-  border-radius: 50%;
-  cursor: pointer;
+  height: calc(100vh - 50px);
 }
 
-.home > .header > .navbar > .navbar-item:hover {
-  color: #457b9d;
+.main-title {
+  font-size: 3rem;
 }
 
-.home > .header > .member:hover {
-  border-color: #457b9d;
+.main-title,
+.main-desc,
+.main-block {
+  width: 100%;
+}
+
+.main-block {
+  margin: 40px 0;
+}
+
+.main-btn {
+  font-size: 1.5rem;
+  margin: 0 10px;
+  padding: 15px;
+  border: 1px solid #457b9d;
+  border-radius: 5px;
+}
+
+.gallery-btn {
+  font-size: 1.1rem;
+  border: none;
+  border-radius: none;
+}
+
+.sign-up-btn {
+  color: #ffffff;
+  background-color: #457b9d;
+}
+
+.link {
+  text-decoration: underline;
+}
+
+.link:hover {
   color: #457b9d;
 }

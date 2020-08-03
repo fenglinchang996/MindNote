@@ -1,0 +1,79 @@
+/* Doc List */
+
+.doc-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 40px;
+}
+
+.doc {
+  position: relative;
+  width: 200px;
+  border: 1px solid #a8a8a8;
+  border-radius: 5px;
+  margin: 20px;
+}
+
+.doc:hover {
+  box-shadow: 0 0 10px 5px #a8a8a8;
+}
+
+.doc .doc-diagram > img {
+  width: 100%;
+}
+
+.doc .doc-info {
+  border-top: 1px solid #a8a8a8;
+  padding: 10px;
+}
+
+.doc .delete-doc-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.doc .delete-doc-btn:hover {
+  color: #457b9d;
+  font-size: 1.2rem;
+}
+
+.new-doc {
+  height: 245px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: 1px dashed #a8a8a8;
+  margin: 60px;
+}
+
+.new-doc:hover {
+  box-shadow: none;
+}
+
+.add-mindnote-btn {
+  font-size: 36px;
+  color: #1d3557;
+}
+
+.add-mindnote-btn:hover {
+  font-size: 48px;
+  color: #457b9d;
+}
+
+.first-doc {
+  height: calc(100vh - 130px);
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.first-doc > .add-first-doc-text {
+  width: 100%;
+  font-size: 1.2rem;
+}

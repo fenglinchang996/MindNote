@@ -11,7 +11,7 @@ Color: #1d3557, #457b9d, #e8e8e8, #a8a8a8, #c8c8c8, #e63946
 }
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Arial, Helvetica, "Microsoft JhengHei", sans-serif;
   margin: 0;
   padding: 0;
   color: #1d3557;
@@ -26,7 +26,7 @@ li {
 }
 a {
   text-decoration: none;
-  color: black;
+  color: inherit;
 }
 
 button {
@@ -40,12 +40,27 @@ button:focus {
   outline: none;
 }
 
+svg,
 rect,
 circle,
 path,
 line,
 g {
   outline: none;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #e8e8e8;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-track {
+  display: none;
 }
 
 /* Common */
@@ -57,4 +72,34 @@ g {
 
 .row {
   display: flex;
+}
+
+/* Loading */
+
+.loading {
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  z-index: 99;
+  top: 0;
+  left: 0;
+  background-color: #a8a8a880;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loading-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  font-size: 3rem;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
 }

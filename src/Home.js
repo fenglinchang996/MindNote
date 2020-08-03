@@ -1,28 +1,38 @@
-import React from "react";
+import React, { useEffect } from "react";
+import Header from "./Header";
 import "./Home.css";
+import { Link, useLocation } from "react-router-dom";
 
 const Home = (props) => {
   return (
     <div className="home">
-      <Header />
+      <main className="main">
+        <h1 className="main-title">
+          Mind Mapping &nbsp;<i className="fas fa-plus"></i>&nbsp; Note Taking
+        </h1>
+        <h3 className="main-desc">
+          Map Out Your Ideas Visually and Organize Them Detaily
+        </h3>
+        <div className="main-block">
+          <button className="main-btn sign-up-btn">
+            <Link to="/member/signup">Try MindNote for Free</Link>
+          </button>
+          <button className="main-btn gallery-btn">
+            <Link to="/docs/public">
+              View People's Mindnotes &nbsp;
+              <i className="fas fa-chevron-right"></i>
+            </Link>
+          </button>
+          <div className="main-block">
+            Already had mindnotes?&nbsp;
+            <Link className="link" to="/member/login">
+              Log in
+            </Link>
+            &nbsp;here.
+          </div>
+        </div>
+      </main>
     </div>
-  );
-};
-
-const Header = (props) => {
-  return (
-    <header className="header row align-items-center">
-      <div className="title">MindNote</div>
-      <nav className="navbar">
-        <div className="navbar-item">Feature</div>
-        <div className="navbar-item">Pricing</div>
-        <div className="navbar-item">Support</div>
-        <div className="navbar-item">About</div>
-      </nav>
-      <div className="member">
-        <i className="fas fa-user-alt"></i>
-      </div>
-    </header>
   );
 };
 

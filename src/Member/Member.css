@@ -1,0 +1,97 @@
+.form-wrapper {
+  display: flex;
+  height: calc(100vh - 65px);
+  justify-content: center;
+  align-items: center;
+}
+
+.form {
+  width: 400px;
+  margin: 40px auto;
+  padding: 20px 50px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px #457b9d;
+}
+
+.form .title {
+  text-align: center;
+}
+
+.form input {
+  box-sizing: border-box;
+  border: none;
+  border-bottom: 1px solid #a8a8a8;
+  height: 40px;
+  width: 100%;
+  margin: 10px 0;
+  padding: 5px;
+}
+
+.form > .login-separator {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 30px 0;
+}
+
+.form > .login-separator > .line {
+  width: 27.5%;
+  height: 1px;
+  background-color: #457b9d;
+}
+
+.form .btn {
+  margin: 20px auto;
+}
+
+.form .btn > button {
+  cursor: pointer;
+}
+
+.form .native-login-btn {
+  height: 40px;
+  width: 100%;
+  border-radius: 3px;
+  border: 1px solid #457b9d;
+  color: #457b9d;
+  background-color: #ffffff;
+  font-size: 1rem;
+}
+
+.form .native-login-btn:hover,
+.form .native-login-btn:active {
+  color: #ffffff;
+  background-color: #457b9d;
+}
+
+.form .fb-login-btn {
+  height: 40px;
+  width: 100%;
+  border-radius: 3px;
+  border: 1px solid #4267b2;
+  color: #ffffff;
+  background-color: #4267b2;
+}
+
+.form .fb-login-btn > img {
+  width: 20px;
+  margin-right: 5px;
+}
+
+.form > p {
+  text-align: center;
+  margin: 30px 0;
+}
+
+.form > p > a {
+  color: #457b9d;
+}
+
+@media (max-width: 425px) {
+  .form {
+    width: 80%;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+  }
+}
