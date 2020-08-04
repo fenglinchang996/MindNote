@@ -1,8 +1,8 @@
 import React, { useContext } from "react";
-import StyleContext from "./StyleContext";
+import StyleContext from "../StyleContext";
 import BaseCurve from "./BaseCurve";
-import { ITEM_TYPE } from "./enums";
-import ItemContext from "./ItemContext";
+import { ITEM_TYPE } from "../utils/enums";
+import ItemContext from "../ItemContext";
 
 const Curve = (props) => {
   const { curveData } = props;

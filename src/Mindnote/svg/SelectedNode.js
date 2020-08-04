@@ -1,7 +1,7 @@
 import React, { useEffect, useContext, useRef } from "react";
 import BaseNode from "./BaseNode";
-import StyleContext from "./StyleContext";
-import { NODE_POINT_TYPE, EDGE } from "./enums";
+import StyleContext from "../StyleContext";
+import { NODE_POINT_TYPE, EDGE } from "../utils/enums";
 
 const usePrevious = (value) => {
   const ref = useRef();

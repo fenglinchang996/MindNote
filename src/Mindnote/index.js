@@ -1,11 +1,11 @@
 import React, { useState, useReducer, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
 import { db } from "../firebase";
-import SVG from "./SVG";
-import CommonTool from "./CommonTool";
-import NodeTool from "./NodeTool";
-import CurveTool from "./CurveTool";
-import Note from "./Note";
+import SVG from "./svg";
+import CommonTool from "./tool/CommonTool";
+import NodeTool from "./tool/NodeTool";
+import CurveTool from "./tool/CurveTool";
+import Note from "./note";
 import Loading from "../Loading";
 import StyleContext from "./StyleContext";
 import ItemContext from "./ItemContext";
@@ -16,7 +16,7 @@ import {
   ITEM_TYPE,
   MINDNOTE_MODE,
   DRAG_TYPE,
-} from "./enums";
+} from "./utils/enums";
 import "./Mindnote.css";
 
 const listReducer = (list, action) => {

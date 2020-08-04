@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
-import StyleContext from "./StyleContext";
-import ItemContext from "./ItemContext";
+import React, { useContext } from "react";
+import StyleContext from "../StyleContext";
 
 const BaseNode = (props) => {
   const { nodeData } = props;

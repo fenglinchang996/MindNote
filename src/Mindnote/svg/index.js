@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
 import { v4 as uuid } from "uuid";
-import StyleContext from "./StyleContext";
-import ItemContext from "./ItemContext";
+import StyleContext from "../StyleContext";
+import ItemContext from "../ItemContext";
 import VirtualNode from "./VirtualNode";
 import SelectedNode from "./SelectedNode";
 import ViewNode from "./ViewNode";
@@ -22,14 +22,14 @@ import {
   CURVE_MOVE_TYPE,
   NODE_POINT_TYPE,
   MINDNOTE_MODE,
-} from "./enums";
+} from "../utils/enums";
 import {
   calcIntersectionPoint,
   calcCenterPoint,
   calcPointsDistance,
   calcOffset,
   calcMovingPoint,
-} from "./math";
+} from "../utils/math";
 
 // prevent browser default zooming action
 document.addEventListener(

@@ -1,12 +1,11 @@
 import React, { useContext } from "react";
+import StyleContext from "../StyleContext";
 import BaseCurve from "./BaseCurve";
-import StyleContext from "./StyleContext";
-import { CURVE_CONTROL_TYPE, CURVE_POINT_TYPE } from "./enums";
 
-const SelectedCurve = (props) => {
-  const { curveData, modifyCurveControl, moveCurve } = props;
-  const { id, start, end, startControl, endControl, style } = curveData;
-  const { curveStyle } = useContext(StyleContext);
+const VirtualCurve = (props) => {
+  const { curveData } = props;
+  const { virtualCurveStyle } = useContext(StyleContext);
+  const { id, start, end, startControl, endControl } = curveData;
   // Use StyleContext
   const {
     curvePointStyle,
@@ -52,40 +51,22 @@ const SelectedCurve = (props) => {
     y2: endControl.y,
     style: curveControlLineStyle.style,
   };
-
   return (
-    <g tabIndex={-1}>
+    <g tabIndex={-1} pointerEvents="none">
       <BaseCurve
-        curveData={{ ...curveData, style: style || curveStyle.style }}
+        curveData={{
+          ...curveData,
+          style: virtualCurveStyle.style,
+        }}
       />
       <line {...startControlLine} />
       <line {...endControlLine} />
-      <circle
-        {...startCircle}
-        onMouseDown={(e) => {
-          moveCurve(e, id, CURVE_POINT_TYPE.START);
-        }}
-      />
-      <circle
-        {...endCircle}
-        onMouseDown={(e) => {
-          moveCurve(e, id, CURVE_POINT_TYPE.END);
-        }}
-      />
-      <circle
-        {...startControlCircle}
-        onMouseDown={(e) =>
-          modifyCurveControl(e, id, CURVE_CONTROL_TYPE.START_CONTROL)
-        }
-      />
-      <circle
-        {...endControlCircle}
-        onMouseDown={(e) =>
-          modifyCurveControl(e, id, CURVE_CONTROL_TYPE.END_CONTROL)
-        }
-      />
+      <circle {...startCircle} />
+      <circle {...endCircle} />
+      <circle {...startControlCircle} />
+      <circle {...endControlCircle} />
     </g>
   );
 };
 
-export default SelectedCurve;
+export default VirtualCurve;

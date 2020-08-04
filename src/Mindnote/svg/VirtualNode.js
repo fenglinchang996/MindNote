@@ -1,6 +1,6 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useContext } from "react";
 import BaseNode from "./BaseNode";
-import StyleContext from "./StyleContext";
+import StyleContext from "../StyleContext";
 
 const wrapVirtualNode = (BaseNode) => (props) => {
   const { virtualNodeStyle } = useContext(StyleContext);

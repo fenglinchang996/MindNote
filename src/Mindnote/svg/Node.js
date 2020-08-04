@@ -1,8 +1,8 @@
 import React, { useState, useContext } from "react";
 import BaseNode from "./BaseNode";
-import StyleContext from "./StyleContext";
-import ItemContext from "./ItemContext";
-import { ITEM_TYPE } from "./enums";
+import StyleContext from "../StyleContext";
+import ItemContext from "../ItemContext";
+import { ITEM_TYPE } from "../utils/enums";
 
 const Node = (props) => {
   const { nodeData, hoverNode, unHoverNode } = props;

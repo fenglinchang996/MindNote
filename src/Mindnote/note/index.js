@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
-import { LIST_ACTION_TYPE, NOTE_MODE, MINDNOTE_MODE } from "./enums";
-import ItemContext from "./ItemContext";
-import { md } from "./mdParser";
+import { LIST_ACTION_TYPE, NOTE_MODE, MINDNOTE_MODE } from "../utils/enums";
+import ItemContext from "../ItemContext";
+import { md } from "../utils/mdParser";
 
 const Note = (props) => {
   const { width, resizeNote, selectedItem, selectedNote, mindnoteMode } = props;

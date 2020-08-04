@@ -10,13 +10,13 @@ import {
   Redirect,
 } from "react-router-dom";
 import "./App.css";
-import Header from "./Header";
-import Home from "./Home";
-import Docs from "./Docs";
-import Member from "./Member";
-import Mindnote from "./Mindnote";
+import Header from "./header";
+import Home from "./home";
+import Docs from "./docs";
+import Member from "./member";
+import Mindnote from "./mindnote";
 import { auth, db } from "./firebase";
-import { AuthToLogInRoute, AuthToMyDocsRoute } from "./AuthRoute";
+import { AuthToMyDocsRoute } from "./AuthRoute";
 import UserContext from "./UserContext";
 
 const App = () => {
