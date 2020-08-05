@@ -1290,15 +1290,15 @@ const SVG = (props) => {
           setSelectedItem({ tyep: ITEM_TYPE.SVG });
         }
       }}
-      onMouseDown={(e) => {
+      onPointerDown={(e) => {
         if (e.target === SVGRef.current) {
           moveCanvas();
         }
       }}
-      onMouseMove={(e) => {
+      onPointerMove={(e) => {
         drag(e);
       }}
-      onMouseUp={(e) => {
+      onPointerUp={(e) => {
         drop(e);
       }}
     >

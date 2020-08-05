@@ -62,25 +62,25 @@ const SelectedCurve = (props) => {
       <line {...endControlLine} />
       <circle
         {...startCircle}
-        onMouseDown={(e) => {
+        onPointerDown={(e) => {
           moveCurve(e, id, CURVE_POINT_TYPE.START);
         }}
       />
       <circle
         {...endCircle}
-        onMouseDown={(e) => {
+        onPointerDown={(e) => {
           moveCurve(e, id, CURVE_POINT_TYPE.END);
         }}
       />
       <circle
         {...startControlCircle}
-        onMouseDown={(e) =>
+        onPointerDown={(e) =>
           modifyCurveControl(e, id, CURVE_CONTROL_TYPE.START_CONTROL)
         }
       />
       <circle
         {...endControlCircle}
-        onMouseDown={(e) =>
+        onPointerDown={(e) =>
           modifyCurveControl(e, id, CURVE_CONTROL_TYPE.END_CONTROL)
         }
       />

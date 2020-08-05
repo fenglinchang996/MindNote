@@ -4,6 +4,7 @@
 
 .svg {
   height: calc(99vh - 50px);
+  touch-action: none; /*Set touch action none for preventing browser default touch action*/
 }
 
 /* Tool */

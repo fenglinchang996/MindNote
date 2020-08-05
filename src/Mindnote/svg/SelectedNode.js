@@ -127,7 +127,7 @@ const SelectedNode = (props) => {
           deleteNode(id);
         }
       }}
-      onMouseDown={() => {
+      onPointerDown={() => {
         moveNode(id);
       }}
     >
@@ -165,55 +165,34 @@ const SelectedNode = (props) => {
       )}
       {cornerCircles && (
         <>
-          <circle
-            {...cornerCircles.topLeft}
-            onMouseDown={(e) => {
-              e.stopPropagation();
-              resizeNode(id, NODE_POINT_TYPE.TOP_LEFT);
-            }}
+          <CornerCircle
+            cornerCircleData={cornerCircles.topLeft}
+            resizeNode={() => resizeNode(id, NODE_POINT_TYPE.TOP_LEFT)}
           />
-          <circle
-            {...cornerCircles.topRight}
-            onMouseDown={(e) => {
-              e.stopPropagation();
-              resizeNode(id, NODE_POINT_TYPE.TOP_RIGHT);
-            }}
+          <CornerCircle
+            cornerCircleData={cornerCircles.topRight}
+            resizeNode={() => resizeNode(id, NODE_POINT_TYPE.TOP_RIGHT)}
           />
-          <circle
-            {...cornerCircles.bottomRight}
-            onMouseDown={(e) => {
-              e.stopPropagation();
-              resizeNode(id, NODE_POINT_TYPE.BOTTOM_RIGHT);
-            }}
+          <CornerCircle
+            cornerCircleData={cornerCircles.bottomRight}
+            resizeNode={() => resizeNode(id, NODE_POINT_TYPE.BOTTOM_RIGHT)}
           />
-          <circle
-            {...cornerCircles.bottomLeft}
-            onMouseDown={(e) => {
-              e.stopPropagation();
-              resizeNode(id, NODE_POINT_TYPE.BOTTOM_LEFT);
-            }}
+          <CornerCircle
+            cornerCircleData={cornerCircles.bottomLeft}
+            resizeNode={() => resizeNode(id, NODE_POINT_TYPE.BOTTOM_LEFT)}
           />
         </>
       )}
       <foreignObject
-        x={origin.x + 0.05 * width}
-        y={origin.y + 0.1 * height}
-        width={0.9 * width}
-        height={0.8 * height}
+        x={origin.x + ((1 - nodeContentStyle.widthRatio) / 2) * width}
+        y={origin.y + ((1 - nodeContentStyle.heightRatio) / 2) * height}
+        width={nodeContentStyle.widthRatio * width}
+        height={nodeContentStyle.heightRatio * height}
       >
         <div style={nodeContentStyle.style}>
           <div style={{ textAlign: "center" }} ref={contentRef}>
             {title ? title : "Untitled"}
           </div>
-          <input
-            type="text"
-            style={{
-              display: "none",
-              width: "100%",
-              border: "none",
-              margin: "5px",
-            }}
-          />
         </div>
       </foreignObject>
     </g>
@@ -226,7 +205,7 @@ const ConnectionArrow = (props) => {
     <foreignObject
       {...arrowData}
       cursor="pointer"
-      onMouseDown={(e) => {
+      onPointerDown={(e) => {
         e.stopPropagation();
         drawNewNode(e);
       }}
@@ -235,6 +214,19 @@ const ConnectionArrow = (props) => {
         <i className={`fas fa-${fa}`}></i>
       </div>
     </foreignObject>
+  );
+};
+
+const CornerCircle = (props) => {
+  const { cornerCircleData, resizeNode } = props;
+  return (
+    <circle
+      {...cornerCircleData}
+      onPointerDown={(e) => {
+        e.stopPropagation();
+        resizeNode();
+      }}
+    />
   );
 };
 

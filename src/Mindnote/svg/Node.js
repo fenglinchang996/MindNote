@@ -17,8 +17,10 @@ const Node = (props) => {
         e.stopPropagation();
         setSelectedItem({ type: ITEM_TYPE.NODE, id });
       }}
-      onMouseOver={() => hoverNode(id)}
-      onMouseLeave={() => {
+      onPointerOver={() => {
+        hoverNode(id);
+      }}
+      onPointerLeave={() => {
         unHoverNode();
       }}
     >
