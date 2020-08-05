@@ -1,11 +1,11 @@
 import React, { useState, useContext } from "react";
 import BaseNode from "./BaseNode";
-import StyleContext from "./StyleContext";
-import ItemContext from "./ItemContext";
-import { ITEM_TYPE } from "./enums";
+import StyleContext from "../StyleContext";
+import ItemContext from "../ItemContext";
+import { ITEM_TYPE } from "../utils/enums";
 
 const Node = (props) => {
-  const { nodeData, hoverNode } = props;
+  const { nodeData, hoverNode, unHoverNode } = props;
   const { id, style } = nodeData;
   const { nodeStyle } = useContext(StyleContext);
   const { setSelectedItem } = useContext(ItemContext);
@@ -18,6 +18,9 @@ const Node = (props) => {
         setSelectedItem({ type: ITEM_TYPE.NODE, id });
       }}
       onMouseOver={() => hoverNode(id)}
+      onMouseLeave={() => {
+        unHoverNode();
+      }}
     >
       <BaseNode nodeData={{ ...nodeData, style: style || nodeStyle.style }} />
     </g>

@@ -10,10 +10,10 @@ import {
 } from "react-router-dom";
 import "./Docs.css";
 import docPic from "./Mind-Map-Paper.svg";
-import { db, DB } from "./firebase";
-import { AuthToLogInRoute } from "./AuthRoute";
-import UserContext from "./UserContext";
-import Loading from "./Loading";
+import { db, DB } from "../firebase";
+import { AuthToLogInRoute } from "../AuthRoute";
+import UserContext from "../UserContext";
+import Loading from "../Loading";
 
 const Docs = (props) => {
   const { path, url } = useRouteMatch();

@@ -1,12 +1,13 @@
 import React, { useState, useReducer, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
 import { db } from "../firebase";
-import SVG from "./SVG";
-import CommonTool from "./CommonTool";
-import NodeTool from "./NodeTool";
-import CurveTool from "./CurveTool";
-import Note from "./Note";
+import SVG from "./svg";
+import CommonTool from "./tool/CommonTool";
+import NodeTool from "./tool/NodeTool";
+import CurveTool from "./tool/CurveTool";
+import Note from "./note";
 import Loading from "../Loading";
+import StyleContext from "./StyleContext";
 import ItemContext from "./ItemContext";
 import UserContext from "../UserContext";
 import {
@@ -14,7 +15,8 @@ import {
   SHOW_TOOL_TYPE,
   ITEM_TYPE,
   MINDNOTE_MODE,
-} from "./enums";
+  DRAG_TYPE,
+} from "./utils/enums";
 import "./Mindnote.css";
 
 const listReducer = (list, action) => {
@@ -88,8 +90,8 @@ const Mindnote = (props) => {
                 type: LIST_ACTION_TYPE.INIT_ITEMS,
                 items: mindnote.noteList,
               });
-              setIsSaving(false);
             }
+            setIsSaving(false);
           } else {
             // mindnoteDoc.data() will be undefined in this case
             console.log("No such mindnote!");
@@ -174,6 +176,26 @@ const Mindnote = (props) => {
   const modifyDocTitle = (newTitle) => {
     setDoc({ ...doc, title: newTitle });
   };
+  const { noteStyle } = useContext(StyleContext);
+  // Resize Note
+  const [noteWidth, setNoteWidth] = useState(noteStyle.defaultWidth);
+  const resizeNote = () => {
+    setDragType(DRAG_TYPE.RESIZE_NOTE);
+  };
+  // Drag Event
+  const [dragType, setDragType] = useState(null);
+  const drag = (e) => {
+    if (dragType === DRAG_TYPE.RESIZE_NOTE) {
+      let newNoteWidth = noteWidth - e.movementX;
+      newNoteWidth =
+        newNoteWidth > noteStyle.minWidth ? newNoteWidth : noteStyle.minWidth;
+      setNoteWidth(newNoteWidth);
+    }
+  };
+  // Drop Event
+  const drop = (e) => {
+    setDragType(null);
+  };
   // Saving status
   const [isSaving, setIsSaving] = useState(false);
   // Save(Update) doc/mindnote data to database
@@ -195,7 +217,7 @@ const Mindnote = (props) => {
   };
   return (
     <div className="mindnote">
-      <div className="canvas">
+      <div className="canvas" onMouseMove={drag} onMouseUp={drop}>
         <ItemContext.Provider value={ItemContextValue}>
           <SVG
             nodeList={nodeList}
@@ -241,6 +263,8 @@ const Mindnote = (props) => {
           )}
           {isShowTool.showNote ? (
             <Note
+              width={noteWidth}
+              resizeNote={resizeNote}
               selectedItem={selectedItem}
               selectedNote={selectedNote}
               mindnoteMode={mindnoteMode}

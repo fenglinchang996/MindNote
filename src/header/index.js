@@ -9,9 +9,9 @@ import {
   useRouteMatch,
   useHistory,
 } from "react-router-dom";
-import UserContext from "./UserContext";
+import UserContext from "../UserContext";
 import "./Header.css";
-import { auth } from "./firebase";
+import { auth } from "../firebase";
 
 const Header = (props) => {
   const { path, url } = useRouteMatch();

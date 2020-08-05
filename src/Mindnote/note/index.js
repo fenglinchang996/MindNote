@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useContext } from "react";
-import { ITEM_TYPE, LIST_ACTION_TYPE, NOTE_MODE, MINDNOTE_MODE } from "./enums";
-import ItemContext from "./ItemContext";
-import { md } from "./mdParser";
+import { LIST_ACTION_TYPE, NOTE_MODE, MINDNOTE_MODE } from "../utils/enums";
+import ItemContext from "../ItemContext";
+import { md } from "../utils/mdParser";
 
 const Note = (props) => {
-  const { selectedItem, selectedNote, mindnoteMode } = props;
+  const { width, resizeNote, selectedItem, selectedNote, mindnoteMode } = props;
   const { dispatchNotes, dispatchNodes, getNote, getNode } = useContext(
     ItemContext
   );
@@ -48,40 +48,59 @@ const Note = (props) => {
   };
 
   return (
-    <div className="tool-box note">
+    <div
+      className="tool-box note"
+      style={{
+        width: `${width}px`,
+      }}
+    >
       <div className="tool-main-title">
         Note
         <hr className="hori-sep" />
       </div>
+      <LeftEdge resizeNote={resizeNote} />
       <NoteModeBtn
         mindnoteMode={mindnoteMode}
         noteMode={noteMode}
         setNoteMode={setNoteMode}
       />
-      {note ? (
-        <>
-          {noteMode === NOTE_MODE.EDIT_MODE ? (
-            <>
-              <TitleEdit title={note.title} modifyTitle={modifyTitle} />
-              <TextEdit content={note.content} modifyContent={modifyContent} />
-            </>
-          ) : (
-            ""
-          )}
-          {noteMode === NOTE_MODE.VIEW_MODE ? (
-            <>
-              <TitleView title={note.title} />
-              <TextView content={note.content} />
-            </>
-          ) : (
-            ""
-          )}
-        </>
-      ) : (
-        <div className="no-note">Please select a node to edit note.</div>
-      )}
+      <NoteBody
+        note={note}
+        noteMode={noteMode}
+        modifyTitle={modifyTitle}
+        modifyContent={modifyContent}
+      />
     </div>
   );
+};
+
+const LeftEdge = (props) => {
+  const { resizeNote } = props;
+  return <div className="note-left-edge" onMouseDown={resizeNote}></div>;
+};
+
+const NoteBody = (props) => {
+  const { note, noteMode, modifyTitle, modifyContent } = props;
+  if (!note)
+    return <div className="no-note">Please select a node to edit note.</div>;
+  switch (noteMode) {
+    case NOTE_MODE.EDIT_MODE:
+      return (
+        <>
+          <TitleEdit title={note.title} modifyTitle={modifyTitle} />
+          <TextEdit content={note.content} modifyContent={modifyContent} />
+        </>
+      );
+    case NOTE_MODE.VIEW_MODE:
+      return (
+        <>
+          <TitleView title={note.title} />
+          <TextView content={note.content} />
+        </>
+      );
+    default:
+      return "";
+  }
 };
 
 const NoteModeBtn = (props) => {
@@ -140,16 +159,6 @@ const TitleView = (props) => {
   );
 };
 
-const TextView = (props) => {
-  const { content } = props;
-  return (
-    <div
-      className="text-view"
-      dangerouslySetInnerHTML={{ __html: md.render(content) }}
-    ></div>
-  );
-};
-
 const TextEdit = (props) => {
   const { content, modifyContent } = props;
   return (
@@ -161,6 +170,16 @@ const TextEdit = (props) => {
         onChange={(e) => modifyContent(e.target.value)}
       ></textarea>
     </div>
+  );
+};
+
+const TextView = (props) => {
+  const { content } = props;
+  return (
+    <div
+      className="text-view"
+      dangerouslySetInnerHTML={{ __html: md.render(content) }}
+    ></div>
   );
 };
 
