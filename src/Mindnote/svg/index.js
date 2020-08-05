@@ -139,6 +139,7 @@ const SVG = (props) => {
   const createNode = ({
     id = null,
     noteId = null,
+    level = null,
     title = "",
     center,
     width = nodeStyle.width,
@@ -177,6 +178,7 @@ const SVG = (props) => {
     return {
       id,
       noteId,
+      level,
       title,
       center,
       width,
@@ -327,6 +329,7 @@ const SVG = (props) => {
   };
   const createCurve = ({
     id = null,
+    level = null,
     start,
     end,
     startNodeId = null,
@@ -338,6 +341,7 @@ const SVG = (props) => {
     const { startControl, endControl } = calcCurveControl(start, end);
     return {
       id,
+      level,
       start,
       end,
       startControl,
@@ -427,6 +431,7 @@ const SVG = (props) => {
       const centerNode = createNode({
         id: centerNodeId,
         noteId: centerNote.id,
+        level: 0,
         center,
       });
       dispatchNodes({ type: LIST_ACTION_TYPE.INIT_ITEMS, items: [centerNode] });
@@ -955,6 +960,7 @@ const SVG = (props) => {
         const endNode = createNode({
           id: endNodeId,
           noteId: newNote.id,
+          level: startNode.level + 1,
           center: endCenter,
         });
         // Get Curve Connection
@@ -962,6 +968,7 @@ const SVG = (props) => {
         // Create Curve
         const curve = createCurve({
           id: uuid(),
+          level: endNode.level,
           start: currentStartNode.connections[`${currentStartEdge}Connection`], // curveConnection.start,
           end: curveConnection.end,
         });
@@ -1018,14 +1025,18 @@ const SVG = (props) => {
         const newConnectionNode = hoveredNode;
         const movingCurve = getCurve(selectedItem.id);
         if (newConnectionNode) {
+          const isMovingCurveEndToTheSameEndNode =
+            currentCurvePointType === CURVE_POINT_TYPE.END &&
+            newConnectionNode.id === movingCurve.endNodeId;
+          const isMovingCurveStartToNonEndNodeDirection =
+            currentCurvePointType === CURVE_POINT_TYPE.START &&
+            newConnectionNode.id !== movingCurve.endNodeId &&
+            !getNode(movingCurve.endNodeId).childNodesId.some(
+              (childId) => childId === newConnectionNode.id
+            );
           if (
-            (currentCurvePointType === CURVE_POINT_TYPE.END &&
-              newConnectionNode.id === movingCurve.endNodeId) ||
-            (currentCurvePointType === CURVE_POINT_TYPE.START &&
-              newConnectionNode.id !== movingCurve.endNodeId &&
-              !getNode(movingCurve.endNodeId).childNodesId.some(
-                (childId) => childId === newConnectionNode.id
-              ))
+            isMovingCurveEndToTheSameEndNode ||
+            isMovingCurveStartToNonEndNodeDirection
           ) {
             const newCurvePoint = convertToSVGCoord({
               x: e.clientX,
@@ -1035,13 +1046,17 @@ const SVG = (props) => {
               newCurvePoint,
               newConnectionNode
             );
+            const isMovingCurveEndToNonOutDirection =
+              currentCurvePointType === CURVE_POINT_TYPE.END &&
+              newConnectionNode[newConnectionEdge].direction !==
+                CURVE_DIRECTION.OUT;
+            const isMovingCurveStartToNonInDirection =
+              currentCurvePointType === CURVE_POINT_TYPE.START &&
+              newConnectionNode[newConnectionEdge].direction !==
+                CURVE_DIRECTION.IN;
             if (
-              (currentCurvePointType === CURVE_POINT_TYPE.END &&
-                newConnectionNode[newConnectionEdge].direction !==
-                  CURVE_DIRECTION.OUT) ||
-              (currentCurvePointType === CURVE_POINT_TYPE.START &&
-                newConnectionNode[newConnectionEdge].direction !==
-                  CURVE_DIRECTION.IN)
+              isMovingCurveEndToNonOutDirection ||
+              isMovingCurveStartToNonInDirection
             ) {
               const newConnectionPoint =
                 newConnectionNode.connections[`${newConnectionEdge}Connection`];
@@ -1141,17 +1156,19 @@ const SVG = (props) => {
                     newConnectionEdge,
                     movingCurve.endEdge
                   );
-
                   newCurve = { ...newCurve, ...addRelation.curveRelationData };
                   newEndNode = {
                     ...newEndNode,
                     ...addRelation.childNodeRelationData,
                   };
-                  if (originalStartNode.id === newConnectionNode.id) {
+                  const isTheSameStartNode =
+                    originalStartNode.id === newConnectionNode.id;
+                  if (isTheSameStartNode) {
                     newStartNode = {
                       ...updatedOriginalStartNode,
                       ...addRelation.parentNodeRelationData,
                     };
+                    // Update Nodes
                     dispatchNodes({
                       type: LIST_ACTION_TYPE.UPDATE_ITEMS,
                       items: [newStartNode, newEndNode],
@@ -1161,17 +1178,56 @@ const SVG = (props) => {
                       ...newConnectionNode,
                       ...addRelation.parentNodeRelationData,
                     };
+                    // Reset Node Level
+                    const levelDiff =
+                      newStartNode.level - originalStartNode.level;
+                    newEndNode = {
+                      ...newEndNode,
+                      level: newEndNode.level + levelDiff,
+                    };
+                    // Add leve difference to all decendent Nodes of the new End Node
+                    const newDecendentNodes = getDecendents(newEndNode.id).map(
+                      (decendentNodeId) => {
+                        const decendentNode = getNode(decendentNodeId);
+                        const newLevel = decendentNode.level + levelDiff;
+                        const newDecendentNode = {
+                          ...decendentNode,
+                          level: newLevel,
+                        };
+                        return newDecendentNode;
+                      }
+                    );
+                    // Add leve difference to all downstream Curves of the new End Node
+                    const newDownStreamCurves = getDownstreamCurves(
+                      newEndNode.id
+                    ).map((downstreamCurveId) => {
+                      const downstreamCurve = getCurve(downstreamCurveId);
+                      const newLevel = downstreamCurve.level + levelDiff;
+                      const newDownstreamCurve = {
+                        ...downstreamCurve,
+                        level: newLevel,
+                      };
+                      return newDownstreamCurve;
+                    });
+                    // Update Nodes
                     dispatchNodes({
                       type: LIST_ACTION_TYPE.UPDATE_ITEMS,
                       items: [
                         updatedOriginalStartNode,
                         newStartNode,
                         newEndNode,
+                        ...newDecendentNodes,
                       ],
+                    });
+                    // Update Curves
+                    dispatchCurves({
+                      type: LIST_ACTION_TYPE.UPDATE_ITEMS,
+                      items: newDownStreamCurves,
                     });
                   }
                   newCurve = {
                     ...newCurve,
+                    level: newEndNode.level,
                     [CURVE_POINT_TYPE.START]: newConnectionPoint,
                     [CURVE_CONTROL_TYPE.START_CONTROL]: newControlPoint,
                   };
