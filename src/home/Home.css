@@ -1,84 +1,139 @@
+.main {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
 .main-block,
 .second-block {
   height: calc(100vh - 50px);
 }
 
 .main-block {
+  position: relative;
   display: flex;
   align-content: center;
   flex-wrap: wrap;
   text-align: center;
+  width: 100%;
 }
-
-.main-title {
-  font-size: 3rem;
-}
-
 .main-title,
 .main-desc,
-.main-block {
-  width: 100%;
-}
-
 .main-content {
   width: 100%;
+}
+.main-title {
+  font-family: "Comic Sans MS", cursive;
+  font-size: 1.4rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.main-title .title {
+  margin: 10px 20px;
+}
+.main-desc {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   margin: 20px 0;
 }
-
+.main-desc .desc {
+  margin: 5px 5px;
+}
+.main-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px 0;
+}
 .main-btn {
+  display: inline-block;
   font-size: 1.5rem;
   margin: 0 10px;
   padding: 15px;
   border: 1px solid #457b9d;
   border-radius: 5px;
 }
-
+.sign-up-btn {
+  color: #ffffff;
+  background-color: #457b9d;
+}
 .gallery-btn {
   font-size: 1.1rem;
   border: none;
   border-radius: none;
 }
-
-.sign-up-btn {
-  color: #ffffff;
-  background-color: #457b9d;
-}
-
 .link {
   text-decoration: underline;
 }
-
 .link:hover {
   color: #457b9d;
+}
+.main-pic {
+  position: absolute; /* Relative to main-block */
+  width: 300px;
+  opacity: 0.1;
+}
+.main-pic.mind-map {
+  top: 20px;
+  left: -10px;
+}
+.main-pic.note-taking {
+  bottom: 20px;
+  right: -10px;
 }
 
 .second-block {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-around;
   font-size: 1.2rem;
   margin: 0 auto;
-  width: 70%;
-  max-width: 1200px;
+  width: 100%;
 }
-
 .second-desc {
   width: 45%;
 }
-
+.second-desc .icon {
+  width: 60px;
+}
 .second-desc h3 {
   text-align: left;
 }
-
 .second-desc p {
   width: 100%;
-  text-align: justify;
+}
+.second-block .pic {
+  width: 50%;
 }
 
-.mind-map-pic {
-  width: 55%;
-}
-
-.note-taking-pic {
-  width: 35%;
+@media (max-width: 767px) {
+  .main-title,
+  .main-desc,
+  .main-content {
+    display: block;
+  }
+  .main-title {
+    font-size: 1rem;
+  }
+  .main-pic {
+    width: 200px;
+  }
+  .second-block {
+    align-content: center;
+    height: initial;
+    margin: 30px 0;
+    padding: 15px;
+    background-color: #e8e8e8;
+    border-radius: 5px;
+  }
+  .second-desc {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  .second-block .pic {
+    width: 100%;
+  }
 }
