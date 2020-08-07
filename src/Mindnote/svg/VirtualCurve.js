@@ -4,14 +4,18 @@ import BaseCurve from "./BaseCurve";
 
 const VirtualCurve = (props) => {
   const { curveData } = props;
-  const { virtualCurveStyle } = useContext(StyleContext);
-  const { id, start, end, startControl, endControl } = curveData;
+  const { id, level, start, end, startControl, endControl, style } = curveData;
   // Use StyleContext
   const {
+    defaultCurveStyle,
+    curveStyles,
+    virtualCurveStyle,
     curvePointStyle,
     curveControlStyle,
     curveControlLineStyle,
   } = useContext(StyleContext);
+  // Curve style
+  const defaultStyle = curveStyles[level] || defaultCurveStyle;
   // Curve Control
   const startCircle = {
     cx: start.x,
@@ -56,7 +60,9 @@ const VirtualCurve = (props) => {
       <BaseCurve
         curveData={{
           ...curveData,
-          style: virtualCurveStyle.style,
+          style: style
+            ? { ...style, ...virtualCurveStyle.style }
+            : { ...defaultStyle.style, ...virtualCurveStyle.style },
         }}
       />
       <line {...startControlLine} />

@@ -5,14 +5,19 @@ import { CURVE_CONTROL_TYPE, CURVE_POINT_TYPE } from "../utils/enums";
 
 const SelectedCurve = (props) => {
   const { curveData, modifyCurveControl, moveCurve } = props;
-  const { id, start, end, startControl, endControl, style } = curveData;
-  const { curveStyle } = useContext(StyleContext);
+  const { id, level, start, end, startControl, endControl, style } = curveData;
+  const {} = useContext(StyleContext);
   // Use StyleContext
   const {
+    defaultCurveStyle,
+    curveStyles,
+    selectedCurveStyle,
     curvePointStyle,
     curveControlStyle,
     curveControlLineStyle,
   } = useContext(StyleContext);
+  // Curve style
+  const defaultStyle = curveStyles[level] || defaultCurveStyle;
   // Curve Control
   const startCircle = {
     cx: start.x,
@@ -56,7 +61,12 @@ const SelectedCurve = (props) => {
   return (
     <g tabIndex={-1}>
       <BaseCurve
-        curveData={{ ...curveData, style: style || curveStyle.style }}
+        curveData={{
+          ...curveData,
+          style: style
+            ? { ...style, ...selectedCurveStyle.style }
+            : { ...defaultStyle.style, ...selectedCurveStyle.style },
+        }}
       />
       <line {...startControlLine} />
       <line {...endControlLine} />

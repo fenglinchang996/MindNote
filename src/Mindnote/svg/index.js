@@ -65,9 +65,7 @@ const SVG = (props) => {
   // nodeList, curveList, selectedItem
   const { nodeList, curveList, noteList, selectedItem } = props;
   // Style
-  const { SVGStyle, nodeStyle, curveStyle, curvePointStyle } = useContext(
-    StyleContext
-  );
+  const { defaultNodeStyle, curvePointStyle } = useContext(StyleContext);
   // Item method
   const {
     dispatchNodes,
@@ -75,7 +73,6 @@ const SVG = (props) => {
     dispatchCurves,
     getCurve,
     dispatchNotes,
-    getNote,
     setSelectedItem,
   } = useContext(ItemContext);
 
@@ -142,8 +139,8 @@ const SVG = (props) => {
     level = null,
     title = "",
     center,
-    width = nodeStyle.width,
-    height = nodeStyle.height,
+    width = defaultNodeStyle.width,
+    height = defaultNodeStyle.height,
     style = null,
     parentNodeId = null,
     upstreamCurveId = null,
@@ -552,7 +549,10 @@ const SVG = (props) => {
       setCurrentStartEdge(startEdge);
       // Set End Node
       const endCenter = convertToSVGCoord({ x: e.clientX, y: e.clientY });
-      const endNode = createNode({ center: endCenter });
+      const endNode = createNode({
+        level: startNode.level + 1, // provide level for getting style
+        center: endCenter,
+      });
       // Get Curve Connection
       const curveConnection = calcCurveConnections(startNode, endNode);
       // Set Curve
@@ -842,8 +842,12 @@ const SVG = (props) => {
     ) {
       let newWidth = 1.1 * newContentWidth;
       let newHeight = 1.25 * newContentHeight;
-      newWidth = newWidth > nodeStyle.width ? newWidth : nodeStyle.width;
-      newHeight = newHeight > nodeStyle.height ? newHeight : nodeStyle.height;
+      newWidth =
+        newWidth > defaultNodeStyle.width ? newWidth : defaultNodeStyle.width;
+      newHeight =
+        newHeight > defaultNodeStyle.height
+          ? newHeight
+          : defaultNodeStyle.height;
       const newCoord = calcNodeCoord(originalNode.center, newWidth, newHeight);
       const newNode = {
         ...originalNode,
@@ -890,7 +894,10 @@ const SVG = (props) => {
         const startNode = currentStartNode;
         // Set End Node
         const endCenter = convertToSVGCoord({ x: e.clientX, y: e.clientY });
-        const endNode = createNode({ center: endCenter });
+        const endNode = createNode({
+          level: startNode.level + 1, // provide level for getting style
+          center: endCenter,
+        });
         // Get Curve Connection
         const curveConnection = calcCurveConnections(startNode, endNode);
         // Set Curve
@@ -1335,7 +1342,6 @@ const SVG = (props) => {
       viewBox={`${viewBoxOrigin.x} ${viewBoxOrigin.y} ${
         SVGSizeRatio * SVGSize.width
       } ${SVGSizeRatio * SVGSize.height}`}
-      style={SVGStyle.style}
       onWheel={(e) => {
         if (e.ctrlKey) {
           resizeCanvas(0.0002 * e.deltaY);

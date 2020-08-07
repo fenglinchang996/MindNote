@@ -3,9 +3,13 @@ import StyleContext from "../StyleContext";
 
 const BaseNode = (props) => {
   const { nodeData } = props;
-  const { title, center, width, height, style } = nodeData;
-  const { nodeContentStyle } = useContext(StyleContext);
-
+  const { title, level, center, width, height, style } = nodeData;
+  const { defaultNodeStyle, nodeStyles, nodeContentStyle } = useContext(
+    StyleContext
+  );
+  // Border Radius
+  const defaultStyle = nodeStyles[level] || defaultNodeStyle;
+  const { rxRatio, ryRatio } = defaultStyle;
   // Origin
   const origin = { x: center.x - 0.5 * width, y: center.y - 0.5 * height };
 
@@ -16,6 +20,8 @@ const BaseNode = (props) => {
         y={origin.y}
         width={width}
         height={height}
+        rx={rxRatio * width}
+        ry={ryRatio * height}
         style={style}
       ></rect>
       <foreignObject
@@ -26,7 +32,7 @@ const BaseNode = (props) => {
       >
         <div style={nodeContentStyle.style}>
           <div style={{ textAlign: "center" }}>
-            {title ? title : "Click to Add Note"}
+            {title ? title : "Untitled"}
           </div>
         </div>
       </foreignObject>

@@ -4,9 +4,11 @@ import BaseCurve from "./BaseCurve";
 
 const ViewCurve = (props) => {
   const { curveData } = props;
-  const { id, style } = curveData;
-  const { curveStyle, viewCurveStyle } = useContext(StyleContext);
-
+  const { id, level, style } = curveData;
+  const { defaultCurveStyle, curveStyles, viewCurveStyle } = useContext(
+    StyleContext
+  );
+  const defaultStyle = curveStyles[level] || defaultCurveStyle;
   return (
     <g>
       <BaseCurve
@@ -14,7 +16,7 @@ const ViewCurve = (props) => {
           ...curveData,
           style: style
             ? { ...style, ...viewCurveStyle.style }
-            : { ...curveStyle.style, ...viewCurveStyle.style },
+            : { ...defaultStyle.style, ...viewCurveStyle.style },
         }}
       />
     </g>

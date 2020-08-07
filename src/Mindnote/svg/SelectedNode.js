@@ -22,6 +22,7 @@ const SelectedNode = (props) => {
   } = props;
   const {
     id,
+    level,
     center,
     width,
     height,
@@ -35,12 +36,15 @@ const SelectedNode = (props) => {
     title,
   } = nodeData;
   const {
-    nodeStyle,
+    defaultNodeStyle,
+    nodeStyles,
     nodeContentStyle,
     selectedNodeStyle,
     nodePointStyle,
     connectionArrowStyle,
   } = useContext(StyleContext);
+  // The style of selected Node
+  const defaultStyle = nodeStyles[level] || defaultNodeStyle;
   // Connection Arrow
   const connectionBlockLength = 20;
   const connectionArrows = {
@@ -99,6 +103,7 @@ const SelectedNode = (props) => {
 
   // Origin
   const origin = { x: center.x - 0.5 * width, y: center.y - 0.5 * height };
+
   // Content reference
   const contentRef = useRef(null);
   // Add mount reference
@@ -136,7 +141,7 @@ const SelectedNode = (props) => {
           ...nodeData,
           style: style
             ? { ...style, ...selectedNodeStyle.style }
-            : { ...nodeStyle.style, ...selectedNodeStyle.style },
+            : { ...defaultStyle.style, ...selectedNodeStyle.style },
         }}
       />
       {connectionArrows && (

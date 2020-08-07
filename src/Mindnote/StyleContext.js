@@ -1,20 +1,33 @@
 import { createContext } from "react";
 
 const styleContext = createContext({
-  SVGStyle: {
-    style: {},
-  },
-  nodeStyle: {
+  defaultNodeStyle: {
     width: 120,
     height: 40,
+    rxRatio: 0.1,
+    ryRatio: 0.2,
     style: {
-      rx: 5,
-      ry: 5,
       fill: "white",
       stroke: "black",
       strokeWidth: 2,
     },
   },
+  nodeStyles: [
+    {
+      rxRatio: 0.1,
+      ryRatio: 0.2,
+      style: { fill: "white", stroke: "green", strokeWidth: 2 },
+    },
+    {
+      rxRatio: 0.1,
+      ryRatio: 0.5,
+      style: {
+        fill: "white",
+        stroke: "blue",
+        strokeWidth: 2,
+      },
+    },
+  ],
   nodePointStyle: {
     r: 5,
     style: {
@@ -33,17 +46,13 @@ const styleContext = createContext({
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      backgroundColor: "#ffffff",
+      backgroundColor: "transparent",
     },
   },
   virtualNodeStyle: {
     style: {
-      rx: 5,
-      ry: 5,
-      fill: "white",
       stroke: "pink",
-      strokeWidth: 2,
-      strokeDasharray: "5, 5",
+      strokeDasharray: [5, 2],
     },
   },
   selectedNodeStyle: {
@@ -57,12 +66,9 @@ const styleContext = createContext({
     },
   },
   connectionArrowStyle: {
-    style: {
-      fill: "blue",
-      cursor: "pointer",
-    },
+    style: {},
   },
-  curveStyle: {
+  defaultCurveStyle: {
     style: {
       fill: "none",
       stroke: "blue",
@@ -70,13 +76,44 @@ const styleContext = createContext({
       strokeLinecap: "round",
     },
   },
+  curveStyles: [
+    null,
+    {
+      style: {
+        fill: "none",
+        stroke: "#ffbf00",
+        strokeWidth: 5,
+        strokeLinecap: "round",
+      },
+    },
+    {
+      style: {
+        fill: "none",
+        stroke: "purple",
+        strokeWidth: 5,
+        strokeLinecap: "round",
+      },
+    },
+  ],
+  defaultCurveArrowStyle: {
+    style: {
+      fill: "blue",
+    },
+  },
+  curveArrowStyles: [
+    {
+      style: {
+        fill: "blue",
+      },
+    },
+  ],
   virtualCurveStyle: {
     style: {
-      fill: "none",
-      stroke: "lightblue",
-      strokeWidth: 5,
-      strokeDasharray: "10, 5",
+      strokeDasharray: "10, 10",
     },
+  },
+  selectedCurveStyle: {
+    style: {},
   },
   viewCurveStyle: {
     style: {},
