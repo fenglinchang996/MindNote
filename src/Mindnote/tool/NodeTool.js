@@ -1,20 +1,18 @@
 import React, { useState } from "react";
 
 const NodeTool = (props) => {
-  const { isShowNodeTool, closeTool } = props;
+  const { isShowNodeTool, closeNodeTool } = props;
   return (
     <div
       className="tool-box node-tool"
       style={{
         display: isShowNodeTool ? "block" : "none",
-        top: "280px",
-        left: "20px",
       }}
     >
       <div className="tool-main-title">
         Node <hr className="hori-sep" />
       </div>
-      <button type="button" className="tool-close-btn" onClick={closeTool}>
+      <button type="button" className="tool-close-btn" onClick={closeNodeTool}>
         <i className="fas fa-times"></i>
       </button>
       <div className="tool-list">
