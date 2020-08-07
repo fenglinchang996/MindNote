@@ -2,9 +2,7 @@ import React, { useState, useReducer, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
 import { db } from "../firebase";
 import SVG from "./svg";
-import CommonTool from "./tool/CommonTool";
-import NodeTool from "./tool/NodeTool";
-import CurveTool from "./tool/CurveTool";
+import Tool from "./tool";
 import Note from "./note";
 import Loading from "../Loading";
 import StyleContext from "./StyleContext";
@@ -12,7 +10,7 @@ import ItemContext from "./ItemContext";
 import UserContext from "../UserContext";
 import {
   LIST_ACTION_TYPE,
-  SHOW_TOOL_TYPE,
+  TOGGLE_TOOL_TYPE,
   ITEM_TYPE,
   MINDNOTE_MODE,
   DRAG_TYPE,
@@ -44,24 +42,24 @@ const listReducer = (list, action) => {
       return list;
   }
 };
-const showToolReducer = (isShowTool, action) => {
+const toggleToolReducer = (isShowTool, action) => {
   switch (action.type) {
-    case SHOW_TOOL_TYPE.SHOW_NODE_TOOL:
+    case TOGGLE_TOOL_TYPE.SHOW_NODE_TOOL:
       return { ...isShowTool, showNodeTool: true };
-    case SHOW_TOOL_TYPE.SHOW_CURVE_TOOL:
+    case TOGGLE_TOOL_TYPE.SHOW_CURVE_TOOL:
       return { ...isShowTool, showCurveTool: true };
-    case SHOW_TOOL_TYPE.SHOW_NOTE:
+    case TOGGLE_TOOL_TYPE.SHOW_NOTE:
       return { ...isShowTool, showNote: true };
-    case SHOW_TOOL_TYPE.CLOSE_NODE_TOOL:
+    case TOGGLE_TOOL_TYPE.CLOSE_NODE_TOOL:
       return { ...isShowTool, showNodeTool: false };
-    case SHOW_TOOL_TYPE.CLOSE_CURVE_TOOL:
+    case TOGGLE_TOOL_TYPE.CLOSE_CURVE_TOOL:
       return { ...isShowTool, showCurveTool: false };
-    case SHOW_TOOL_TYPE.CLOSE_NOTE:
+    case TOGGLE_TOOL_TYPE.CLOSE_NOTE:
       return { ...isShowTool, showNote: false };
-    case SHOW_TOOL_TYPE.CLOSE_ALL:
+    case TOGGLE_TOOL_TYPE.CLOSE_ALL:
       return { showNodeTool: false, showCurveTool: false, showNote: false };
     default:
-      return isShowNote;
+      return isShowTool;
   }
 };
 
@@ -131,7 +129,13 @@ const Mindnote = (props) => {
   const getCurve = (curveId) => curveList.find((curve) => curve.id === curveId);
   const [noteList, dispatchNotes] = useReducer(listReducer, []);
   const getNote = (noteId) => noteList.find((note) => note.id === noteId);
-  const [isShowTool, dispatchShowTool] = useReducer(showToolReducer, {
+  const calcMaxLevel = () => {
+    const levelList = nodeList.map((node) => node.level);
+    const maxLevel = Math.max(...levelList);
+    return maxLevel;
+  };
+  // Toogle toole
+  const [isShowTool, dispatchToggleTool] = useReducer(toggleToolReducer, {
     showNode: false,
     showCurve: false,
     showNote: false,
@@ -154,15 +158,16 @@ const Mindnote = (props) => {
       if (selectedItem.type === ITEM_TYPE.NODE) {
         const node = getNode(selectedItem.id);
         setSelectedNote(node.noteId);
-        dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_NOTE });
+        dispatchToggleTool({ type: TOGGLE_TOOL_TYPE.SHOW_NOTE });
       } else {
         setSelectedNote(null);
-        dispatchShowTool({ type: SHOW_TOOL_TYPE.CLOSE_NOTE });
+        dispatchToggleTool({ type: TOGGLE_TOOL_TYPE.CLOSE_NOTE });
       }
     } else {
-      dispatchShowTool({ type: SHOW_TOOL_TYPE.CLOSE_NOTE });
+      dispatchToggleTool({ type: TOGGLE_TOOL_TYPE.CLOSE_NOTE });
     }
   }, [selectedItem]);
+  // ItemContext
   const ItemContextValue = {
     dispatchNodes,
     getNode,
@@ -173,11 +178,51 @@ const Mindnote = (props) => {
     setSelectedItem,
     mindnoteMode,
   };
+  // Modify doc title
   const modifyDocTitle = (newTitle) => {
     setDoc({ ...doc, title: newTitle });
   };
-  const { noteStyle } = useContext(StyleContext);
+  // Node Style
+  let StyleContextValue = useContext(StyleContext);
+  const [nodeStyles, setNodeStyles] = useState(StyleContextValue.nodeStyles);
+  const { defaultNodeStyle } = StyleContextValue;
+  const modifyNodeStyle = (level, newNodeStyle) => {
+    const newNodeStyles = [...nodeStyles];
+    newNodeStyles[level] = newNodeStyles[level]
+      ? {
+          ...newNodeStyles[level],
+          ...newNodeStyle,
+          style: { ...newNodeStyles[level].style, ...newNodeStyle.style },
+        }
+      : {
+          ...defaultNodeStyle,
+          ...newNodeStyle,
+          style: { ...defaultNodeStyle.style, ...newNodeStyle.style },
+        };
+    setNodeStyles(newNodeStyles);
+  };
+  // Curve Style;
+  const [curveStyles, setCurveStyles] = useState(StyleContextValue.curveStyles);
+  const { defaultCurveStyle } = StyleContextValue;
+  const modifyCurveStyle = (level, newCurveStyle) => {
+    const newCurveStyles = [...curveStyles];
+    newCurveStyles[level] = newCurveStyles[level]
+      ? {
+          ...newCurveStyles[level],
+          ...newCurveStyle,
+          style: { ...newCurveStyles[level].style, ...newCurveStyle.style },
+        }
+      : {
+          ...defaultCurveStyle,
+          ...newCurveStyle,
+          style: { ...defaultCurveStyle.style, ...newCurveStyle.style },
+        };
+    setCurveStyles(newCurveStyles);
+  };
+  // Provide Style Context Value
+  StyleContextValue = { ...StyleContextValue, nodeStyles, curveStyles };
   // Resize Note
+  const { noteStyle } = useContext(StyleContext);
   const [noteWidth, setNoteWidth] = useState(noteStyle.defaultWidth);
   const resizeNote = () => {
     setDragType(DRAG_TYPE.RESIZE_NOTE);
@@ -219,59 +264,56 @@ const Mindnote = (props) => {
     <div className="mindnote">
       <div className="canvas" onMouseMove={drag} onMouseUp={drop}>
         <ItemContext.Provider value={ItemContextValue}>
-          <SVG
-            nodeList={nodeList}
-            curveList={curveList}
-            noteList={noteList}
-            selectedItem={selectedItem}
-            mindnoteMode={mindnoteMode}
-          />
-          {mindnoteMode === MINDNOTE_MODE.EDIT_MODE ? (
-            <>
-              <CommonTool
+          <StyleContext.Provider value={StyleContextValue}>
+            <SVG
+              nodeList={nodeList}
+              curveList={curveList}
+              noteList={noteList}
+              selectedItem={selectedItem}
+              mindnoteMode={mindnoteMode}
+            />
+            {isShowTool.showNote && (
+              <Note
+                width={noteWidth}
+                resizeNote={resizeNote}
+                selectedItem={selectedItem}
+                selectedNote={selectedNote}
+                mindnoteMode={mindnoteMode}
+              />
+            )}
+            {mindnoteMode === MINDNOTE_MODE.EDIT_MODE && (
+              <Tool
+                selectedItem={selectedItem}
+                showNodeTool={() =>
+                  dispatchToggleTool({ type: TOGGLE_TOOL_TYPE.SHOW_NODE_TOOL })
+                }
+                showCurveTool={() =>
+                  dispatchToggleTool({ type: TOGGLE_TOOL_TYPE.SHOW_CURVE_TOOL })
+                }
+                showNote={() =>
+                  dispatchToggleTool({ type: TOGGLE_TOOL_TYPE.SHOW_NOTE })
+                }
+                docTitle={doc ? doc.title : ""}
+                modifyDocTitle={modifyDocTitle}
                 saveMindnoteToDB={() =>
                   saveMindnoteToDB(doc, nodeList, curveList, noteList)
                 }
-                showNodeTool={() =>
-                  dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_NODE_TOOL })
-                }
-                showCurveTool={() =>
-                  dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_CURVE_TOOL })
-                }
-                showNote={() =>
-                  dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_NOTE })
-                }
-                selectedItem={selectedItem}
-                docTitle={doc ? doc.title : ""}
-                modifyDocTitle={modifyDocTitle}
-              />
-              <NodeTool
+                calcMaxLevel={calcMaxLevel}
                 isShowNodeTool={isShowTool.showNodeTool}
-                closeTool={() =>
-                  dispatchShowTool({ type: SHOW_TOOL_TYPE.CLOSE_NODE_TOOL })
+                closeNodeTool={() =>
+                  dispatchToggleTool({ type: TOGGLE_TOOL_TYPE.CLOSE_NODE_TOOL })
                 }
-              />
-              <CurveTool
+                modifyNodeStyle={modifyNodeStyle}
                 isShowCurveTool={isShowTool.showCurveTool}
-                closeTool={() =>
-                  dispatchShowTool({ type: SHOW_TOOL_TYPE.CLOSE_CURVE_TOOL })
+                closeCurveTool={() =>
+                  dispatchToggleTool({
+                    type: TOGGLE_TOOL_TYPE.CLOSE_CURVE_TOOL,
+                  })
                 }
+                modifyCurveStyle={modifyCurveStyle}
               />
-            </>
-          ) : (
-            ""
-          )}
-          {isShowTool.showNote ? (
-            <Note
-              width={noteWidth}
-              resizeNote={resizeNote}
-              selectedItem={selectedItem}
-              selectedNote={selectedNote}
-              mindnoteMode={mindnoteMode}
-            />
-          ) : (
-            ""
-          )}
+            )}
+          </StyleContext.Provider>
         </ItemContext.Provider>
         {isSaving ? <Loading /> : ""}
       </div>

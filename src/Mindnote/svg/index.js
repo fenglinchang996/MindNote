@@ -65,9 +65,7 @@ const SVG = (props) => {
   // nodeList, curveList, selectedItem
   const { nodeList, curveList, noteList, selectedItem } = props;
   // Style
-  const { SVGStyle, nodeStyle, curveStyle, curvePointStyle } = useContext(
-    StyleContext
-  );
+  const { defaultNodeStyle, curvePointStyle } = useContext(StyleContext);
   // Item method
   const {
     dispatchNodes,
@@ -75,7 +73,6 @@ const SVG = (props) => {
     dispatchCurves,
     getCurve,
     dispatchNotes,
-    getNote,
     setSelectedItem,
   } = useContext(ItemContext);
 
@@ -139,10 +136,11 @@ const SVG = (props) => {
   const createNode = ({
     id = null,
     noteId = null,
+    level = null,
     title = "",
     center,
-    width = nodeStyle.width,
-    height = nodeStyle.height,
+    width = defaultNodeStyle.width,
+    height = defaultNodeStyle.height,
     style = null,
     parentNodeId = null,
     upstreamCurveId = null,
@@ -177,6 +175,7 @@ const SVG = (props) => {
     return {
       id,
       noteId,
+      level,
       title,
       center,
       width,
@@ -327,6 +326,7 @@ const SVG = (props) => {
   };
   const createCurve = ({
     id = null,
+    level = null,
     start,
     end,
     startNodeId = null,
@@ -338,6 +338,7 @@ const SVG = (props) => {
     const { startControl, endControl } = calcCurveControl(start, end);
     return {
       id,
+      level,
       start,
       end,
       startControl,
@@ -427,6 +428,7 @@ const SVG = (props) => {
       const centerNode = createNode({
         id: centerNodeId,
         noteId: centerNote.id,
+        level: 0,
         center,
       });
       dispatchNodes({ type: LIST_ACTION_TYPE.INIT_ITEMS, items: [centerNode] });
@@ -547,7 +549,10 @@ const SVG = (props) => {
       setCurrentStartEdge(startEdge);
       // Set End Node
       const endCenter = convertToSVGCoord({ x: e.clientX, y: e.clientY });
-      const endNode = createNode({ center: endCenter });
+      const endNode = createNode({
+        level: startNode.level + 1, // provide level for getting style
+        center: endCenter,
+      });
       // Get Curve Connection
       const curveConnection = calcCurveConnections(startNode, endNode);
       // Set Curve
@@ -837,8 +842,12 @@ const SVG = (props) => {
     ) {
       let newWidth = 1.1 * newContentWidth;
       let newHeight = 1.25 * newContentHeight;
-      newWidth = newWidth > nodeStyle.width ? newWidth : nodeStyle.width;
-      newHeight = newHeight > nodeStyle.height ? newHeight : nodeStyle.height;
+      newWidth =
+        newWidth > defaultNodeStyle.width ? newWidth : defaultNodeStyle.width;
+      newHeight =
+        newHeight > defaultNodeStyle.height
+          ? newHeight
+          : defaultNodeStyle.height;
       const newCoord = calcNodeCoord(originalNode.center, newWidth, newHeight);
       const newNode = {
         ...originalNode,
@@ -885,7 +894,10 @@ const SVG = (props) => {
         const startNode = currentStartNode;
         // Set End Node
         const endCenter = convertToSVGCoord({ x: e.clientX, y: e.clientY });
-        const endNode = createNode({ center: endCenter });
+        const endNode = createNode({
+          level: startNode.level + 1, // provide level for getting style
+          center: endCenter,
+        });
         // Get Curve Connection
         const curveConnection = calcCurveConnections(startNode, endNode);
         // Set Curve
@@ -955,6 +967,7 @@ const SVG = (props) => {
         const endNode = createNode({
           id: endNodeId,
           noteId: newNote.id,
+          level: startNode.level + 1,
           center: endCenter,
         });
         // Get Curve Connection
@@ -962,6 +975,7 @@ const SVG = (props) => {
         // Create Curve
         const curve = createCurve({
           id: uuid(),
+          level: endNode.level,
           start: currentStartNode.connections[`${currentStartEdge}Connection`], // curveConnection.start,
           end: curveConnection.end,
         });
@@ -1018,14 +1032,18 @@ const SVG = (props) => {
         const newConnectionNode = hoveredNode;
         const movingCurve = getCurve(selectedItem.id);
         if (newConnectionNode) {
+          const isMovingCurveEndToTheSameEndNode =
+            currentCurvePointType === CURVE_POINT_TYPE.END &&
+            newConnectionNode.id === movingCurve.endNodeId;
+          const isMovingCurveStartToNonEndNodeDirection =
+            currentCurvePointType === CURVE_POINT_TYPE.START &&
+            newConnectionNode.id !== movingCurve.endNodeId &&
+            !getNode(movingCurve.endNodeId).childNodesId.some(
+              (childId) => childId === newConnectionNode.id
+            );
           if (
-            (currentCurvePointType === CURVE_POINT_TYPE.END &&
-              newConnectionNode.id === movingCurve.endNodeId) ||
-            (currentCurvePointType === CURVE_POINT_TYPE.START &&
-              newConnectionNode.id !== movingCurve.endNodeId &&
-              !getNode(movingCurve.endNodeId).childNodesId.some(
-                (childId) => childId === newConnectionNode.id
-              ))
+            isMovingCurveEndToTheSameEndNode ||
+            isMovingCurveStartToNonEndNodeDirection
           ) {
             const newCurvePoint = convertToSVGCoord({
               x: e.clientX,
@@ -1035,13 +1053,17 @@ const SVG = (props) => {
               newCurvePoint,
               newConnectionNode
             );
+            const isMovingCurveEndToNonOutDirection =
+              currentCurvePointType === CURVE_POINT_TYPE.END &&
+              newConnectionNode[newConnectionEdge].direction !==
+                CURVE_DIRECTION.OUT;
+            const isMovingCurveStartToNonInDirection =
+              currentCurvePointType === CURVE_POINT_TYPE.START &&
+              newConnectionNode[newConnectionEdge].direction !==
+                CURVE_DIRECTION.IN;
             if (
-              (currentCurvePointType === CURVE_POINT_TYPE.END &&
-                newConnectionNode[newConnectionEdge].direction !==
-                  CURVE_DIRECTION.OUT) ||
-              (currentCurvePointType === CURVE_POINT_TYPE.START &&
-                newConnectionNode[newConnectionEdge].direction !==
-                  CURVE_DIRECTION.IN)
+              isMovingCurveEndToNonOutDirection ||
+              isMovingCurveStartToNonInDirection
             ) {
               const newConnectionPoint =
                 newConnectionNode.connections[`${newConnectionEdge}Connection`];
@@ -1141,17 +1163,19 @@ const SVG = (props) => {
                     newConnectionEdge,
                     movingCurve.endEdge
                   );
-
                   newCurve = { ...newCurve, ...addRelation.curveRelationData };
                   newEndNode = {
                     ...newEndNode,
                     ...addRelation.childNodeRelationData,
                   };
-                  if (originalStartNode.id === newConnectionNode.id) {
+                  const isTheSameStartNode =
+                    originalStartNode.id === newConnectionNode.id;
+                  if (isTheSameStartNode) {
                     newStartNode = {
                       ...updatedOriginalStartNode,
                       ...addRelation.parentNodeRelationData,
                     };
+                    // Update Nodes
                     dispatchNodes({
                       type: LIST_ACTION_TYPE.UPDATE_ITEMS,
                       items: [newStartNode, newEndNode],
@@ -1161,17 +1185,56 @@ const SVG = (props) => {
                       ...newConnectionNode,
                       ...addRelation.parentNodeRelationData,
                     };
+                    // Reset Node Level
+                    const levelDiff =
+                      newStartNode.level - originalStartNode.level;
+                    newEndNode = {
+                      ...newEndNode,
+                      level: newEndNode.level + levelDiff,
+                    };
+                    // Add leve difference to all decendent Nodes of the new End Node
+                    const newDecendentNodes = getDecendents(newEndNode.id).map(
+                      (decendentNodeId) => {
+                        const decendentNode = getNode(decendentNodeId);
+                        const newLevel = decendentNode.level + levelDiff;
+                        const newDecendentNode = {
+                          ...decendentNode,
+                          level: newLevel,
+                        };
+                        return newDecendentNode;
+                      }
+                    );
+                    // Add leve difference to all downstream Curves of the new End Node
+                    const newDownStreamCurves = getDownstreamCurves(
+                      newEndNode.id
+                    ).map((downstreamCurveId) => {
+                      const downstreamCurve = getCurve(downstreamCurveId);
+                      const newLevel = downstreamCurve.level + levelDiff;
+                      const newDownstreamCurve = {
+                        ...downstreamCurve,
+                        level: newLevel,
+                      };
+                      return newDownstreamCurve;
+                    });
+                    // Update Nodes
                     dispatchNodes({
                       type: LIST_ACTION_TYPE.UPDATE_ITEMS,
                       items: [
                         updatedOriginalStartNode,
                         newStartNode,
                         newEndNode,
+                        ...newDecendentNodes,
                       ],
+                    });
+                    // Update Curves
+                    dispatchCurves({
+                      type: LIST_ACTION_TYPE.UPDATE_ITEMS,
+                      items: newDownStreamCurves,
                     });
                   }
                   newCurve = {
                     ...newCurve,
+                    level: newEndNode.level,
                     [CURVE_POINT_TYPE.START]: newConnectionPoint,
                     [CURVE_CONTROL_TYPE.START_CONTROL]: newControlPoint,
                   };
@@ -1279,7 +1342,6 @@ const SVG = (props) => {
       viewBox={`${viewBoxOrigin.x} ${viewBoxOrigin.y} ${
         SVGSizeRatio * SVGSize.width
       } ${SVGSizeRatio * SVGSize.height}`}
-      style={SVGStyle.style}
       onWheel={(e) => {
         if (e.ctrlKey) {
           resizeCanvas(0.0002 * e.deltaY);
@@ -1290,15 +1352,15 @@ const SVG = (props) => {
           setSelectedItem({ tyep: ITEM_TYPE.SVG });
         }
       }}
-      onMouseDown={(e) => {
+      onPointerDown={(e) => {
         if (e.target === SVGRef.current) {
           moveCanvas();
         }
       }}
-      onMouseMove={(e) => {
+      onPointerMove={(e) => {
         drag(e);
       }}
-      onMouseUp={(e) => {
+      onPointerUp={(e) => {
         drop(e);
       }}
     >

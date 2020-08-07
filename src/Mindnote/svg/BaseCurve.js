@@ -8,24 +8,25 @@ const BaseCurve = (props) => {
 
   return (
     <g>
-      <ArrowMarker />
-      <path d={pathInfo} style={style} markerEnd="url(#Arrow)" />
+      <ArrowMarker id={id} fill={style.stroke} />
+      <path d={pathInfo} style={style} markerEnd={`url(#Arrow-${id})`} />
     </g>
   );
 };
 
 const ArrowMarker = (props) => {
+  const { id, fill } = props;
   return (
     <defs>
       <marker
-        id="Arrow"
+        id={`Arrow-${id}`}
         markerWidth="3"
         markerHeight="3"
         refX="1.5"
         refY="1.5"
         orient="auto"
       >
-        <polygon points="0,0 3,1.5 0,3" fill="blue" />
+        <polygon points="0,0 3,1.5 0,3" fill={fill} />
       </marker>
     </defs>
   );

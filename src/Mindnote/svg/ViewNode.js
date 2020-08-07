@@ -4,9 +4,11 @@ import StyleContext from "../StyleContext";
 
 const ViewNode = (props) => {
   const { nodeData } = props;
-  const { id, style } = nodeData;
-  const { nodeStyle } = useContext(StyleContext);
-  const { viewNodeStyle } = useContext(StyleContext);
+  const { level, style } = nodeData;
+  const { defaultNodeStyle, nodeStyles, viewNodeStyle } = useContext(
+    StyleContext
+  );
+  const defaultStyle = nodeStyles[level] || defaultNodeStyle;
   return (
     <g>
       <BaseNode
@@ -15,7 +17,7 @@ const ViewNode = (props) => {
           style: style
             ? { ...style, ...viewNodeStyle.style }
             : {
-                ...nodeStyle.style,
+                ...defaultStyle.style,
                 ...viewNodeStyle.style,
               },
         }}

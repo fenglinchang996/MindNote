@@ -2,21 +2,27 @@ import React, { useContext } from "react";
 import BaseNode from "./BaseNode";
 import StyleContext from "../StyleContext";
 
-const wrapVirtualNode = (BaseNode) => (props) => {
-  const { virtualNodeStyle } = useContext(StyleContext);
+const VirtualNode = (props) => {
+  const { defaultNodeStyle, nodeStyles, virtualNodeStyle } = useContext(
+    StyleContext
+  );
   const { nodeData } = props;
-  const { width, height } = nodeData;
+  const { level, width, height, style } = nodeData;
+  const defaultStyle = nodeStyles[level] || defaultNodeStyle;
   if (width <= 0 || height <= 0) return <></>;
   return (
     <g>
       <BaseNode
-        nodeData={{ ...nodeData, style: virtualNodeStyle.style }}
+        nodeData={{
+          ...nodeData,
+          style: style
+            ? { ...style, ...virtualNodeStyle.style }
+            : { ...defaultStyle.style, ...virtualNodeStyle.style },
+        }}
         isFocused={true}
       />
     </g>
   );
 };
-
-const VirtualNode = wrapVirtualNode(BaseNode);
 
 export default VirtualNode;

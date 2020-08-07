@@ -4,6 +4,7 @@
 
 .svg {
   height: calc(99vh - 50px);
+  touch-action: none; /*Set touch action none for preventing browser default touch action*/
 }
 
 /* Tool */
@@ -18,19 +19,25 @@
 
 .common-tool {
   top: 30px;
-  left: 5%;
+  left: 20px;
+}
+.curve-tool {
+  top: 120px;
+  left: 20px;
+}
+.node-tool {
+  top: 270px;
+  left: 20px;
 }
 
 .tool-item {
   display: flex;
   align-items: center;
   height: 30px;
-  position: relative;
   text-align: center;
   margin: 0 5px;
   border-radius: 2px;
 }
-
 .tool-item:hover {
   background-color: #e8e8e8;
 }
@@ -58,6 +65,9 @@
   top: 10px;
   right: 15px;
 }
+.tool-close-btn:hover {
+  background-color: #e8e8e8;
+}
 
 .edit-mode-btn,
 .view-mode-btn {
@@ -67,17 +77,12 @@
   right: 15px;
 }
 
-.tool-close-btn:hover {
-  background-color: #e8e8e8;
-}
-
 .tool-list {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   margin: 10px;
 }
-
 .tool-subtitle {
   font-weight: bold;
   width: 60px;
@@ -85,6 +90,33 @@
 }
 
 .tool-select {
+  position: relative;
+}
+.tool-selector {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  border-radius: 3px;
+  border: 1px solid #457b9d;
+  padding: 5px 0;
+  box-shadow: 0 0 10px #457b9d;
+  background-color: #ffffff;
+  z-index: 1;
+  white-space: nowrap;
+  max-height: 60vh;
+  overflow: auto;
+}
+.tool-selector:focus {
+  outline: none;
+}
+.tool-option {
+  padding: 5px 20px;
+  border-left: 2px solid transparent;
+}
+.tool-option:hover {
+  background-color: #e8e8e8;
+  border-left: 2px solid #a8a8a8;
   cursor: pointer;
 }
 
@@ -93,17 +125,12 @@
   background-color: initial;
   border-bottom: 2px solid #e8e8e8;
 }
-
-.doc-title-input {
-  border: none;
-  font-size: 1.2rem;
-  font-weight: bold;
+.tool-text {
+  padding: 5px;
 }
-
 .tool-btn {
   cursor: pointer;
 }
-
 .tool-icon {
   width: 20px;
   height: 20px;
@@ -116,6 +143,14 @@
   height: 100%;
   border-radius: 5px;
 }
+.color-trigger {
+  position: absolute;
+  width: 20px;
+  height: 28px;
+  top: 0;
+  right: 0;
+  opacity: 0;
+}
 
 .tool-select:hover,
 .tool-btn:hover {
@@ -126,17 +161,18 @@
   padding: 5px;
   border-radius: 2px;
 }
-
-.tool-trigger:hover {
+.tool-trigger:hover,
+.color-trigger:hover {
   background-color: #c8c8c8;
+  cursor: pointer;
 }
 
-.tool-selector {
-  display: none;
-  position: absolute;
-  top: 15px;
-  border-radius: 2px;
-  box-shadow: 0 0 10px #a8a8a8;
+/* Doc Title */
+
+.doc-title-input {
+  border: none;
+  font-size: 1.2rem;
+  font-weight: bold;
 }
 
 /* Note Tool */

@@ -9,13 +9,6 @@ const CommonTool = (props) => {
     docTitle,
     modifyDocTitle,
   } = props;
-  // const [editTitle, setEditTitle] = useState("");
-  // useEffect(() => {
-  //   setEditTitle(docTitle);
-  // }, [docTitle]);
-  // const modifyDocTitle = (newTitle) => {
-  //   setEditTitle(newTitle);
-  // };
   return (
     <div className="tool-box common-tool">
       {/* <ToolItem fa="eye" />
@@ -23,12 +16,13 @@ const CommonTool = (props) => {
       <span className="verti-sep"></span>
       <ToolItem fa="undo-alt" />
       <ToolItem fa="redo-alt" />
-      <span className="verti-sep"></span>
-      <ToolItem fa="draw-polygon" action={showNodeTool} />
-      <ToolItem fa="slash" action={showCurveTool} /> */}
+      <span className="verti-sep"></span> */}
       <ToolInput value={docTitle} action={modifyDocTitle} />
       <span className="verti-sep"></span>
+      <ToolItem fa="draw-polygon" action={showNodeTool} />
+      <ToolItem fa="slash" action={showCurveTool} />
       <ToolItem fa="edit" action={showNote} />
+      <span className="verti-sep"></span>
       <ToolItem fa="save" action={saveMindnoteToDB} />
     </div>
   );

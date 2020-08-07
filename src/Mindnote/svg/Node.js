@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useContext } from "react";
 import BaseNode from "./BaseNode";
 import StyleContext from "../StyleContext";
 import ItemContext from "../ItemContext";
@@ -6,10 +6,10 @@ import { ITEM_TYPE } from "../utils/enums";
 
 const Node = (props) => {
   const { nodeData, hoverNode, unHoverNode } = props;
-  const { id, style } = nodeData;
-  const { nodeStyle } = useContext(StyleContext);
+  const { id, level, style } = nodeData;
+  const { defaultNodeStyle, nodeStyles } = useContext(StyleContext);
   const { setSelectedItem } = useContext(ItemContext);
-
+  const defaultStyle = nodeStyles[level] || defaultNodeStyle;
   return (
     <g
       tabIndex={-1}
@@ -17,12 +17,19 @@ const Node = (props) => {
         e.stopPropagation();
         setSelectedItem({ type: ITEM_TYPE.NODE, id });
       }}
-      onMouseOver={() => hoverNode(id)}
-      onMouseLeave={() => {
+      onPointerOver={() => {
+        hoverNode(id);
+      }}
+      onPointerLeave={() => {
         unHoverNode();
       }}
     >
-      <BaseNode nodeData={{ ...nodeData, style: style || nodeStyle.style }} />
+      <BaseNode
+        nodeData={{
+          ...nodeData,
+          style: style || defaultStyle.style,
+        }}
+      />
     </g>
   );
 };
