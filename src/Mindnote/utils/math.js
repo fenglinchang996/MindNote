@@ -19,7 +19,7 @@ const calcIntersectionPoint = (A1, A2, B1, B2) => {
     ((A2.x - A1.x) * (A1.y - B1.y) - (A2.y - A1.y) * (A1.x - B1.x)) /
     denominator;
 
-  // is the intersection along the segments
+  // Is the intersection ßalong the segments
   if (ua < 0 || ua > 1 || ub < 0 || ub > 1) {
     return null;
   }
