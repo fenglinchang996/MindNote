@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
+    "update-test": "jest --updateSnapshot",
     "start": "webpack-dev-server --open --mode development",
     "dev": "webpack --mode development",
     "build": "webpack --mode production"
