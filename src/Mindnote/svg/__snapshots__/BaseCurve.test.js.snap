@@ -1,0 +1,33 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BaseCurve 1`] = `
+<g>
+  <defs>
+    <marker
+      id="Arrow-test"
+      markerHeight="3"
+      markerWidth="3"
+      orient="auto"
+      refX="1.5"
+      refY="1.5"
+    >
+      <polygon
+        fill="blue"
+        points="0,0 3,1.5 0,3"
+      />
+    </marker>
+  </defs>
+  <path
+    d="M 480 295 C 479 331, 478 350, 478 386"
+    markerEnd="url(#Arrow-test)"
+    style={
+      Object {
+        "fill": "none",
+        "stroke": "blue",
+        "strokeLinecap": "round",
+        "strokeWidth": 5,
+      }
+    }
+  />
+</g>
+`;

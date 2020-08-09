@@ -1,0 +1,44 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BaseNode 1`] = `
+<g>
+  <rect
+    height={40}
+    rx={12}
+    ry={8}
+    width={120}
+    x={420}
+    y={250}
+  />
+  <foreignObject
+    height={32}
+    width={108}
+    x={426}
+    y={254}
+  >
+    <div
+      style={
+        Object {
+          "alignItems": "center",
+          "backgroundColor": "transparent",
+          "display": "flex",
+          "fontSize": "0.8rem",
+          "height": "100%",
+          "justifyContent": "center",
+          "width": "100%",
+        }
+      }
+    >
+      <div
+        style={
+          Object {
+            "textAlign": "center",
+          }
+        }
+      >
+        Center
+      </div>
+    </div>
+  </foreignObject>
+</g>
+`;
