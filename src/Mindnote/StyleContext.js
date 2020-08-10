@@ -69,29 +69,35 @@ const styleContext = createContext({
     style: {},
   },
   defaultCurveStyle: {
+    type: "Solid",
     style: {
       fill: "none",
-      stroke: "blue",
+      stroke: "#0000ff",
       strokeWidth: 5,
       strokeLinecap: "round",
+      strokeDasharray: "none",
     },
   },
   curveStyles: [
     null,
     {
+      type: "Short Dash",
       style: {
         fill: "none",
         stroke: "#ffbf00",
-        strokeWidth: 5,
+        strokeWidth: 3,
         strokeLinecap: "round",
+        strokeDasharray: [3, 6],
       },
     },
     {
+      type: "Short Dash",
       style: {
         fill: "none",
-        stroke: "purple",
+        stroke: "#800080",
         strokeWidth: 5,
         strokeLinecap: "round",
+        strokeDasharray: [5, 10],
       },
     },
   ],
@@ -109,7 +115,7 @@ const styleContext = createContext({
   ],
   virtualCurveStyle: {
     style: {
-      strokeDasharray: "10, 10",
+      stroke: "#ffc0cb",
     },
   },
   selectedCurveStyle: {

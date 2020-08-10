@@ -8,18 +8,19 @@ const BaseCurve = (props) => {
 
   return (
     <g>
-      <ArrowMarker id={id} fill={style.stroke} />
-      <path d={pathInfo} style={style} markerEnd={`url(#Arrow-${id})`} />
+      <ThickArrowMarker id={id} fill={style.stroke} />
+      <ArrowMarker id={id} stroke={style.stroke} />
+      <path d={pathInfo} style={style} markerEnd={`url(#ThickArrow-${id})`} />
     </g>
   );
 };
 
-const ArrowMarker = (props) => {
+const ThickArrowMarker = (props) => {
   const { id, fill } = props;
   return (
     <defs>
       <marker
-        id={`Arrow-${id}`}
+        id={`ThickArrow-${id}`}
         markerWidth="3"
         markerHeight="3"
         refX="1.5"
@@ -27,6 +28,30 @@ const ArrowMarker = (props) => {
         orient="auto"
       >
         <polygon points="0,0 3,1.5 0,3" fill={fill} />
+      </marker>
+    </defs>
+  );
+};
+
+const ArrowMarker = (props) => {
+  const { id, stroke } = props;
+  return (
+    <defs>
+      <marker
+        id={`Arrow-${id}`}
+        markerWidth="6"
+        markerHeight="6"
+        refX="4"
+        refY="3"
+        orient="auto"
+      >
+        <polyline
+          points="1,1 5,3, 1,5"
+          strokeWidth={1}
+          strokeLinecap="round"
+          stroke={stroke}
+          fill="none"
+        />
       </marker>
     </defs>
   );
