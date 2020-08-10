@@ -89,6 +89,9 @@ const Mindnote = (props) => {
                 items: mindnote.noteList,
               });
             }
+            if (mindnote.style) {
+              setStyle(mindnote.style);
+            }
             setIsSaving(false);
           } else {
             // mindnoteDoc.data() will be undefined in this case
@@ -134,7 +137,7 @@ const Mindnote = (props) => {
     const maxLevel = Math.max(...levelList);
     return maxLevel;
   };
-  // Toogle toole
+  // Toogle tool
   const [isShowTool, dispatchToggleTool] = useReducer(toggleToolReducer, {
     showNode: false,
     showCurve: false,
@@ -182,10 +185,10 @@ const Mindnote = (props) => {
   const modifyDocTitle = (newTitle) => {
     setDoc({ ...doc, title: newTitle });
   };
-  // Node Style
-  let StyleContextValue = useContext(StyleContext);
-  const [nodeStyles, setNodeStyles] = useState(StyleContextValue.nodeStyles);
-  const { defaultNodeStyle } = StyleContextValue;
+  // Style
+  const [style, setStyle] = useState(useContext(StyleContext));
+  // Node Styles
+  const { defaultNodeStyle, nodeStyles } = style;
   const modifyNodeStyle = (level, newNodeStyle) => {
     const newNodeStyles = [...nodeStyles];
     newNodeStyles[level] = newNodeStyles[level]
@@ -199,11 +202,10 @@ const Mindnote = (props) => {
           ...newNodeStyle,
           style: { ...defaultNodeStyle.style, ...newNodeStyle.style },
         };
-    setNodeStyles(newNodeStyles);
+    setStyle({ ...style, nodeStyles: newNodeStyles });
   };
-  // Curve Style;
-  const [curveStyles, setCurveStyles] = useState(StyleContextValue.curveStyles);
-  const { defaultCurveStyle } = StyleContextValue;
+  // Curve Styles
+  const { defaultCurveStyle, curveStyles } = style;
   const modifyCurveStyle = (level, newCurveStyle) => {
     const newCurveStyles = [...curveStyles];
     newCurveStyles[level] = newCurveStyles[level]
@@ -217,12 +219,10 @@ const Mindnote = (props) => {
           ...newCurveStyle,
           style: { ...defaultCurveStyle.style, ...newCurveStyle.style },
         };
-    setCurveStyles(newCurveStyles);
+    setStyle({ ...style, curveStyles: newCurveStyles });
   };
-  // Provide Style Context Value
-  StyleContextValue = { ...StyleContextValue, nodeStyles, curveStyles };
   // Resize Note
-  const { noteStyle } = useContext(StyleContext);
+  const { noteStyle } = style;
   const [noteWidth, setNoteWidth] = useState(noteStyle.defaultWidth);
   const resizeNote = () => {
     setDragType(DRAG_TYPE.RESIZE_NOTE);
@@ -244,7 +244,13 @@ const Mindnote = (props) => {
   // Saving status
   const [isSaving, setIsSaving] = useState(false);
   // Save(Update) doc/mindnote data to database
-  const saveMindnoteToDB = async (doc, nodeList, curveList, noteList) => {
+  const saveMindnoteToDB = async (
+    doc,
+    nodeList,
+    curveList,
+    noteList,
+    style
+  ) => {
     setIsSaving(true);
     try {
       const mindnoteRef = db.collection("mindnotes").doc(mindnoteId);
@@ -252,6 +258,7 @@ const Mindnote = (props) => {
         nodeList,
         curveList,
         noteList,
+        style,
       });
       const docRef = db.collection("docs").doc(docId);
       await docRef.set(doc);
@@ -264,7 +271,7 @@ const Mindnote = (props) => {
     <div className="mindnote">
       <div className="canvas" onMouseMove={drag} onMouseUp={drop}>
         <ItemContext.Provider value={ItemContextValue}>
-          <StyleContext.Provider value={StyleContextValue}>
+          <StyleContext.Provider value={style}>
             <SVG
               nodeList={nodeList}
               curveList={curveList}
@@ -296,7 +303,7 @@ const Mindnote = (props) => {
                 docTitle={doc ? doc.title : ""}
                 modifyDocTitle={modifyDocTitle}
                 saveMindnoteToDB={() =>
-                  saveMindnoteToDB(doc, nodeList, curveList, noteList)
+                  saveMindnoteToDB(doc, nodeList, curveList, noteList, style)
                 }
                 calcMaxLevel={calcMaxLevel}
                 isShowNodeTool={isShowTool.showNodeTool}
