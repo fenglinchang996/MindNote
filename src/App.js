@@ -1,12 +1,8 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Switch,
   Route,
   BrowserRouter as Router,
-  Link,
-  NavLink,
-  useRouteMatch,
-  useLocation,
   Redirect,
 } from "react-router-dom";
 import "./App.css";

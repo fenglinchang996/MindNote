@@ -1,7 +1,61 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import StyleContext from "../StyleContext";
+import { STROKE_TYPE } from "../utils/enums";
+import ToolList from "./widget/ToolList";
+import TargetSelect from "./TargetSelect";
+import ColorSelect from "./ColorSelect";
+import WidthSelect from "./WidthSelect";
+import TypeSelect from "./TypeSelect";
+import CornerSelect from "./CornerSelect";
+import CloseBtn from "./CloseBtn";
 
 const NodeTool = (props) => {
-  const { isShowNodeTool, closeNodeTool } = props;
+  const { maxLevel, isShowNodeTool, closeNodeTool, modifyNodeStyle } = props;
+  // Level List for selecting Node(s)
+  const levelList = [...Array(maxLevel + 1).keys()].map((n) => n);
+  const [targetLevel, setTargetLevel] = useState(0);
+  const { defaultNodeStyle, nodeStyles } = useContext(StyleContext);
+  const currentNodeStyle = nodeStyles[targetLevel] || defaultNodeStyle;
+  const { borderType, rxRatio, ryRatio, style } = currentNodeStyle;
+  const { fill, stroke, strokeWidth } = style;
+  const borderWidthList = [1, 2, 3, 4, 5, 6, 7, 8];
+  const modifyBorderColor = (colorCode) => {
+    modifyNodeStyle(targetLevel, { style: { stroke: colorCode } });
+  };
+  const modifyBorderWidth = (newWidth) => {
+    modifyNodeStyle(targetLevel, {
+      style: {
+        strokeWidth: newWidth,
+        strokeDasharray: modifyStrokeDasharray(borderType, newWidth),
+      },
+    });
+  };
+  const modifyStrokeDasharray = (borderType, width) => {
+    switch (borderType) {
+      case STROKE_TYPE.SOLID:
+        return "none";
+      case STROKE_TYPE.SHORT_DASH:
+        return [2 * width, 2 * width];
+      case STROKE_TYPE.LONG_DASH:
+        return [4 * width, 2 * width];
+      case STROKE_TYPE.DOT:
+        return [1, 2 * width];
+      default:
+        break;
+    }
+  };
+  const modifyBorderType = (borderType, width) => {
+    modifyNodeStyle(targetLevel, {
+      borderType,
+      style: { strokeDasharray: modifyStrokeDasharray(borderType, width) },
+    });
+  };
+  const modifyBorderRadius = (rxRatio, ryRatio) => {
+    modifyNodeStyle(targetLevel, { rxRatio, ryRatio });
+  };
+  const modifyFillColor = (colorCode) => {
+    modifyNodeStyle(targetLevel, { style: { fill: colorCode } });
+  };
   return (
     <div
       className="tool-box node-tool"
@@ -12,154 +66,37 @@ const NodeTool = (props) => {
       <div className="tool-main-title">
         Node <hr className="hori-sep" />
       </div>
-      <button type="button" className="tool-close-btn" onClick={closeNodeTool}>
-        <i className="fas fa-times"></i>
-      </button>
-      <div className="tool-list">
-        <div className="tool-subtitle">Border</div>
-        <div className="tool-item tool-select">
-          <div className="tool-icon">
-            <div
-              className="color-block"
-              style={{
-                backgroundColor: "#1d3557",
-              }}
-            ></div>
-          </div>
-          <span className="tool-trigger">
-            <i className="fas fa-angle-down"></i>
-          </span>
-          <div className="tool-selector">12345</div>
-        </div>
-        <div className="tool-item tool-select">
-          <svg className="tool-icon" viewBox="0 0 100 100">
-            <line
-              x1="0"
-              y1="15"
-              x2="100"
-              y2="15"
-              stroke="black"
-              strokeWidth="4"
-            ></line>
-            <line
-              x1="0"
-              y1="45"
-              x2="100"
-              y2="45"
-              stroke="black"
-              strokeWidth="10"
-            ></line>
-            <line
-              x1="0"
-              y1="80"
-              x2="100"
-              y2="80"
-              stroke="black"
-              strokeWidth="20"
-            ></line>
-          </svg>
-          <span className="tool-trigger">
-            <i className="fas fa-angle-down"></i>
-          </span>
-          <div className="tool-selector">12345</div>
-        </div>
-        <div className="tool-item tool-select">
-          <svg className="tool-icon" viewBox="0 0 100 100">
-            <line
-              x1="0"
-              y1="15"
-              x2="100"
-              y2="15"
-              stroke="black"
-              strokeWidth="10"
-            ></line>
-            <line
-              x1="0"
-              y1="45"
-              x2="100"
-              y2="45"
-              stroke="black"
-              strokeWidth="10"
-              strokeDasharray="20, 10"
-            ></line>
-            <line
-              x1="0"
-              y1="80"
-              x2="100"
-              y2="80"
-              stroke="black"
-              strokeWidth="10"
-              strokeDasharray="2, 20"
-              strokeLinecap="round"
-            ></line>
-          </svg>
-          <span className="tool-trigger">
-            <i className="fas fa-angle-down"></i>
-          </span>
-          <div className="tool-selector">12345</div>
-        </div>
-        <div className="tool-item tool-select">
-          <svg className="tool-icon" viewBox="0 0 100 100">
-            <path
-              d="M25 25 h25 q25 0, 25 25 v25"
-              stroke="#1d3557"
-              strokeWidth="5"
-              fill="none"
-            />
-          </svg>
-          <span className="tool-trigger">
-            <i className="fas fa-angle-down"></i>
-          </span>
-          <div className="tool-selector">12345</div>
-        </div>
-      </div>
-      <div className="tool-list">
-        <div className="tool-subtitle">Fill</div>
-        <div className="tool-item tool-select">
-          <div className="tool-icon">
-            <div
-              className="color-block"
-              style={{
-                backgroundColor: "#1d3557",
-              }}
-            ></div>
-          </div>
-          <span className="tool-trigger">
-            <i className="fas fa-angle-down"></i>
-          </span>
-        </div>
-      </div>
-      <div className="tool-list">
-        <div className="tool-subtitle">Text</div>
-        <div className="tool-item tool-select">
-          <div className="tool-icon">
-            <i className="fas fa-font"></i>
-          </div>
-          <span className="tool-trigger">
-            <i className="fas fa-angle-down"></i>
-          </span>
-        </div>
-        <div className="tool-item tool-btn">
-          <div className="tool-icon">
-            <i className="fas fa-bold"></i>
-          </div>
-        </div>
-        <div className="tool-item tool-btn">
-          <div className="tool-icon">
-            <i className="fas fa-italic"></i>
-          </div>
-        </div>
-        <div className="tool-item tool-btn">
-          <div className="tool-icon">
-            <i className="fas fa-underline"></i>
-          </div>
-        </div>
-        <div className="tool-item tool-btn">
-          <div className="tool-icon">
-            <i className="fas fa-strikethrough"></i>
-          </div>
-        </div>
-      </div>
+      <CloseBtn action={closeNodeTool} />
+      <ToolList title="Target">
+        <TargetSelect
+          maxLevel={maxLevel}
+          levelList={levelList}
+          targetLevel={targetLevel}
+          setTargetLevel={setTargetLevel}
+        />
+      </ToolList>
+      <ToolList title="Border">
+        <ColorSelect colorCode={stroke} modifyColor={modifyBorderColor} />
+        <WidthSelect
+          colorCode={stroke}
+          widthList={borderWidthList}
+          modifyWidth={modifyBorderWidth}
+        />
+        <TypeSelect
+          colorCode={stroke}
+          width={strokeWidth}
+          modifyType={modifyBorderType}
+        />
+        <CornerSelect
+          colorCode={stroke}
+          rxRatio={rxRatio}
+          ryRatio={ryRatio}
+          modifyBorderRadius={modifyBorderRadius}
+        />
+      </ToolList>
+      <ToolList title="Fill">
+        <ColorSelect colorCode={fill} modifyColor={modifyFillColor} />
+      </ToolList>
     </div>
   );
 };

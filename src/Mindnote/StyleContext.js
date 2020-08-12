@@ -1,4 +1,5 @@
 import { createContext } from "react";
+import { STROKE_TYPE } from "./utils/enums";
 
 const styleContext = createContext({
   defaultNodeStyle: {
@@ -6,33 +7,46 @@ const styleContext = createContext({
     height: 40,
     rxRatio: 0.1,
     ryRatio: 0.2,
+    borderType: STROKE_TYPE.SOLID,
     style: {
-      fill: "white",
-      stroke: "black",
+      fill: "#ffffff",
+      stroke: "#000000",
       strokeWidth: 2,
+      strokeLinecap: "round",
+      strokeDasharray: "none",
     },
   },
   nodeStyles: [
     {
       rxRatio: 0.1,
       ryRatio: 0.2,
-      style: { fill: "white", stroke: "green", strokeWidth: 2 },
+      borderType: STROKE_TYPE.SHORT_DASH,
+      style: {
+        fill: "#ffffff",
+        stroke: "#008000",
+        strokeWidth: 2,
+        strokeLinecap: "round",
+        strokeDasharray: [4, 4],
+      },
     },
     {
       rxRatio: 0.1,
       ryRatio: 0.5,
+      borderType: STROKE_TYPE.LONG_DASH,
       style: {
-        fill: "white",
-        stroke: "blue",
+        fill: "#ffffff",
+        stroke: "#0000ff",
         strokeWidth: 2,
+        strokeLinecap: "round",
+        strokeDasharray: [8, 4],
       },
     },
   ],
   nodePointStyle: {
     r: 5,
     style: {
-      stroke: "black",
-      fill: "white",
+      stroke: "#000000",
+      fill: "#ffffff",
       cursor: "pointer",
     },
   },
@@ -51,66 +65,70 @@ const styleContext = createContext({
   },
   virtualNodeStyle: {
     style: {
-      stroke: "pink",
+      stroke: "#ffc0cb",
       strokeDasharray: [5, 2],
     },
   },
   selectedNodeStyle: {
     style: {
-      stroke: "red",
+      stroke: "#ff0000",
     },
   },
   viewNodeStyle: {
     style: {
-      stroke: "red",
+      stroke: "#ff0000",
     },
   },
   connectionArrowStyle: {
     style: {},
   },
   defaultCurveStyle: {
+    type: STROKE_TYPE.SOLID,
     style: {
       fill: "none",
-      stroke: "blue",
+      stroke: "#0000ff",
       strokeWidth: 5,
       strokeLinecap: "round",
+      strokeDasharray: "none",
     },
   },
   curveStyles: [
     null,
     {
+      type: STROKE_TYPE.SHORT_DASH,
       style: {
         fill: "none",
         stroke: "#ffbf00",
-        strokeWidth: 5,
+        strokeWidth: 3,
         strokeLinecap: "round",
+        strokeDasharray: [6, 6],
       },
     },
     {
+      type: STROKE_TYPE.SHORT_DASH,
       style: {
         fill: "none",
-        stroke: "purple",
+        stroke: "#800080",
         strokeWidth: 5,
         strokeLinecap: "round",
+        strokeDasharray: [20, 10],
       },
     },
   ],
   defaultCurveArrowStyle: {
     style: {
-      fill: "blue",
+      fill: "#0000ff",
     },
   },
   curveArrowStyles: [
     {
       style: {
-        fill: "blue",
+        fill: "#0000ff",
       },
     },
   ],
   virtualCurveStyle: {
-    style: {
-      strokeDasharray: "10, 10",
-    },
+    style: {},
   },
   selectedCurveStyle: {
     style: {},
@@ -121,23 +139,23 @@ const styleContext = createContext({
   curvePointStyle: {
     r: 5,
     style: {
-      stroke: "black",
-      fill: "white",
+      stroke: "#000000",
+      fill: "#ffffff",
       cursor: "pointer",
     },
   },
   curveControlStyle: {
     r: 5,
     style: {
-      stroke: "black",
-      fill: "white",
+      stroke: "#000000",
+      fill: "#ffffff",
       cursor: "pointer",
     },
   },
   curveControlLineStyle: {
     style: {
       fill: "none",
-      stroke: "lightgray",
+      stroke: "#d3d3d3",
       strokeWidth: 5,
       strokeDasharray: "2, 2",
     },
