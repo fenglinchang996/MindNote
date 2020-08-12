@@ -4,8 +4,7 @@ import ToolSelector from "./widget/ToolSelector";
 import ToolOption from "./widget/ToolOption";
 
 const WidthSelect = (props) => {
-  const { colorCode, modifyWidth } = props;
-  const widthList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  const { colorCode, widthList, modifyWidth } = props;
   return (
     <ToolSelect>
       <div className="tool-icon">

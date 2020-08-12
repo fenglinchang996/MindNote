@@ -12,7 +12,7 @@ const ToolSelector = (props) => {
     }
   }, [isToolSelectorDisplayed]);
   return (
-    <>
+    <div onMouseLeave={closeToolSelector}>
       <span className="tool-trigger" onClick={openToolSelector}>
         <i className="fas fa-angle-down"></i>
       </span>
@@ -21,12 +21,11 @@ const ToolSelector = (props) => {
         ref={selectorRef}
         className="tool-selector"
         style={{ display: isToolSelectorDisplayed ? "block" : "none" }}
-        onBlur={closeToolSelector}
         onClick={closeToolSelector}
       >
         {children}
       </div>
-    </>
+    </div>
   );
 };
 

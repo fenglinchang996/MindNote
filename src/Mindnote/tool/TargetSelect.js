@@ -4,8 +4,7 @@ import ToolSelector from "./widget/ToolSelector";
 import ToolOption from "./widget/ToolOption";
 
 const TargetSelect = (props) => {
-  const { maxLevel, targetLevel, setTargetLevel } = props;
-  const levelList = [...Array(maxLevel).keys()].map((n) => n + 1);
+  const { maxLevel, levelList, targetLevel, setTargetLevel } = props;
   return (
     <ToolSelect>
       <div className="tool-text">

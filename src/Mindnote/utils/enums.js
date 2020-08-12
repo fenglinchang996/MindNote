@@ -97,6 +97,13 @@ const MINDNOTE_MODE = {
   EDIT_MODE: "MINDNOTE_EDIT_MODE",
 };
 
+const STROKE_TYPE = {
+  SOLID: "Solid",
+  SHORT_DASH: "Short Dash",
+  LONG_DASH: "Long Dash",
+  DOT: "Dot",
+};
+
 export {
   LIST_ACTION_TYPE,
   EDGE,
@@ -112,4 +119,5 @@ export {
   DRAG_TYPE,
   NOTE_MODE,
   MINDNOTE_MODE,
+  STROKE_TYPE,
 };

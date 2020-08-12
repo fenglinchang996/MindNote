@@ -1,6 +1,6 @@
 import React, { useState, useContext } from "react";
 import StyleContext from "../StyleContext";
-import { STROKE_TYPE } from "./enums";
+import { STROKE_TYPE } from "../utils/enums";
 import ToolList from "./widget/ToolList";
 import TargetSelect from "./TargetSelect";
 import ColorSelect from "./ColorSelect";
@@ -10,11 +10,14 @@ import CloseBtn from "./CloseBtn";
 
 const CurveTool = (props) => {
   const { maxLevel, isShowCurveTool, closeCurveTool, modifyCurveStyle } = props;
+  // Level List for selecting Curve(s)
+  const levelList = [...Array(maxLevel).keys()].map((n) => n + 1);
   const [targetLevel, setTargetLevel] = useState(1);
   const { defaultCurveStyle, curveStyles } = useContext(StyleContext);
   const currentCurveStyle = curveStyles[targetLevel] || defaultCurveStyle;
   const { type, style } = currentCurveStyle;
   const { stroke, strokeWidth, strokeLinecap, strokeDasharray } = style;
+  const widthList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   const modifyCurveColor = (colorCode) => {
     modifyCurveStyle(targetLevel, { style: { stroke: colorCode } });
   };
@@ -31,9 +34,9 @@ const CurveTool = (props) => {
       case STROKE_TYPE.SOLID:
         return "none";
       case STROKE_TYPE.SHORT_DASH:
-        return [width, 2 * width];
-      case STROKE_TYPE.LONG_DASH:
         return [2 * width, 2 * width];
+      case STROKE_TYPE.LONG_DASH:
+        return [4 * width, 2 * width];
       case STROKE_TYPE.DOT:
         return [1, 2 * width];
       default:
@@ -60,13 +63,18 @@ const CurveTool = (props) => {
       <ToolList title="Target">
         <TargetSelect
           maxLevel={maxLevel}
+          levelList={levelList}
           targetLevel={targetLevel}
           setTargetLevel={setTargetLevel}
         />
       </ToolList>
       <ToolList title="Style">
         <ColorSelect colorCode={stroke} modifyColor={modifyCurveColor} />
-        <WidthSelect colorCode={stroke} modifyWidth={modifyCurveWidth} />
+        <WidthSelect
+          colorCode={stroke}
+          widthList={widthList}
+          modifyWidth={modifyCurveWidth}
+        />
         <TypeSelect
           colorCode={stroke}
           width={strokeWidth}

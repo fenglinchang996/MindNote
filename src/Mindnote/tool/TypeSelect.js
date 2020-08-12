@@ -2,7 +2,7 @@ import React from "react";
 import ToolSelect from "./widget/ToolSelect";
 import ToolSelector from "./widget/ToolSelector";
 import ToolOption from "./widget/ToolOption";
-import { STROKE_TYPE } from "./enums";
+import { STROKE_TYPE } from "../utils/enums";
 
 const TypeSelect = (props) => {
   const { colorCode, width, modifyType } = props;
