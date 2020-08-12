@@ -2,7 +2,7 @@ import React, { useContext } from "react";
 import { Route, Redirect } from "react-router-dom";
 import UserContext from "./UserContext";
 import Loading from "./Loading";
-import Header from "./Header";
+import Header from "./header";
 
 // AuthRoute
 const wrapAuthRoute = ({ isAuthTo = null, nonAuthTo = null } = {}) => (

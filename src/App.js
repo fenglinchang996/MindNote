@@ -1,22 +1,18 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Switch,
   Route,
   BrowserRouter as Router,
-  Link,
-  NavLink,
-  useRouteMatch,
-  useLocation,
   Redirect,
 } from "react-router-dom";
 import "./App.css";
-import Header from "./Header";
-import Home from "./Home";
-import Docs from "./Docs";
-import Member from "./Member";
-import Mindnote from "./Mindnote";
+import Header from "./header";
+import Home from "./home";
+import Docs from "./docs";
+import Member from "./member";
+import Mindnote from "./mindnote";
 import { auth, db } from "./firebase";
-import { AuthToLogInRoute, AuthToMyDocsRoute } from "./AuthRoute";
+import { AuthToMyDocsRoute } from "./AuthRoute";
 import UserContext from "./UserContext";
 
 const App = () => {
@@ -60,10 +56,10 @@ const App = () => {
               <Header />
               <Docs />
             </Route>
-            <AuthToLogInRoute path="/mindnote/:docId/:mindnoteId">
+            <Route path="/mindnote/:docId/:mindnoteId">
               <Header />
               <Mindnote />
-            </AuthToLogInRoute>
+            </Route>
             <Route path="/member">
               <Header />
               <Member />

@@ -1,20 +1,20 @@
-import React, { useState, useReducer, useEffect } from "react";
+import React, { useState, useReducer, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
 import { db } from "../firebase";
-import Header from "../Header";
-import SVG from "./SVG";
-import CommonTool from "./CommonTool";
-import NodeTool from "./NodeTool";
-import CurveTool from "./CurveTool";
-import Note from "./Note";
+import SVG from "./svg";
+import Tool from "./tool";
+import Note from "./note";
+import Loading from "../Loading";
 import StyleContext from "./StyleContext";
 import ItemContext from "./ItemContext";
+import UserContext from "../UserContext";
 import {
   LIST_ACTION_TYPE,
-  SHOW_TOOL_TYPE,
-  TOOL_TYPE,
+  TOGGLE_TOOL_TYPE,
   ITEM_TYPE,
-} from "./enums";
+  MINDNOTE_MODE,
+  DRAG_TYPE,
+} from "./utils/enums";
 import "./Mindnote.css";
 
 const listReducer = (list, action) => {
@@ -42,67 +42,33 @@ const listReducer = (list, action) => {
       return list;
   }
 };
-const showToolReducer = (isShowTool, action) => {
+const toggleToolReducer = (isShowTool, action) => {
   switch (action.type) {
-    case SHOW_TOOL_TYPE.SHOW_NODE_TOOL:
+    case TOGGLE_TOOL_TYPE.SHOW_NODE_TOOL:
       return { ...isShowTool, showNodeTool: true };
-    case SHOW_TOOL_TYPE.SHOW_CURVE_TOOL:
+    case TOGGLE_TOOL_TYPE.SHOW_CURVE_TOOL:
       return { ...isShowTool, showCurveTool: true };
-    case SHOW_TOOL_TYPE.SHOW_NOTE:
+    case TOGGLE_TOOL_TYPE.SHOW_NOTE:
       return { ...isShowTool, showNote: true };
-    case SHOW_TOOL_TYPE.CLOSE_NODE_TOOL:
+    case TOGGLE_TOOL_TYPE.CLOSE_NODE_TOOL:
       return { ...isShowTool, showNodeTool: false };
-    case SHOW_TOOL_TYPE.CLOSE_CURVE_TOOL:
+    case TOGGLE_TOOL_TYPE.CLOSE_CURVE_TOOL:
       return { ...isShowTool, showCurveTool: false };
-    case SHOW_TOOL_TYPE.CLOSE_NOTE:
+    case TOGGLE_TOOL_TYPE.CLOSE_NOTE:
       return { ...isShowTool, showNote: false };
-    case SHOW_TOOL_TYPE.CLOSE_ALL:
+    case TOGGLE_TOOL_TYPE.CLOSE_ALL:
       return { showNodeTool: false, showCurveTool: false, showNote: false };
     default:
-      return isShowNote;
+      return isShowTool;
   }
 };
 
 const Mindnote = (props) => {
-  // Mindnote Data
-  const [nodeList, dispatchNodes] = useReducer(listReducer, []);
-  const getNode = (nodeId) => nodeList.find((node) => node.id === nodeId);
-  const [curveList, dispatchCurves] = useReducer(listReducer, []);
-  const getCurve = (curveId) => curveList.find((curve) => curve.id === curveId);
-  const [noteList, dispatchNotes] = useReducer(listReducer, []);
-  const getNote = (noteId) => noteList.find((note) => note.id === noteId);
-  const [isShowTool, dispatchShowTool] = useReducer(showToolReducer, {
-    showNode: false,
-    showCurve: false,
-    showNote: false,
-  });
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [selectedNote, setSelectedNote] = useState(null);
-  useEffect(() => {
-    if (selectedItem) {
-      if (selectedItem.type === ITEM_TYPE.NODE) {
-        const node = getNode(selectedItem.id);
-        setSelectedNote(node.noteId);
-        dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_NOTE });
-      } else {
-        setSelectedNote(null);
-        dispatchShowTool({ type: SHOW_TOOL_TYPE.CLOSE_NOTE });
-      }
-    }
-  }, [selectedItem]);
-  const ItemContextValue = {
-    dispatchNodes,
-    getNode,
-    dispatchCurves,
-    getCurve,
-    dispatchNotes,
-    getNote,
-    setSelectedItem,
-  };
   const { docId, mindnoteId } = useParams();
   // Get mindnote data from database
   useEffect(() => {
     if (mindnoteId) {
+      setIsSaving(true);
       const mindnoteRef = db.collection("mindnotes").doc(mindnoteId);
       mindnoteRef
         .get()
@@ -123,6 +89,10 @@ const Mindnote = (props) => {
                 items: mindnote.noteList,
               });
             }
+            if (mindnote.style) {
+              setStyle(mindnote.style);
+            }
+            setIsSaving(false);
           } else {
             // mindnoteDoc.data() will be undefined in this case
             console.log("No such mindnote!");
@@ -155,12 +125,132 @@ const Mindnote = (props) => {
         });
     }
   }, []);
+  // Mindnote data
+  const [nodeList, dispatchNodes] = useReducer(listReducer, []);
+  const getNode = (nodeId) => nodeList.find((node) => node.id === nodeId);
+  const [curveList, dispatchCurves] = useReducer(listReducer, []);
+  const getCurve = (curveId) => curveList.find((curve) => curve.id === curveId);
+  const [noteList, dispatchNotes] = useReducer(listReducer, []);
+  const getNote = (noteId) => noteList.find((note) => note.id === noteId);
+  const calcMaxLevel = () => {
+    const levelList = nodeList.map((node) => node.level);
+    const maxLevel = Math.max(...levelList);
+    return maxLevel;
+  };
+  // Toogle tool
+  const [isShowTool, dispatchToggleTool] = useReducer(toggleToolReducer, {
+    showNode: false,
+    showCurve: false,
+    showNote: false,
+  });
+  // Mindnote mode
+  const user = useContext(UserContext);
+  const [mindnoteMode, setMindnoteMode] = useState(MINDNOTE_MODE.VIEW_MODE);
+  useEffect(() => {
+    if (user && doc && user.uid === doc.creatorId) {
+      setMindnoteMode(MINDNOTE_MODE.EDIT_MODE);
+    } else {
+      setMindnoteMode(MINDNOTE_MODE.VIEW_MODE);
+    }
+  }, [user, doc]);
+  // selectedItem, selectedNote
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedNote, setSelectedNote] = useState(null);
+  useEffect(() => {
+    if (selectedItem) {
+      if (selectedItem.type === ITEM_TYPE.NODE) {
+        const node = getNode(selectedItem.id);
+        setSelectedNote(node.noteId);
+        dispatchToggleTool({ type: TOGGLE_TOOL_TYPE.SHOW_NOTE });
+      } else {
+        setSelectedNote(null);
+        dispatchToggleTool({ type: TOGGLE_TOOL_TYPE.CLOSE_NOTE });
+      }
+    } else {
+      dispatchToggleTool({ type: TOGGLE_TOOL_TYPE.CLOSE_NOTE });
+    }
+  }, [selectedItem]);
+  // ItemContext
+  const ItemContextValue = {
+    dispatchNodes,
+    getNode,
+    dispatchCurves,
+    getCurve,
+    dispatchNotes,
+    getNote,
+    setSelectedItem,
+    mindnoteMode,
+  };
+  // Modify doc title
   const modifyDocTitle = (newTitle) => {
     setDoc({ ...doc, title: newTitle });
   };
+  // Style
+  const [style, setStyle] = useState(useContext(StyleContext));
+  // Node Styles
+  const { defaultNodeStyle, nodeStyles } = style;
+  const modifyNodeStyle = (level, newNodeStyle) => {
+    const newNodeStyles = [...nodeStyles];
+    newNodeStyles[level] = newNodeStyles[level]
+      ? {
+          ...newNodeStyles[level],
+          ...newNodeStyle,
+          style: { ...newNodeStyles[level].style, ...newNodeStyle.style },
+        }
+      : {
+          ...defaultNodeStyle,
+          ...newNodeStyle,
+          style: { ...defaultNodeStyle.style, ...newNodeStyle.style },
+        };
+    setStyle({ ...style, nodeStyles: newNodeStyles });
+  };
+  // Curve Styles
+  const { defaultCurveStyle, curveStyles } = style;
+  const modifyCurveStyle = (level, newCurveStyle) => {
+    const newCurveStyles = [...curveStyles];
+    newCurveStyles[level] = newCurveStyles[level]
+      ? {
+          ...newCurveStyles[level],
+          ...newCurveStyle,
+          style: { ...newCurveStyles[level].style, ...newCurveStyle.style },
+        }
+      : {
+          ...defaultCurveStyle,
+          ...newCurveStyle,
+          style: { ...defaultCurveStyle.style, ...newCurveStyle.style },
+        };
+    setStyle({ ...style, curveStyles: newCurveStyles });
+  };
+  // Resize Note
+  const { noteStyle } = style;
+  const [noteWidth, setNoteWidth] = useState(noteStyle.defaultWidth);
+  const resizeNote = () => {
+    setDragType(DRAG_TYPE.RESIZE_NOTE);
+  };
+  // Drag Event
+  const [dragType, setDragType] = useState(null);
+  const drag = (e) => {
+    if (dragType === DRAG_TYPE.RESIZE_NOTE) {
+      let newNoteWidth = noteWidth - e.movementX;
+      newNoteWidth =
+        newNoteWidth > noteStyle.minWidth ? newNoteWidth : noteStyle.minWidth;
+      setNoteWidth(newNoteWidth);
+    }
+  };
+  // Drop Event
+  const drop = (e) => {
+    setDragType(null);
+  };
+  // Saving status
   const [isSaving, setIsSaving] = useState(false);
   // Save(Update) doc/mindnote data to database
-  const saveMindnoteToDB = async (doc, nodeList, curveList, noteList) => {
+  const saveMindnoteToDB = async (
+    doc,
+    nodeList,
+    curveList,
+    noteList,
+    style
+  ) => {
     setIsSaving(true);
     try {
       const mindnoteRef = db.collection("mindnotes").doc(mindnoteId);
@@ -168,6 +258,7 @@ const Mindnote = (props) => {
         nodeList,
         curveList,
         noteList,
+        style,
       });
       const docRef = db.collection("docs").doc(docId);
       await docRef.set(doc);
@@ -178,63 +269,60 @@ const Mindnote = (props) => {
   };
   return (
     <div className="mindnote">
-      <div className="canvas">
+      <div className="canvas" onMouseMove={drag} onMouseUp={drop}>
         <ItemContext.Provider value={ItemContextValue}>
-          <SVG
-            nodeList={nodeList}
-            curveList={curveList}
-            noteList={noteList}
-            selectedItem={selectedItem}
-          />
-          <CommonTool
-            saveMindnoteToDB={() =>
-              saveMindnoteToDB(doc, nodeList, curveList, noteList)
-            }
-            showNodeTool={() =>
-              dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_NODE_TOOL })
-            }
-            showCurveTool={() =>
-              dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_CURVE_TOOL })
-            }
-            showNote={() =>
-              dispatchShowTool({ type: SHOW_TOOL_TYPE.SHOW_NOTE })
-            }
-            selectedItem={selectedItem}
-            docTitle={doc ? doc.title : ""}
-            modifyDocTitle={modifyDocTitle}
-          />
-          <NodeTool
-            isShowNodeTool={isShowTool.showNodeTool}
-            closeTool={() =>
-              dispatchShowTool({ type: SHOW_TOOL_TYPE.CLOSE_NODE_TOOL })
-            }
-          />
-          <CurveTool
-            isShowCurveTool={isShowTool.showCurveTool}
-            closeTool={() =>
-              dispatchShowTool({ type: SHOW_TOOL_TYPE.CLOSE_CURVE_TOOL })
-            }
-          />
-          <Note
-            isShowNote={isShowTool.showNote}
-            closeTool={() =>
-              dispatchShowTool({ type: SHOW_TOOL_TYPE.CLOSE_NOTE })
-            }
-            selectedItem={selectedItem}
-            selectedNote={selectedNote}
-          />
+          <StyleContext.Provider value={style}>
+            <SVG
+              nodeList={nodeList}
+              curveList={curveList}
+              noteList={noteList}
+              selectedItem={selectedItem}
+              mindnoteMode={mindnoteMode}
+            />
+            {isShowTool.showNote && (
+              <Note
+                width={noteWidth}
+                resizeNote={resizeNote}
+                selectedItem={selectedItem}
+                selectedNote={selectedNote}
+                mindnoteMode={mindnoteMode}
+              />
+            )}
+            {mindnoteMode === MINDNOTE_MODE.EDIT_MODE && (
+              <Tool
+                selectedItem={selectedItem}
+                showNodeTool={() =>
+                  dispatchToggleTool({ type: TOGGLE_TOOL_TYPE.SHOW_NODE_TOOL })
+                }
+                showCurveTool={() =>
+                  dispatchToggleTool({ type: TOGGLE_TOOL_TYPE.SHOW_CURVE_TOOL })
+                }
+                showNote={() =>
+                  dispatchToggleTool({ type: TOGGLE_TOOL_TYPE.SHOW_NOTE })
+                }
+                docTitle={doc ? doc.title : ""}
+                modifyDocTitle={modifyDocTitle}
+                saveMindnoteToDB={() =>
+                  saveMindnoteToDB(doc, nodeList, curveList, noteList, style)
+                }
+                calcMaxLevel={calcMaxLevel}
+                isShowNodeTool={isShowTool.showNodeTool}
+                closeNodeTool={() =>
+                  dispatchToggleTool({ type: TOGGLE_TOOL_TYPE.CLOSE_NODE_TOOL })
+                }
+                modifyNodeStyle={modifyNodeStyle}
+                isShowCurveTool={isShowTool.showCurveTool}
+                closeCurveTool={() =>
+                  dispatchToggleTool({
+                    type: TOGGLE_TOOL_TYPE.CLOSE_CURVE_TOOL,
+                  })
+                }
+                modifyCurveStyle={modifyCurveStyle}
+              />
+            )}
+          </StyleContext.Provider>
         </ItemContext.Provider>
-        {isSaving ? <Saving /> : ""}
-      </div>
-    </div>
-  );
-};
-
-const Saving = (props) => {
-  return (
-    <div className="loading">
-      <div className="loading-icon">
-        <i className="fas fa-spinner"></i>
+        {isSaving ? <Loading /> : ""}
       </div>
     </div>
   );
