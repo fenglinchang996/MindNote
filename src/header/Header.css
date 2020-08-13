@@ -25,6 +25,8 @@ header > .title {
 header > .go-back-btn {
   margin-left: 10px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
 }
 header > .go-back-btn:hover {
   color: #457b9d;
