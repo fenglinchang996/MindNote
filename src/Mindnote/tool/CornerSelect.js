@@ -2,6 +2,7 @@ import React from "react";
 import ToolSelect from "./widget/ToolSelect";
 import ToolSelector from "./widget/ToolSelector";
 import ToolOption from "./widget/ToolOption";
+import ToolIcon from "./widget/ToolIcon";
 
 const CornerSelect = (props) => {
   const { colorCode, rxRatio, ryRatio, modifyBorderRadius } = props;

@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import React from "react";
+import ToolBtn from "./widget/ToolBtn";
 
 const CommonTool = (props) => {
   const {
@@ -11,19 +13,12 @@ const CommonTool = (props) => {
   } = props;
   return (
     <div className="tool-box common-tool">
-      {/* <ToolItem fa="eye" />
-      <ToolItem fa="pen" />
-      <span className="verti-sep"></span>
-      <ToolItem fa="undo-alt" />
-      <ToolItem fa="redo-alt" />
-      <span className="verti-sep"></span> */}
       <ToolInput value={docTitle} action={modifyDocTitle} />
       <span className="verti-sep"></span>
-      <ToolItem fa="draw-polygon" action={showNodeTool} />
-      <ToolItem fa="slash" action={showCurveTool} />
-      <ToolItem fa="edit" action={showNote} />
+      <ToolBtn fa="draw-polygon" action={showNodeTool} title="Node Style" />
+      <ToolBtn fa="slash" action={showCurveTool} title="Curve Style" />
+      <ToolBtn fa="edit" action={showNote} title="Edit Note" />
       <span className="verti-sep"></span>
-      <ToolItem fa="save" action={saveMindnoteToDB} />
     </div>
   );
 };

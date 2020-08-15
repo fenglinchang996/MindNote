@@ -170,6 +170,40 @@
   cursor: pointer;
 }
 
+/* Tooltip */
+
+.tooltip-wrapper {
+  position: relative;
+}
+
+.tooltip {
+  position: absolute;
+  display: none;
+  background-color: #777777;
+  color: #ffffff;
+  border-radius: 5px;
+  top: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 0 12px 0 #a8a8a8;
+  padding: 5px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  z-index: 99;
+}
+.tooltip:after {
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  border-bottom-color: #777777;
+  border-width: 5px;
+}
+
 /* Doc Title */
 
 .doc-title-input {
