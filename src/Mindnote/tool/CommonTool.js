@@ -17,7 +17,7 @@ const CommonTool = (props) => {
   const getSavingString = (isSaving, autoSaveCount) => {
     if (isSaving) return "Saving...";
     if (autoSaveCount === 0) return "Saved";
-    else return "Changed";
+    else return "Not Saved";
   };
   return (
     <div className="tool-box common-tool">
@@ -38,7 +38,7 @@ const CommonTool = (props) => {
       ) : (
         <ToolBtn fa="save" action={saveMindnoteToDB} title="Save" />
       )}
-      <ToolText width="80px" textAlign="left">
+      <ToolText width="70px" textAlign="left">
         {getSavingString(isSaving, autoSaveCount)}
       </ToolText>
     </div>
