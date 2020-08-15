@@ -227,6 +227,18 @@ const Mindnote = (props) => {
   const resizeNote = () => {
     setDragType(DRAG_TYPE.RESIZE_NOTE);
   };
+  // Resize Canvas
+  const [SVGSizeRatio, setSVGSizeRatio] = useState(1);
+  const resizeCanvas = (deltaRatio) => {
+    if (SVGSizeRatio < 0.5) {
+      deltaRatio > 0 && setSVGSizeRatio(SVGSizeRatio + deltaRatio);
+    } else if (SVGSizeRatio > 2) {
+      deltaRatio < 0 && setSVGSizeRatio(SVGSizeRatio + deltaRatio);
+    } else {
+      setSVGSizeRatio(SVGSizeRatio + deltaRatio);
+    }
+  };
+
   // Drag Event
   const [dragType, setDragType] = useState(null);
   const drag = (e) => {

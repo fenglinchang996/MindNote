@@ -59,11 +59,17 @@ const SVG = (props) => {
     width: 960,
     height: 540,
   });
-  const [SVGSizeRatio, setSVGSizeRatio] = useState(1);
   const [viewBoxOrigin, setViewBoxOrigin] = useState({ x: 0, y: 0 });
 
   // nodeList, curveList, selectedItem
-  const { nodeList, curveList, noteList, selectedItem } = props;
+  const {
+    nodeList,
+    curveList,
+    noteList,
+    selectedItem,
+    SVGSizeRatio,
+    resizeCanvas,
+  } = props;
   // Style
   const { defaultNodeStyle, curvePointStyle } = useContext(StyleContext);
   // Item method
@@ -438,17 +444,6 @@ const SVG = (props) => {
 
   // Move Canvas
   const moveCanvas = () => setDragType(DRAG_TYPE.MOVE_CANVAS);
-
-  // Resize Canvas
-  const resizeCanvas = (deltaRatio) => {
-    if (SVGSizeRatio < 0.5) {
-      deltaRatio > 0 && setSVGSizeRatio(SVGSizeRatio + deltaRatio);
-    } else if (SVGSizeRatio > 2) {
-      deltaRatio < 0 && setSVGSizeRatio(SVGSizeRatio + deltaRatio);
-    } else {
-      setSVGSizeRatio(SVGSizeRatio + deltaRatio);
-    }
-  };
 
   // Draw new Node
   const [currentStartNode, setCurrentStartNode] = useState(null);
@@ -1340,11 +1335,15 @@ const SVG = (props) => {
       width="100%"
       preserveAspectRatio="xMidYMid meet"
       viewBox={`${viewBoxOrigin.x} ${viewBoxOrigin.y} ${
-        SVGSizeRatio * SVGSize.width
-      } ${SVGSizeRatio * SVGSize.height}`}
+        (1 / SVGSizeRatio) * SVGSize.width
+      } ${(1 / SVGSizeRatio) * SVGSize.height}`}
       onWheel={(e) => {
         if (e.ctrlKey) {
-          resizeCanvas(0.0002 * e.deltaY);
+          if (e.deltaY > 0) {
+            resizeCanvas(0.1);
+          } else {
+            resizeCanvas(-0.1);
+          }
         }
       }}
       onFocus={() => {
