@@ -20,6 +20,7 @@ const App = () => {
   // Check Log In Status and retrive user data
   useEffect(() => {
     auth.onAuthStateChanged((authUser) => {
+      console.log("AuthChange");
       if (authUser) {
         // User is signed in.
         const { uid } = authUser;
@@ -31,7 +32,6 @@ const App = () => {
             if (userDoc.exists) {
               const { email, name, ownDocs } = userDoc.data();
               setUser({ uid, email, name, ownDocs });
-              console.log({ uid, email, name, ownDocs });
             } else {
               // userDoc.data() will be undefined in this case
               console.log("No such user!");

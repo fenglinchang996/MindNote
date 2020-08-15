@@ -1,14 +1,5 @@
-import React, { useState, useEffect, useContext } from "react";
-import {
-  Link,
-  NavLink,
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  useLocation,
-  useRouteMatch,
-  useHistory,
-} from "react-router-dom";
+import React, { useState, useContext } from "react";
+import { Link, NavLink, useRouteMatch, useHistory } from "react-router-dom";
 import UserContext from "../UserContext";
 import "./Header.css";
 import { auth } from "../firebase";
@@ -61,15 +52,17 @@ const Header = (props) => {
         {/* {path === "/home" && homeNav} */}
         {path === "/docs" && docsNav}
         {path === "/mindnote/:docId/:mindnoteId" && mindnoteNav}
-        <div className="user">
-          {user ? (
-            <UserInfo user={user} />
-          ) : (
-            <Link to="/member/login" className="login-btn">
-              Log In
-            </Link>
-          )}
-        </div>
+        {path !== "/member" && (
+          <div className="user">
+            {user ? (
+              <UserInfo user={user} />
+            ) : (
+              <Link to="/member/login" className="login-btn">
+                Log In
+              </Link>
+            )}
+          </div>
+        )}
       </header>
       <div className="header-sep"></div>
     </>
@@ -87,6 +80,7 @@ const UserInfo = (props) => {
       })
       .catch((error) => {
         // An error happened.
+        console.log(error);
       });
   };
   return (
