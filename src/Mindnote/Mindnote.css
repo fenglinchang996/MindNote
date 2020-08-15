@@ -12,22 +12,27 @@
   position: absolute; /* relative to .canvas */
   display: flex;
   padding: 10px;
+  margin: 20px 0;
   border-radius: 5px;
   box-shadow: 0 0 10px #457b9d;
   background-color: #ffffff;
 }
 
 .common-tool {
-  top: 30px;
+  top: 5px;
   left: 20px;
 }
 .curve-tool {
-  top: 120px;
+  top: 80px;
   left: 20px;
 }
 .node-tool {
-  top: 300px;
+  top: 260px;
   left: 20px;
+}
+.canvas-tool {
+  top: 5px;
+  right: 20px;
 }
 
 .tool-item {
@@ -35,7 +40,6 @@
   align-items: center;
   height: 30px;
   text-align: center;
-  margin: 0 5px;
   border-radius: 2px;
 }
 .tool-item:hover {
@@ -70,8 +74,8 @@
 .view-mode-btn {
   position: absolute; /* relative to .tool-box */
   padding: 5px;
-  top: 12px;
-  right: 15px;
+  top: 6px;
+  left: 15px;
 }
 
 .tool-list {
@@ -141,6 +145,8 @@
 }
 .tool-text {
   padding: 5px;
+  display: flex;
+  align-items: center;
 }
 .tool-btn {
   cursor: pointer;
@@ -195,6 +201,12 @@
 input[type="range"] {
   cursor: pointer;
 }
+
+.saving-icon {
+  width: 30px;
+  height: 30px;
+}
+
 /* Tooltip */
 
 .tooltip-wrapper {
@@ -241,11 +253,10 @@ input[type="range"] {
 .note {
   display: block;
   width: 400px;
+  min-height: 300px;
   height: 70%;
   right: 20px;
-  top: 50%;
-  z-index: 99;
-  transform: translateY(-50%);
+  top: 80px;
 }
 
 .note-left-edge {
