@@ -67,6 +67,8 @@ const SVG = (props) => {
     curveList,
     noteList,
     selectedItem,
+    nodeToBeDeleted,
+    setNodeToBeDeleted,
     SVGSizeRatio,
     resizeCanvas,
   } = props;
@@ -634,49 +636,60 @@ const SVG = (props) => {
   // Delete Node (and its childNodes/downstreamCueves)
   const deleteNode = (nodeId) => {
     const node = getNode(nodeId);
-    const upstreamCurve = getCurve(node.upstreamCurveId);
-    const parentNode = getNode(node.parentNodeId);
+    // Selected Node is not the Center Node
+    if (!node.parentNodeId) {
+      console.log("Center Node can not be deleted!");
+    } else {
+      const upstreamCurve = getCurve(node.upstreamCurveId);
+      const parentNode = getNode(node.parentNodeId);
 
-    const { parentNodeRelationData } = setNodeCurveRelation(
-      "REMOVE",
-      parentNode,
-      node,
-      upstreamCurve,
-      upstreamCurve.startEdge,
-      upstreamCurve.endEdge
-    );
-    // Update Parent Node's childNodes and DownstreamCurves
-    const newParentNode = { ...parentNode, ...parentNodeRelationData };
-    dispatchNodes({
-      type: LIST_ACTION_TYPE.UPDATE_ITEMS,
-      items: [newParentNode],
-    });
-    // Delete Nodes
-    const nodesToBeRemoved = [nodeId, ...getDecendents(nodeId)];
-    dispatchNodes({
-      type: LIST_ACTION_TYPE.DELETE_ITEMS,
-      items: [...nodesToBeRemoved],
-    });
-    // Delete Notes
-    const notesToBeRemoved = nodesToBeRemoved.map(
-      (nodeId) => getNode(nodeId).noteId
-    );
-    dispatchNotes({
-      type: LIST_ACTION_TYPE.DELETE_ITEMS,
-      items: [...notesToBeRemoved],
-    });
-    // Delete Curves
-    const curvesToBeRemoved = [
-      node.upstreamCurveId,
-      ...getDownstreamCurves(nodeId),
-    ];
-    dispatchCurves({
-      type: LIST_ACTION_TYPE.DELETE_ITEMS,
-      items: [...curvesToBeRemoved],
-    });
-    // Reset selectedItem
-    setSelectedItem(null);
+      const { parentNodeRelationData } = setNodeCurveRelation(
+        "REMOVE",
+        parentNode,
+        node,
+        upstreamCurve,
+        upstreamCurve.startEdge,
+        upstreamCurve.endEdge
+      );
+      // Update Parent Node's childNodes and DownstreamCurves
+      const newParentNode = { ...parentNode, ...parentNodeRelationData };
+      dispatchNodes({
+        type: LIST_ACTION_TYPE.UPDATE_ITEMS,
+        items: [newParentNode],
+      });
+      // Delete Nodes
+      const nodesToBeRemoved = [nodeId, ...getDecendents(nodeId)];
+      dispatchNodes({
+        type: LIST_ACTION_TYPE.DELETE_ITEMS,
+        items: [...nodesToBeRemoved],
+      });
+      // Delete Notes
+      const notesToBeRemoved = nodesToBeRemoved.map(
+        (nodeId) => getNode(nodeId).noteId
+      );
+      dispatchNotes({
+        type: LIST_ACTION_TYPE.DELETE_ITEMS,
+        items: [...notesToBeRemoved],
+      });
+      // Delete Curves
+      const curvesToBeRemoved = [
+        node.upstreamCurveId,
+        ...getDownstreamCurves(nodeId),
+      ];
+      dispatchCurves({
+        type: LIST_ACTION_TYPE.DELETE_ITEMS,
+        items: [...curvesToBeRemoved],
+      });
+      // Reset selectedItem
+      setSelectedItem(null);
+    }
   };
+  useEffect(() => {
+    if (nodeToBeDeleted) {
+      deleteNode(nodeToBeDeleted);
+      setNodeToBeDeleted(null);
+    }
+  }, [nodeToBeDeleted]);
 
   // Move Node (and its related Nodes/Curves)
   const [isMovingNode, setIsMovingNode] = useState(false);
@@ -1375,6 +1388,11 @@ const SVG = (props) => {
       onPointerUp={(e) => {
         drop(e);
       }}
+      onKeyDown={(e) => {
+        if (e.key === "Delete" || (e.metaKey && e.key === "Backspace")) {
+          if (selectedNode) deleteNode(selectedNode.id);
+        }
+      }}
     >
       {curveList.map((curve) => (
         <Curve key={curve.id} curveData={curve} />
@@ -1392,7 +1410,6 @@ const SVG = (props) => {
       {selectedNode && (
         <SelectedNode
           nodeData={selectedNode}
-          deleteNode={deleteNode}
           moveNode={moveNode}
           drawNewNode={drawNewNode}
           resizeNode={resizeNode}

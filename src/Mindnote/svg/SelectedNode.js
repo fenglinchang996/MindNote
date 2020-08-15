@@ -12,14 +12,7 @@ const usePrevious = (value) => {
 };
 
 const SelectedNode = (props) => {
-  const {
-    nodeData,
-    deleteNode,
-    moveNode,
-    drawNewNode,
-    resizeNode,
-    autoResizeNode,
-  } = props;
+  const { nodeData, moveNode, drawNewNode, resizeNode, autoResizeNode } = props;
   const {
     id,
     level,
@@ -127,12 +120,6 @@ const SelectedNode = (props) => {
   return (
     <g
       tabIndex={-1}
-      style={{ cursor: "move" }}
-      onKeyDown={(e) => {
-        if (e.key === "Delete" || (e.metaKey && e.key === "Backspace")) {
-          deleteNode(id);
-        }
-      }}
       style={{ cursor: parentNodeId ? "move" : "not-allowed" }}
       onPointerDown={() => {
         moveNode(id);

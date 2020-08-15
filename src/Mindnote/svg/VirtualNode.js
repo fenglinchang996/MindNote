@@ -19,7 +19,6 @@ const VirtualNode = (props) => {
             ? { ...style, ...virtualNodeStyle.style }
             : { ...defaultStyle.style, ...virtualNodeStyle.style },
         }}
-        isFocused={true}
       />
     </g>
   );

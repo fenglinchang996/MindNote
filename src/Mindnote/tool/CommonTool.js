@@ -10,6 +10,7 @@ const CommonTool = (props) => {
     showNodeTool,
     showNote,
     showCurveTool,
+    deleteSelectedNode,
     docTitle,
     modifyDocTitle,
   } = props;
@@ -24,7 +25,13 @@ const CommonTool = (props) => {
       <span className="verti-sep"></span>
       <ToolBtn fa="draw-polygon" action={showNodeTool} title="Node Style" />
       <ToolBtn fa="slash" action={showCurveTool} title="Curve Style" />
-      <ToolBtn fa="edit" action={showNote} title="Edit Note" />
+      <span className="verti-sep"></span>
+      <ToolBtn fa="edit" action={showNote} title="Edit Node Note" />
+      <ToolBtn
+        fa="trash-alt"
+        action={deleteSelectedNode}
+        title="Delete Selected Node"
+      />
       <span className="verti-sep"></span>
       {isSaving ? (
         <Saving />

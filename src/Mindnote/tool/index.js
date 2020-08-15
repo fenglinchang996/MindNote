@@ -12,6 +12,7 @@ const Tool = (props) => {
     showCurveTool,
     showNote,
     selectedItem,
+    deleteSelectedNode,
     docTitle,
     modifyDocTitle,
     calcMaxLevel,
@@ -32,6 +33,7 @@ const Tool = (props) => {
         showNodeTool={showNodeTool}
         showCurveTool={showCurveTool}
         showNote={showNote}
+        deleteSelectedNode={deleteSelectedNode}
         selectedItem={selectedItem}
         docTitle={docTitle}
         modifyDocTitle={modifyDocTitle}

@@ -142,6 +142,8 @@ const Mindnote = (props) => {
     const maxLevel = Math.max(...levelList);
     return maxLevel;
   };
+  // Delete Node
+  const [nodeToBeDeleted, setNodeToBeDeleted] = useState(null);
   // Style
   const [style, setStyle] = useState(useContext(StyleContext));
   // Node Styles
@@ -243,7 +245,6 @@ const Mindnote = (props) => {
       setSVGSizeRatio(SVGSizeRatio + deltaRatio);
     }
   };
-
   // Drag Event
   const [dragType, setDragType] = useState(null);
   const drag = (e) => {
@@ -315,6 +316,8 @@ const Mindnote = (props) => {
               curveList={curveList}
               noteList={noteList}
               selectedItem={selectedItem}
+              nodeToBeDeleted={nodeToBeDeleted}
+              setNodeToBeDeleted={setNodeToBeDeleted}
               mindnoteMode={mindnoteMode}
               SVGSizeRatio={SVGSizeRatio}
               resizeCanvas={resizeCanvas}
@@ -334,6 +337,11 @@ const Mindnote = (props) => {
             {mindnoteMode === MINDNOTE_MODE.EDIT_MODE && (
               <Tool
                 selectedItem={selectedItem}
+                deleteSelectedNode={() => {
+                  if (selectedItem && selectedItem.type === ITEM_TYPE.NODE) {
+                    setNodeToBeDeleted(selectedItem.id);
+                  }
+                }}
                 showNodeTool={() =>
                   dispatchToggleTool({ type: TOGGLE_TOOL_TYPE.SHOW_NODE_TOOL })
                 }
