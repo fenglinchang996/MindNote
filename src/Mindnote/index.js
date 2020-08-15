@@ -316,6 +316,8 @@ const Mindnote = (props) => {
               noteList={noteList}
               selectedItem={selectedItem}
               mindnoteMode={mindnoteMode}
+              SVGSizeRatio={SVGSizeRatio}
+              resizeCanvas={resizeCanvas}
             />
             {isShowTool.showNote && (
               <Note
@@ -324,6 +326,9 @@ const Mindnote = (props) => {
                 selectedItem={selectedItem}
                 selectedNote={selectedNote}
                 mindnoteMode={mindnoteMode}
+                closeNote={() =>
+                  dispatchToggleTool({ type: TOGGLE_TOOL_TYPE.CLOSE_NOTE })
+                }
               />
             )}
             {mindnoteMode === MINDNOTE_MODE.EDIT_MODE && (
@@ -358,8 +363,11 @@ const Mindnote = (props) => {
                   })
                 }
                 modifyCurveStyle={modifyCurveStyle}
+                SVGSizeRatio={SVGSizeRatio}
+                resizeCanvas={resizeCanvas}
               />
             )}
+            <Zoom SVGSizeRatio={SVGSizeRatio} resizeCanvas={resizeCanvas} />
           </StyleContext.Provider>
         </ItemContext.Provider>
         {isLoading ? <Loading /> : ""}
