@@ -91,14 +91,18 @@ g {
 }
 
 .loading-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   width: 4rem;
   height: 4rem;
   font-size: 3rem;
-  animation: spin 1s linear infinite;
 }
+
+.spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: spin 2s linear infinite;
+}
+
 @keyframes spin {
   100% {
     transform: rotate(360deg);

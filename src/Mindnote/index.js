@@ -4,6 +4,7 @@ import { db } from "../firebase";
 import SVG from "./svg";
 import Tool from "./tool";
 import Note from "./note";
+import Zoom from "./tool/Zoom";
 import Loading from "../Loading";
 import StyleContext from "./StyleContext";
 import ItemContext from "./ItemContext";
@@ -66,65 +67,69 @@ const toggleToolReducer = (isShowTool, action) => {
 const Mindnote = (props) => {
   const { docId, mindnoteId } = useParams();
   // Get mindnote data from database
-  useEffect(() => {
-    if (mindnoteId) {
-      setIsSaving(true);
-      const mindnoteRef = db.collection("mindnotes").doc(mindnoteId);
-      mindnoteRef
-        .get()
-        .then((mindnoteDoc) => {
-          if (mindnoteDoc.exists) {
-            const mindnote = mindnoteDoc.data();
-            if (mindnote.nodeList.length !== 0) {
-              dispatchNodes({
-                type: LIST_ACTION_TYPE.INIT_ITEMS,
-                items: mindnote.nodeList,
-              });
-              dispatchCurves({
-                type: LIST_ACTION_TYPE.INIT_ITEMS,
-                items: mindnote.curveList,
-              });
-              dispatchNotes({
-                type: LIST_ACTION_TYPE.INIT_ITEMS,
-                items: mindnote.noteList,
-              });
-            }
-            if (mindnote.style) {
-              setStyle(mindnote.style);
-            }
-            setIsSaving(false);
-          } else {
-            // mindnoteDoc.data() will be undefined in this case
-            console.log("No such mindnote!");
-          }
-        })
-        .catch((error) => {
-          console.log("Error getting mindnote:", error);
-        });
-    }
-  }, []);
-  // Doc Data
-  const [doc, setDoc] = useState(null);
-  // Get doc data from database
-  useEffect(() => {
+  const [isLoading, setIsLoading] = useState(false);
+  const fetchDocAndMindnote = async (docId, mindnoteId) => {
+    setIsLoading(true);
+    // fetch doc
     if (docId) {
       const docRef = db.collection("docs").doc(docId);
-      docRef
-        .get()
-        .then((docDoc) => {
-          if (docDoc.exists) {
-            const doc = docDoc.data();
-            setDoc(doc);
-          } else {
-            // docDoc.data() will be undefined in this case
-            console.log("No such doc!");
-          }
-        })
-        .catch((error) => {
-          console.log("Error getting doc:", error);
-        });
+      try {
+        const docDoc = await docRef.get();
+        if (docDoc.exists) {
+          const doc = docDoc.data();
+          setDoc(doc);
+        } else {
+          // docDoc.data() will be undefined in this case
+          console.log("No such doc!");
+        }
+      } catch (error) {
+        console.log("Error getting doc:", error);
+      }
     }
+    // fetch mindnote
+    if (mindnoteId) {
+      const mindnoteRef = db.collection("mindnotes").doc(mindnoteId);
+      try {
+        const mindnoteDoc = await mindnoteRef.get();
+        if (mindnoteDoc.exists) {
+          const mindnote = mindnoteDoc.data();
+          if (mindnote.nodeList.length !== 0) {
+            dispatchNodes({
+              type: LIST_ACTION_TYPE.INIT_ITEMS,
+              items: mindnote.nodeList,
+            });
+            dispatchCurves({
+              type: LIST_ACTION_TYPE.INIT_ITEMS,
+              items: mindnote.curveList,
+            });
+            dispatchNotes({
+              type: LIST_ACTION_TYPE.INIT_ITEMS,
+              items: mindnote.noteList,
+            });
+          }
+          if (mindnote.style) {
+            setStyle(mindnote.style);
+          }
+        } else {
+          // mindnoteDoc.data() will be undefined in this case
+          console.log("No such mindnote!");
+        }
+      } catch (error) {
+        console.log("Error getting mindnote:", error);
+      }
+    }
+    setIsLoading(false);
+    setIsDataLoaded(true);
+  };
+  useEffect(() => {
+    fetchDocAndMindnote(docId, mindnoteId);
   }, []);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
+  useEffect(() => {
+    setAutoSaveCount(criticalSaveCount);
+  }, [isDataLoaded]);
+  // Doc Data
+  const [doc, setDoc] = useState(null);
   // Mindnote data
   const [nodeList, dispatchNodes] = useReducer(listReducer, []);
   const getNode = (nodeId) => nodeList.find((node) => node.id === nodeId);
@@ -136,6 +141,42 @@ const Mindnote = (props) => {
     const levelList = nodeList.map((node) => node.level);
     const maxLevel = Math.max(...levelList);
     return maxLevel;
+  };
+  // Style
+  const [style, setStyle] = useState(useContext(StyleContext));
+  // Node Styles
+  const { defaultNodeStyle, nodeStyles } = style;
+  const modifyNodeStyle = (level, newNodeStyle) => {
+    const newNodeStyles = [...nodeStyles];
+    newNodeStyles[level] = newNodeStyles[level]
+      ? {
+          ...newNodeStyles[level],
+          ...newNodeStyle,
+          style: { ...newNodeStyles[level].style, ...newNodeStyle.style },
+        }
+      : {
+          ...defaultNodeStyle,
+          ...newNodeStyle,
+          style: { ...defaultNodeStyle.style, ...newNodeStyle.style },
+        };
+    setStyle({ ...style, nodeStyles: newNodeStyles });
+  };
+  // Curve Styles
+  const { defaultCurveStyle, curveStyles } = style;
+  const modifyCurveStyle = (level, newCurveStyle) => {
+    const newCurveStyles = [...curveStyles];
+    newCurveStyles[level] = newCurveStyles[level]
+      ? {
+          ...newCurveStyles[level],
+          ...newCurveStyle,
+          style: { ...newCurveStyles[level].style, ...newCurveStyle.style },
+        }
+      : {
+          ...defaultCurveStyle,
+          ...newCurveStyle,
+          style: { ...defaultCurveStyle.style, ...newCurveStyle.style },
+        };
+    setStyle({ ...style, curveStyles: newCurveStyles });
   };
   // Toogle tool
   const [isShowTool, dispatchToggleTool] = useReducer(toggleToolReducer, {
@@ -185,42 +226,6 @@ const Mindnote = (props) => {
   const modifyDocTitle = (newTitle) => {
     setDoc({ ...doc, title: newTitle });
   };
-  // Style
-  const [style, setStyle] = useState(useContext(StyleContext));
-  // Node Styles
-  const { defaultNodeStyle, nodeStyles } = style;
-  const modifyNodeStyle = (level, newNodeStyle) => {
-    const newNodeStyles = [...nodeStyles];
-    newNodeStyles[level] = newNodeStyles[level]
-      ? {
-          ...newNodeStyles[level],
-          ...newNodeStyle,
-          style: { ...newNodeStyles[level].style, ...newNodeStyle.style },
-        }
-      : {
-          ...defaultNodeStyle,
-          ...newNodeStyle,
-          style: { ...defaultNodeStyle.style, ...newNodeStyle.style },
-        };
-    setStyle({ ...style, nodeStyles: newNodeStyles });
-  };
-  // Curve Styles
-  const { defaultCurveStyle, curveStyles } = style;
-  const modifyCurveStyle = (level, newCurveStyle) => {
-    const newCurveStyles = [...curveStyles];
-    newCurveStyles[level] = newCurveStyles[level]
-      ? {
-          ...newCurveStyles[level],
-          ...newCurveStyle,
-          style: { ...newCurveStyles[level].style, ...newCurveStyle.style },
-        }
-      : {
-          ...defaultCurveStyle,
-          ...newCurveStyle,
-          style: { ...defaultCurveStyle.style, ...newCurveStyle.style },
-        };
-    setStyle({ ...style, curveStyles: newCurveStyles });
-  };
   // Resize Note
   const { noteStyle } = style;
   const [noteWidth, setNoteWidth] = useState(noteStyle.defaultWidth);
@@ -256,7 +261,7 @@ const Mindnote = (props) => {
   // Saving status
   const [isSaving, setIsSaving] = useState(false);
   // Save(Update) doc/mindnote data to database
-  const saveMindnoteToDB = async (
+  const SaveMindnoteToDB = async (
     doc,
     nodeList,
     curveList,
@@ -275,10 +280,31 @@ const Mindnote = (props) => {
       const docRef = db.collection("docs").doc(docId);
       await docRef.set(doc);
       setIsSaving(false);
+      setAutoSaveCount(0);
     } catch (error) {
       console.error("Error updating document: ", error);
     }
   };
+  // Autosave
+  const [autoSaveCount, setAutoSaveCount] = useState(0);
+  const mindMapSaveCount = 6;
+  useEffect(() => {
+    const newAutoSaveCount = autoSaveCount + mindMapSaveCount;
+    setAutoSaveCount(newAutoSaveCount);
+  }, [doc, nodeList, curveList, style]);
+  const noteSaveCount = 1;
+  useEffect(() => {
+    const newAutoSaveCount = autoSaveCount + noteSaveCount;
+    setAutoSaveCount(newAutoSaveCount);
+  }, [noteList]);
+  const criticalSaveCount = 30;
+  useEffect(() => {
+    console.log(autoSaveCount);
+    if (autoSaveCount >= criticalSaveCount) {
+      SaveMindnoteToDB(doc, nodeList, curveList, noteList, style);
+      setAutoSaveCount(0);
+    }
+  }, [autoSaveCount]);
   return (
     <div className="mindnote">
       <div className="canvas" onMouseMove={drag} onMouseUp={drop}>
@@ -314,8 +340,10 @@ const Mindnote = (props) => {
                 }
                 docTitle={doc ? doc.title : ""}
                 modifyDocTitle={modifyDocTitle}
+                isSaving={isSaving}
+                autoSaveCount={autoSaveCount}
                 saveMindnoteToDB={() =>
-                  saveMindnoteToDB(doc, nodeList, curveList, noteList, style)
+                  SaveMindnoteToDB(doc, nodeList, curveList, noteList, style)
                 }
                 calcMaxLevel={calcMaxLevel}
                 isShowNodeTool={isShowTool.showNodeTool}
@@ -334,7 +362,7 @@ const Mindnote = (props) => {
             )}
           </StyleContext.Provider>
         </ItemContext.Provider>
-        {isSaving ? <Loading /> : ""}
+        {isLoading ? <Loading /> : ""}
       </div>
     </div>
   );

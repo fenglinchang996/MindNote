@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from "react";
 import React from "react";
 import ToolBtn from "./widget/ToolBtn";
+import ToolText from "./widget/ToolText";
 
 const CommonTool = (props) => {
   const {
+    isSaving,
+    autoSaveCount,
     saveMindnoteToDB,
     showNodeTool,
     showNote,
@@ -11,6 +13,11 @@ const CommonTool = (props) => {
     docTitle,
     modifyDocTitle,
   } = props;
+  const getSavingString = (isSaving, autoSaveCount) => {
+    if (isSaving) return "Saving...";
+    if (autoSaveCount === 0) return "Saved";
+    else return "Changed";
+  };
   return (
     <div className="tool-box common-tool">
       <ToolInput value={docTitle} action={modifyDocTitle} />
@@ -19,17 +26,14 @@ const CommonTool = (props) => {
       <ToolBtn fa="slash" action={showCurveTool} title="Curve Style" />
       <ToolBtn fa="edit" action={showNote} title="Edit Note" />
       <span className="verti-sep"></span>
-    </div>
-  );
-};
-
-const ToolItem = (props) => {
-  const { fa, action } = props;
-  return (
-    <div className="tool-item tool-btn" onClick={action}>
-      <div className="tool-icon">
-        <i className={`fas fa-${fa}`}></i>
-      </div>
+      {isSaving ? (
+        <Saving />
+      ) : (
+        <ToolBtn fa="save" action={saveMindnoteToDB} title="Save" />
+      )}
+      <ToolText width="80px" textAlign="left">
+        {getSavingString(isSaving, autoSaveCount)}
+      </ToolText>
     </div>
   );
 };
@@ -45,6 +49,16 @@ const ToolInput = (props) => {
         placeholder="Untitled Mindnote"
         onChange={(e) => action(e.target.value)}
       />
+    </div>
+  );
+};
+
+const Saving = (props) => {
+  return (
+    <div className="tool-item">
+      <div className="spinner saving-icon">
+        <i className="fas fa-sync-alt"></i>
+      </div>
     </div>
   );
 };

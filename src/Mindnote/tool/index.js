@@ -5,6 +5,8 @@ import NodeTool from "./NodeTool";
 
 const Tool = (props) => {
   const {
+    isSaving,
+    autoSaveCount,
     saveMindnoteToDB,
     showNodeTool,
     showCurveTool,
@@ -24,6 +26,8 @@ const Tool = (props) => {
   return (
     <>
       <CommonTool
+        isSaving={isSaving}
+        autoSaveCount={autoSaveCount}
         saveMindnoteToDB={saveMindnoteToDB}
         showNodeTool={showNodeTool}
         showCurveTool={showCurveTool}
@@ -37,12 +41,14 @@ const Tool = (props) => {
         isShowNodeTool={isShowNodeTool}
         closeNodeTool={closeNodeTool}
         modifyNodeStyle={modifyNodeStyle}
+        selectedItem={selectedItem}
       />
       <CurveTool
         maxLevel={maxLevel}
         isShowCurveTool={isShowCurveTool}
         closeCurveTool={closeCurveTool}
         modifyCurveStyle={modifyCurveStyle}
+        selectedItem={selectedItem}
       />
     </>
   );
