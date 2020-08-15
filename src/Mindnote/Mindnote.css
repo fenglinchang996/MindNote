@@ -353,8 +353,12 @@
 
 /* SVG */
 .connection-arrow {
+  height: 20px;
+  width: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
+  font-size: 1rem;
+  background-color: #e8e8e8;
+  border-radius: 5px;
 }

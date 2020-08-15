@@ -1,10 +1,19 @@
 import React, { useState, useEffect, useContext } from "react";
 import { LIST_ACTION_TYPE, NOTE_MODE, MINDNOTE_MODE } from "../utils/enums";
+import ToolBtn from "../tool/widget/ToolBtn";
+import CloseBtn from "../tool/CloseBtn";
 import ItemContext from "../ItemContext";
 import { md } from "../utils/mdParser";
 
 const Note = (props) => {
-  const { width, resizeNote, selectedItem, selectedNote, mindnoteMode } = props;
+  const {
+    width,
+    resizeNote,
+    selectedItem,
+    selectedNote,
+    mindnoteMode,
+    closeNote,
+  } = props;
   const { dispatchNotes, dispatchNodes, getNote, getNode } = useContext(
     ItemContext
   );
@@ -70,6 +79,7 @@ const Note = (props) => {
         modifyTitle={modifyTitle}
         modifyContent={modifyContent}
       />
+      <CloseBtn action={closeNote} />
     </div>
   );
 };
@@ -109,23 +119,23 @@ const NoteModeBtn = (props) => {
     switch (noteMode) {
       case NOTE_MODE.VIEW_MODE:
         return (
-          <button
-            type="button"
-            className="tool-item edit-mode-btn"
-            onClick={() => setNoteMode(NOTE_MODE.EDIT_MODE)}
-          >
-            <i className="fas fa-pen"></i>
-          </button>
+          <div className="edit-mode-btn">
+            <ToolBtn
+              fa="pen"
+              action={() => setNoteMode(NOTE_MODE.EDIT_MODE)}
+              title="Edit"
+            />
+          </div>
         );
       case NOTE_MODE.EDIT_MODE:
         return (
-          <button
-            type="button"
-            className="tool-item view-mode-btn"
-            onClick={() => setNoteMode(NOTE_MODE.VIEW_MODE)}
-          >
-            <i className="fas fa-eye"></i>
-          </button>
+          <div className="view-mode-btn">
+            <ToolBtn
+              fa="eye"
+              action={() => setNoteMode(NOTE_MODE.VIEW_MODE)}
+              title="View"
+            />
+          </div>
         );
       default:
         return <></>;
@@ -154,7 +164,7 @@ const TitleView = (props) => {
   const { title } = props;
   return (
     <div className="title-view" title={title}>
-      {title.length > 24 ? `${title.slice(0, 24)}...` : title}
+      {title.length > 26 ? `${title.slice(0, 26)}...` : title}
     </div>
   );
 };

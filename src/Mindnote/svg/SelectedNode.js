@@ -150,22 +150,22 @@ const SelectedNode = (props) => {
         <>
           <ConnectionArrow
             arrowData={connectionArrows.top}
-            fa="caret-up"
+            fa="chevron-up"
             drawNewNode={(e) => drawNewNode(e, id, EDGE.TOP)}
           />
           <ConnectionArrow
             arrowData={connectionArrows.right}
-            fa="caret-right"
+            fa="chevron-right"
             drawNewNode={(e) => drawNewNode(e, id, EDGE.RIGHT)}
           />
           <ConnectionArrow
             arrowData={connectionArrows.bottom}
-            fa="caret-down"
+            fa="chevron-down"
             drawNewNode={(e) => drawNewNode(e, id, EDGE.BOTTOM)}
           />
           <ConnectionArrow
             arrowData={connectionArrows.left}
-            fa="caret-left"
+            fa="chevron-left"
             drawNewNode={(e) => drawNewNode(e, id, EDGE.LEFT)}
           />
         </>
@@ -217,7 +217,10 @@ const ConnectionArrow = (props) => {
         drawNewNode(e);
       }}
     >
-      <div className="connection-arrow">
+      <div
+        className="connection-arrow"
+        title="Drag and Dorp to Create New Node"
+      >
         <i className={`fas fa-${fa}`}></i>
       </div>
     </foreignObject>

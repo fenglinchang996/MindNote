@@ -70,9 +70,7 @@ const styleContext = createContext({
     },
   },
   selectedNodeStyle: {
-    style: {
-      stroke: "#ff0000",
-    },
+    style: {},
   },
   viewNodeStyle: {
     style: {
