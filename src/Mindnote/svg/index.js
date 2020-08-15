@@ -679,6 +679,7 @@ const SVG = (props) => {
   };
 
   // Move Node (and its related Nodes/Curves)
+  const [isMovingNode, setIsMovingNode] = useState(false);
   const setMovedNode = (nodeToBeMoved, newCenter) => {
     const newCoord = calcNodeCoord(
       newCenter,
@@ -746,14 +747,17 @@ const SVG = (props) => {
     return curvesToBeMoved;
   };
   const moveNode = (nodeId) => {
-    setDragType(DRAG_TYPE.MOVE_NODE);
-    if (
-      selectedItem &&
-      selectedItem.type === ITEM_TYPE.NODE &&
-      selectedItem.id === nodeId
-    ) {
-      const nodeToBeMoved = getNode(nodeId);
-      setVirtualNode(nodeToBeMoved);
+    const nodeToBeMoved = getNode(nodeId);
+    if (nodeToBeMoved.parentNodeId) {
+      setDragType(DRAG_TYPE.MOVE_NODE);
+      if (
+        // This part may be redundant
+        selectedItem &&
+        selectedItem.type === ITEM_TYPE.NODE &&
+        selectedItem.id === nodeId
+      ) {
+        setVirtualNode(nodeToBeMoved);
+      }
     }
   };
 
@@ -933,6 +937,7 @@ const SVG = (props) => {
         const newCenter = convertToSVGCoord({ x: e.clientX, y: e.clientY });
         const newVirtualNode = setMovedNode(virtualNode, newCenter);
         setVirtualNode(newVirtualNode);
+        setIsMovingNode(true);
       } else if (dragType === DRAG_TYPE.RESIZE_NODE) {
         const newCorner = convertToSVGCoord({ x: e.clientX, y: e.clientY });
         const newVirtualNode = setResizedNode(
@@ -1248,55 +1253,63 @@ const SVG = (props) => {
         setVirtualCurve(null);
         setHoveredNode(null);
       } else if (dragType === DRAG_TYPE.MOVE_NODE) {
-        // set Node moving
-        const originalNode = getNode(virtualNode.id);
-        const newCenter = convertToSVGCoord({ x: e.clientX, y: e.clientY });
-        const newNode = setMovedNode(originalNode, newCenter);
-        const nodeMovement = calcOffset(originalNode.center, newNode.center);
-        // Set decendents moving
-        const decendents = getDecendents(originalNode.id);
-        const newDecendents = decendents.map((decendentId) => {
-          const decendent = getNode(decendentId);
-          const newDecendentCenter = calcMovingPoint(
-            decendent.center,
-            nodeMovement
-          );
-          const newDecendent = setMovedNode(decendent, newDecendentCenter);
-          return newDecendent;
-        });
-        // Update Node List
-        dispatchNodes({
-          type: LIST_ACTION_TYPE.UPDATE_ITEMS,
-          items: [newNode, ...newDecendents],
-        });
-        // set downstreamCurve moving
-        const downstreamCurves = getDownstreamCurves(originalNode.id);
-        const newDownstreamCurves = downstreamCurves.map(
-          (downstreamCurveId) => {
-            const downstreamCurve = getCurve(downstreamCurveId);
-            const newDownstreamCurve = setMovedCurve(
-              CURVE_MOVE_TYPE.MOVE_BOTH,
-              downstreamCurve,
+        if (isMovingNode) {
+          // set Node moving
+          const originalNode = getNode(virtualNode.id);
+          const newCenter = convertToSVGCoord({ x: e.clientX, y: e.clientY });
+          const newNode = setMovedNode(originalNode, newCenter);
+          const nodeMovement = calcOffset(originalNode.center, newNode.center);
+          // Set decendents moving
+          const decendents = getDecendents(originalNode.id);
+          const newDecendents = decendents.map((decendentId) => {
+            const decendent = getNode(decendentId);
+            const newDecendentCenter = calcMovingPoint(
+              decendent.center,
               nodeMovement
             );
-            return newDownstreamCurve;
-          }
-        );
-        // set UpstreamCurve moving
-        const upstreamCurve = getCurve(originalNode.upstreamCurveId);
-        const newUpstreamCurve = upstreamCurve
-          ? setMovedCurve(CURVE_MOVE_TYPE.MOVE_END, upstreamCurve, nodeMovement)
-          : null;
-        // Update Curves
-        const curvesToBeUpdated = upstreamCurve
-          ? [newUpstreamCurve, ...newDownstreamCurves]
-          : [...newDownstreamCurves];
-        dispatchCurves({
-          type: LIST_ACTION_TYPE.UPDATE_ITEMS,
-          items: curvesToBeUpdated,
-        });
+            const newDecendent = setMovedNode(decendent, newDecendentCenter);
+            return newDecendent;
+          });
+          // Update Node List
+          dispatchNodes({
+            type: LIST_ACTION_TYPE.UPDATE_ITEMS,
+            items: [newNode, ...newDecendents],
+          });
+          // set downstreamCurve moving
+          const downstreamCurves = getDownstreamCurves(originalNode.id);
+          const newDownstreamCurves = downstreamCurves.map(
+            (downstreamCurveId) => {
+              const downstreamCurve = getCurve(downstreamCurveId);
+              const newDownstreamCurve = setMovedCurve(
+                CURVE_MOVE_TYPE.MOVE_BOTH,
+                downstreamCurve,
+                nodeMovement
+              );
+              return newDownstreamCurve;
+            }
+          );
+          // set UpstreamCurve moving
+          const upstreamCurve = getCurve(originalNode.upstreamCurveId);
+          const newUpstreamCurve = upstreamCurve
+            ? setMovedCurve(
+                CURVE_MOVE_TYPE.MOVE_END,
+                upstreamCurve,
+                nodeMovement
+              )
+            : null;
+          // Update Curves
+          const curvesToBeUpdated = upstreamCurve
+            ? [newUpstreamCurve, ...newDownstreamCurves]
+            : [...newDownstreamCurves];
+          dispatchCurves({
+            type: LIST_ACTION_TYPE.UPDATE_ITEMS,
+            items: curvesToBeUpdated,
+          });
+        }
         // Reset VirtualNode
         setVirtualNode(null);
+        // Cancel Moving Node
+        setIsMovingNode(false);
       } else if (dragType === DRAG_TYPE.RESIZE_NODE) {
         const newCorner = convertToSVGCoord({ x: e.clientX, y: e.clientY });
         const originalNode = getNode(virtualNode.id);

@@ -34,6 +34,7 @@ const SelectedNode = (props) => {
     bottom,
     left,
     title,
+    parentNodeId,
   } = nodeData;
   const {
     defaultNodeStyle,
@@ -132,6 +133,7 @@ const SelectedNode = (props) => {
           deleteNode(id);
         }
       }}
+      style={{ cursor: parentNodeId ? "move" : "not-allowed" }}
       onPointerDown={() => {
         moveNode(id);
       }}
