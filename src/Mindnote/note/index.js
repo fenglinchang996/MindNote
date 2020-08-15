@@ -7,6 +7,7 @@ import { md } from "../utils/mdParser";
 
 const Note = (props) => {
   const {
+    isShowNote,
     width,
     resizeNote,
     selectedItem,
@@ -17,6 +18,7 @@ const Note = (props) => {
   const { dispatchNotes, dispatchNodes, getNote, getNode } = useContext(
     ItemContext
   );
+  const [isMinimized, setIsMinimized] = useState(false);
   const [noteMode, setNoteMode] = useState(NOTE_MODE.EDIT_MODE);
   useEffect(() => {
     switch (mindnoteMode) {
@@ -60,7 +62,10 @@ const Note = (props) => {
     <div
       className="tool-box note"
       style={{
+        display: isShowNote ? "block" : "none",
         width: `${width}px`,
+        height: isMinimized ? "auto" : "70%",
+        minHeight: isMinimized ? "auto" : "300px",
       }}
     >
       <div className="tool-main-title">
@@ -73,13 +78,37 @@ const Note = (props) => {
         noteMode={noteMode}
         setNoteMode={setNoteMode}
       />
-      <NoteBody
-        note={note}
-        noteMode={noteMode}
-        modifyTitle={modifyTitle}
-        modifyContent={modifyContent}
-      />
+      {!isMinimized && (
+        <NoteBody
+          note={note}
+          noteMode={noteMode}
+          modifyTitle={modifyTitle}
+          modifyContent={modifyContent}
+        />
+      )}
       <CloseBtn action={closeNote} />
+      <div
+        style={{
+          position: "absolute",
+          top: "5px",
+          right: "55px",
+          padding: "5px 0",
+        }}
+      >
+        {isMinimized ? (
+          <ToolBtn
+            fa="chevron-down"
+            action={() => setIsMinimized(false)}
+            title="Expand Note"
+          ></ToolBtn>
+        ) : (
+          <ToolBtn
+            fa="chevron-up"
+            action={() => setIsMinimized(true)}
+            title="Collapse Note"
+          ></ToolBtn>
+        )}
+      </div>
     </div>
   );
 };
@@ -164,7 +193,7 @@ const TitleView = (props) => {
   const { title } = props;
   return (
     <div className="title-view" title={title}>
-      {title.length > 26 ? `${title.slice(0, 26)}...` : title}
+      {title.length > 22 ? `${title.slice(0, 22)}...` : title}
     </div>
   );
 };

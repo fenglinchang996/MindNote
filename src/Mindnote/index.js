@@ -300,7 +300,6 @@ const Mindnote = (props) => {
   }, [noteList]);
   const criticalSaveCount = 30;
   useEffect(() => {
-    console.log(autoSaveCount);
     if (autoSaveCount >= criticalSaveCount) {
       SaveMindnoteToDB(doc, nodeList, curveList, noteList, style);
       setAutoSaveCount(0);
@@ -322,18 +321,17 @@ const Mindnote = (props) => {
               SVGSizeRatio={SVGSizeRatio}
               resizeCanvas={resizeCanvas}
             />
-            {isShowTool.showNote && (
-              <Note
-                width={noteWidth}
-                resizeNote={resizeNote}
-                selectedItem={selectedItem}
-                selectedNote={selectedNote}
-                mindnoteMode={mindnoteMode}
-                closeNote={() =>
-                  dispatchToggleTool({ type: TOGGLE_TOOL_TYPE.CLOSE_NOTE })
-                }
-              />
-            )}
+            <Note
+              isShowNote={isShowTool.showNote}
+              width={noteWidth}
+              resizeNote={resizeNote}
+              selectedItem={selectedItem}
+              selectedNote={selectedNote}
+              mindnoteMode={mindnoteMode}
+              closeNote={() =>
+                dispatchToggleTool({ type: TOGGLE_TOOL_TYPE.CLOSE_NOTE })
+              }
+            />
             {mindnoteMode === MINDNOTE_MODE.EDIT_MODE && (
               <Tool
                 selectedItem={selectedItem}
