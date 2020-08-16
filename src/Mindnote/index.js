@@ -70,10 +70,10 @@ const Mindnote = (props) => {
   const [isLoading, setIsLoading] = useState(false);
   const fetchDocAndMindnote = async (docId, mindnoteId) => {
     setIsLoading(true);
-    // fetch doc
-    if (docId) {
-      const docRef = db.collection("docs").doc(docId);
+    if (docId && mindnoteId) {
       try {
+        // fetch doc
+        const docRef = db.collection("docs").doc(docId);
         const docDoc = await docRef.get();
         if (docDoc.exists) {
           const doc = docDoc.data();
@@ -82,14 +82,7 @@ const Mindnote = (props) => {
           // docDoc.data() will be undefined in this case
           console.log("No such doc!");
         }
-      } catch (error) {
-        console.log("Error getting doc:", error);
-      }
-    }
-    // fetch mindnote
-    if (mindnoteId) {
-      const mindnoteRef = db.collection("mindnotes").doc(mindnoteId);
-      try {
+        const mindnoteRef = db.collection("mindnotes").doc(mindnoteId);
         const mindnoteDoc = await mindnoteRef.get();
         if (mindnoteDoc.exists) {
           const mindnote = mindnoteDoc.data();
@@ -114,12 +107,12 @@ const Mindnote = (props) => {
           // mindnoteDoc.data() will be undefined in this case
           console.log("No such mindnote!");
         }
+        setIsLoading(false);
+        setIsDataLoaded(true);
       } catch (error) {
-        console.log("Error getting mindnote:", error);
+        console.log("Error getting data:", error);
       }
     }
-    setIsLoading(false);
-    setIsDataLoaded(true);
   };
   useEffect(() => {
     fetchDocAndMindnote(docId, mindnoteId);
@@ -288,18 +281,19 @@ const Mindnote = (props) => {
   };
   // Autosave
   const [autoSaveCount, setAutoSaveCount] = useState(0);
-  const mindMapSaveCount = 6;
-  useEffect(() => {
-    const newAutoSaveCount = autoSaveCount + mindMapSaveCount;
-    setAutoSaveCount(newAutoSaveCount);
-  }, [doc, nodeList, curveList, style]);
   const noteSaveCount = 1;
   useEffect(() => {
     const newAutoSaveCount = autoSaveCount + noteSaveCount;
     setAutoSaveCount(newAutoSaveCount);
   }, [noteList]);
+  const mindMapSaveCount = 6;
+  useEffect(() => {
+    const newAutoSaveCount = autoSaveCount + mindMapSaveCount;
+    setAutoSaveCount(newAutoSaveCount);
+  }, [doc, nodeList, curveList, style]);
   const criticalSaveCount = 30;
   useEffect(() => {
+    console.log(autoSaveCount);
     if (autoSaveCount >= criticalSaveCount) {
       SaveMindnoteToDB(doc, nodeList, curveList, noteList, style);
       setAutoSaveCount(0);
