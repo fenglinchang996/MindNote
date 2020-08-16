@@ -96,9 +96,15 @@ const MenuBar = (props) => {
       >
         My Mindnotes
       </NavLink>
-      <div className="dropdown-btn" onClick={showDropdown}>
-        <i className="fas fa-chevron-down"></i>
-      </div>
+      {isDropdownDisplayed ? (
+        <div className="dropdown-btn" onClick={closeDropdown}>
+          <i className="fas fa-chevron-up"></i>
+        </div>
+      ) : (
+        <div className="dropdown-btn" onClick={showDropdown}>
+          <i className="fas fa-chevron-down"></i>
+        </div>
+      )}
       <div
         tabIndex={-1}
         className="dropdown"

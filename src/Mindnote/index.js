@@ -337,48 +337,57 @@ const Mindnote = (props) => {
               }
             />
             {mindnoteMode === MINDNOTE_MODE.EDIT_MODE && (
-              <Tool
-                selectedItem={selectedItem}
-                deleteSelectedNode={() => {
-                  if (selectedItem && selectedItem.type === ITEM_TYPE.NODE) {
-                    setNodeToBeDeleted(selectedItem.id);
+              <>
+                <Tool
+                  selectedItem={selectedItem}
+                  deleteSelectedNode={() => {
+                    if (selectedItem && selectedItem.type === ITEM_TYPE.NODE) {
+                      setNodeToBeDeleted(selectedItem.id);
+                    }
+                  }}
+                  showNodeTool={() =>
+                    dispatchToggleTool({
+                      type: TOGGLE_TOOL_TYPE.SHOW_NODE_TOOL,
+                    })
                   }
-                }}
-                showNodeTool={() =>
-                  dispatchToggleTool({ type: TOGGLE_TOOL_TYPE.SHOW_NODE_TOOL })
-                }
-                showCurveTool={() =>
-                  dispatchToggleTool({ type: TOGGLE_TOOL_TYPE.SHOW_CURVE_TOOL })
-                }
-                showNote={() =>
-                  dispatchToggleTool({ type: TOGGLE_TOOL_TYPE.SHOW_NOTE })
-                }
-                docTitle={doc ? doc.title : ""}
-                modifyDocTitle={modifyDocTitle}
-                maxLevel={maxLevel}
-                isShowNodeTool={isShowTool.showNodeTool}
-                closeNodeTool={() =>
-                  dispatchToggleTool({ type: TOGGLE_TOOL_TYPE.CLOSE_NODE_TOOL })
-                }
-                modifyNodeStyle={modifyNodeStyle}
-                isShowCurveTool={isShowTool.showCurveTool}
-                closeCurveTool={() =>
-                  dispatchToggleTool({
-                    type: TOGGLE_TOOL_TYPE.CLOSE_CURVE_TOOL,
-                  })
-                }
-                modifyCurveStyle={modifyCurveStyle}
-                SVGSizeRatio={SVGSizeRatio}
-                resizeCanvas={resizeCanvas}
-              />
+                  showCurveTool={() =>
+                    dispatchToggleTool({
+                      type: TOGGLE_TOOL_TYPE.SHOW_CURVE_TOOL,
+                    })
+                  }
+                  showNote={() =>
+                    dispatchToggleTool({ type: TOGGLE_TOOL_TYPE.SHOW_NOTE })
+                  }
+                  docTitle={doc ? doc.title : ""}
+                  modifyDocTitle={modifyDocTitle}
+                  maxLevel={maxLevel}
+                  isShowNodeTool={isShowTool.showNodeTool}
+                  closeNodeTool={() =>
+                    dispatchToggleTool({
+                      type: TOGGLE_TOOL_TYPE.CLOSE_NODE_TOOL,
+                    })
+                  }
+                  modifyNodeStyle={modifyNodeStyle}
+                  isShowCurveTool={isShowTool.showCurveTool}
+                  closeCurveTool={() =>
+                    dispatchToggleTool({
+                      type: TOGGLE_TOOL_TYPE.CLOSE_CURVE_TOOL,
+                    })
+                  }
+                  modifyCurveStyle={modifyCurveStyle}
+                  SVGSizeRatio={SVGSizeRatio}
+                  resizeCanvas={resizeCanvas}
+                />
+                <SaveTool
+                  isSaving={isSaving}
+                  autoSaveCount={autoSaveCount}
+                  saveMindnoteToDB={() =>
+                    SaveMindnoteToDB(doc, nodeList, curveList, noteList, style)
+                  }
+                />
+              </>
             )}
-            <SaveTool
-              isSaving={isSaving}
-              autoSaveCount={autoSaveCount}
-              saveMindnoteToDB={() =>
-                SaveMindnoteToDB(doc, nodeList, curveList, noteList, style)
-              }
-            />
+
             <Zoom SVGSizeRatio={SVGSizeRatio} resizeCanvas={resizeCanvas} />
           </StyleContext.Provider>
         </ItemContext.Provider>
