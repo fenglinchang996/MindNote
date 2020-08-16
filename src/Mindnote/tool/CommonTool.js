@@ -4,9 +4,6 @@ import ToolText from "./widget/ToolText";
 
 const CommonTool = (props) => {
   const {
-    isSaving,
-    autoSaveCount,
-    saveMindnoteToDB,
     showNodeTool,
     showNote,
     showCurveTool,
@@ -14,11 +11,6 @@ const CommonTool = (props) => {
     docTitle,
     modifyDocTitle,
   } = props;
-  const getSavingString = (isSaving, autoSaveCount) => {
-    if (isSaving) return "Saving...";
-    if (autoSaveCount === 0) return "Saved";
-    else return "Not Saved";
-  };
   return (
     <div className="tool-box common-tool">
       <ToolInput value={docTitle} action={modifyDocTitle} />
@@ -32,15 +24,6 @@ const CommonTool = (props) => {
         action={deleteSelectedNode}
         title="Delete Selected Node"
       />
-      <span className="verti-sep"></span>
-      {isSaving ? (
-        <Saving />
-      ) : (
-        <ToolBtn fa="save" action={saveMindnoteToDB} title="Save" />
-      )}
-      <ToolText width="70px" textAlign="left">
-        {getSavingString(isSaving, autoSaveCount)}
-      </ToolText>
     </div>
   );
 };
@@ -56,16 +39,6 @@ const ToolInput = (props) => {
         placeholder="Untitled Mindnote"
         onChange={(e) => action(e.target.value)}
       />
-    </div>
-  );
-};
-
-const Saving = (props) => {
-  return (
-    <div className="tool-item">
-      <div className="spinner saving-icon">
-        <i className="fas fa-sync-alt"></i>
-      </div>
     </div>
   );
 };

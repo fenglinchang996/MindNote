@@ -141,6 +141,8 @@ const SVG = (props) => {
       connections,
     };
   };
+  const defaultNodeWidth = 120;
+  const defaultNodeHeight = 40;
   const createNode = ({
     id = null,
     noteId = null,

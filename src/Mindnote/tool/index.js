@@ -5,9 +5,6 @@ import NodeTool from "./NodeTool";
 
 const Tool = (props) => {
   const {
-    isSaving,
-    autoSaveCount,
-    saveMindnoteToDB,
     showNodeTool,
     showCurveTool,
     showNote,
@@ -15,7 +12,7 @@ const Tool = (props) => {
     deleteSelectedNode,
     docTitle,
     modifyDocTitle,
-    calcMaxLevel,
+    maxLevel,
     isShowNodeTool,
     closeNodeTool,
     modifyNodeStyle,
@@ -23,13 +20,9 @@ const Tool = (props) => {
     closeCurveTool,
     modifyCurveStyle,
   } = props;
-  const maxLevel = calcMaxLevel();
   return (
     <>
       <CommonTool
-        isSaving={isSaving}
-        autoSaveCount={autoSaveCount}
-        saveMindnoteToDB={saveMindnoteToDB}
         showNodeTool={showNodeTool}
         showCurveTool={showCurveTool}
         showNote={showNote}

@@ -115,7 +115,7 @@ const Note = (props) => {
 
 const LeftEdge = (props) => {
   const { resizeNote } = props;
-  return <div className="note-left-edge" onMouseDown={resizeNote}></div>;
+  return <div className="note-left-edge" onPointerDown={resizeNote}></div>;
 };
 
 const NoteBody = (props) => {

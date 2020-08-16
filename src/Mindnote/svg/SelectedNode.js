@@ -124,6 +124,7 @@ const SelectedNode = (props) => {
       onPointerDown={() => {
         moveNode(id);
       }}
+      className="selected-node"
     >
       <BaseNode
         nodeData={{

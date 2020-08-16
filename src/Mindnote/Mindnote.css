@@ -32,7 +32,11 @@
 }
 .canvas-tool {
   top: 5px;
-  right: 20px;
+  right: 15px;
+}
+.save-tool {
+  top: 5px;
+  left: 440px;
 }
 
 .tool-item {
@@ -141,7 +145,6 @@
 .tool-input:hover,
 .tool-input:focus-within {
   background-color: initial;
-  border-bottom: 2px solid #e8e8e8;
 }
 .tool-text {
   padding: 5px;
@@ -248,6 +251,7 @@ input[type="range"] {
   border: none;
   font-size: 1.2rem;
   font-weight: bold;
+  width: 200px;
 }
 
 /* Note Tool */
@@ -255,9 +259,9 @@ input[type="range"] {
   display: block;
   width: 400px;
   max-width: 80%;
-  min-height: 300px;
   height: 70%;
-  right: 20px;
+  min-height: 300px;
+  right: 15px;
   top: 80px;
 }
 
@@ -401,4 +405,24 @@ input[type="range"] {
   font-size: 1rem;
   background-color: #e8e8e8;
   border-radius: 5px;
+}
+
+@media (max-width: 760px) {
+  .save-tool {
+    left: 15px;
+  }
+
+  .common-tool {
+    display: none;
+  }
+
+  .note {
+    right: 50%;
+    transform: translateX(50%);
+  }
+
+  .selected-node,
+  .selected-curve {
+    display: none;
+  }
 }

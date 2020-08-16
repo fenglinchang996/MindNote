@@ -5,6 +5,7 @@ import SVG from "./svg";
 import Tool from "./tool";
 import Note from "./note";
 import Zoom from "./tool/Zoom";
+import SaveTool from "./tool/SaveTool";
 import Loading from "../Loading";
 import StyleContext from "./StyleContext";
 import ItemContext from "./ItemContext";
@@ -15,6 +16,7 @@ import {
   ITEM_TYPE,
   MINDNOTE_MODE,
   DRAG_TYPE,
+  STROKE_TYPE,
 } from "./utils/enums";
 import "./Mindnote.css";
 
@@ -130,11 +132,20 @@ const Mindnote = (props) => {
   const getCurve = (curveId) => curveList.find((curve) => curve.id === curveId);
   const [noteList, dispatchNotes] = useReducer(listReducer, []);
   const getNote = (noteId) => noteList.find((note) => note.id === noteId);
-  const calcMaxLevel = () => {
+  const [maxLevel, setMaxLevel] = useState(0);
+  useEffect(() => {
     const levelList = nodeList.map((node) => node.level);
-    const maxLevel = Math.max(...levelList);
-    return maxLevel;
-  };
+    const newMaxLevel = Math.max(...levelList);
+    if (maxLevel !== newMaxLevel) {
+      setMaxLevel(newMaxLevel);
+    }
+  }, [nodeList]);
+  // useEffect(() => {
+  //   if (maxLevel > style.nodeStyles.length - 1) {
+  //     // modifyNodeStyle(maxLevel, style.defaultNodeStyle);
+  //     modifyCurveStyle(maxLevel, style.defaultCurveStyle);
+  //   }
+  // }, [maxLevel]);
   // Delete Node
   const [nodeToBeDeleted, setNodeToBeDeleted] = useState(null);
   // Style
@@ -293,7 +304,6 @@ const Mindnote = (props) => {
   }, [doc, nodeList, curveList, style]);
   const criticalSaveCount = 30;
   useEffect(() => {
-    console.log(autoSaveCount);
     if (autoSaveCount >= criticalSaveCount) {
       SaveMindnoteToDB(doc, nodeList, curveList, noteList, style);
       setAutoSaveCount(0);
@@ -301,7 +311,7 @@ const Mindnote = (props) => {
   }, [autoSaveCount]);
   return (
     <div className="mindnote">
-      <div className="canvas" onMouseMove={drag} onMouseUp={drop}>
+      <div className="canvas" onPointerMove={drag} onPointerUp={drop}>
         <ItemContext.Provider value={ItemContextValue}>
           <StyleContext.Provider value={style}>
             <SVG
@@ -345,12 +355,7 @@ const Mindnote = (props) => {
                 }
                 docTitle={doc ? doc.title : ""}
                 modifyDocTitle={modifyDocTitle}
-                isSaving={isSaving}
-                autoSaveCount={autoSaveCount}
-                saveMindnoteToDB={() =>
-                  SaveMindnoteToDB(doc, nodeList, curveList, noteList, style)
-                }
-                calcMaxLevel={calcMaxLevel}
+                maxLevel={maxLevel}
                 isShowNodeTool={isShowTool.showNodeTool}
                 closeNodeTool={() =>
                   dispatchToggleTool({ type: TOGGLE_TOOL_TYPE.CLOSE_NODE_TOOL })
@@ -367,6 +372,13 @@ const Mindnote = (props) => {
                 resizeCanvas={resizeCanvas}
               />
             )}
+            <SaveTool
+              isSaving={isSaving}
+              autoSaveCount={autoSaveCount}
+              saveMindnoteToDB={() =>
+                SaveMindnoteToDB(doc, nodeList, curveList, noteList, style)
+              }
+            />
             <Zoom SVGSizeRatio={SVGSizeRatio} resizeCanvas={resizeCanvas} />
           </StyleContext.Provider>
         </ItemContext.Provider>
