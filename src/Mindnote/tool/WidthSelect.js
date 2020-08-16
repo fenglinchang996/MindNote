@@ -2,14 +2,15 @@ import React from "react";
 import ToolSelect from "./widget/ToolSelect";
 import ToolSelector from "./widget/ToolSelector";
 import ToolOption from "./widget/ToolOption";
+import ToolIcon from "./widget/ToolIcon";
 
 const WidthSelect = (props) => {
   const { colorCode, widthList, modifyWidth } = props;
   return (
     <ToolSelect>
-      <div className="tool-icon">
+      <ToolIcon title="Width">
         <StrokeWidthIcon colorCode={colorCode} />
-      </div>
+      </ToolIcon>
       <ToolSelector>
         {widthList.map((width) => (
           <ToolOption key={width} action={() => modifyWidth(width)}>

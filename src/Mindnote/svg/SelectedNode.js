@@ -12,14 +12,7 @@ const usePrevious = (value) => {
 };
 
 const SelectedNode = (props) => {
-  const {
-    nodeData,
-    deleteNode,
-    moveNode,
-    drawNewNode,
-    resizeNode,
-    autoResizeNode,
-  } = props;
+  const { nodeData, moveNode, drawNewNode, resizeNode, autoResizeNode } = props;
   const {
     id,
     level,
@@ -34,6 +27,7 @@ const SelectedNode = (props) => {
     bottom,
     left,
     title,
+    parentNodeId,
   } = nodeData;
   const {
     defaultNodeStyle,
@@ -126,15 +120,11 @@ const SelectedNode = (props) => {
   return (
     <g
       tabIndex={-1}
-      style={{ cursor: "move" }}
-      onKeyDown={(e) => {
-        if (e.key === "Delete" || (e.metaKey && e.key === "Backspace")) {
-          deleteNode(id);
-        }
-      }}
+      style={{ cursor: parentNodeId ? "move" : "not-allowed" }}
       onPointerDown={() => {
         moveNode(id);
       }}
+      className="selected-node"
     >
       <BaseNode
         nodeData={{
@@ -148,22 +138,22 @@ const SelectedNode = (props) => {
         <>
           <ConnectionArrow
             arrowData={connectionArrows.top}
-            fa="caret-up"
+            fa="chevron-up"
             drawNewNode={(e) => drawNewNode(e, id, EDGE.TOP)}
           />
           <ConnectionArrow
             arrowData={connectionArrows.right}
-            fa="caret-right"
+            fa="chevron-right"
             drawNewNode={(e) => drawNewNode(e, id, EDGE.RIGHT)}
           />
           <ConnectionArrow
             arrowData={connectionArrows.bottom}
-            fa="caret-down"
+            fa="chevron-down"
             drawNewNode={(e) => drawNewNode(e, id, EDGE.BOTTOM)}
           />
           <ConnectionArrow
             arrowData={connectionArrows.left}
-            fa="caret-left"
+            fa="chevron-left"
             drawNewNode={(e) => drawNewNode(e, id, EDGE.LEFT)}
           />
         </>
@@ -215,7 +205,10 @@ const ConnectionArrow = (props) => {
         drawNewNode(e);
       }}
     >
-      <div className="connection-arrow">
+      <div
+        className="connection-arrow"
+        title="Drag and Dorp to Create New Node"
+      >
         <i className={`fas fa-${fa}`}></i>
       </div>
     </foreignObject>

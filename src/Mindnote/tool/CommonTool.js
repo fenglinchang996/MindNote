@@ -1,40 +1,29 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
+import ToolBtn from "./widget/ToolBtn";
+import ToolText from "./widget/ToolText";
 
 const CommonTool = (props) => {
   const {
-    saveMindnoteToDB,
     showNodeTool,
     showNote,
     showCurveTool,
+    deleteSelectedNode,
     docTitle,
     modifyDocTitle,
   } = props;
   return (
     <div className="tool-box common-tool">
-      {/* <ToolItem fa="eye" />
-      <ToolItem fa="pen" />
-      <span className="verti-sep"></span>
-      <ToolItem fa="undo-alt" />
-      <ToolItem fa="redo-alt" />
-      <span className="verti-sep"></span> */}
       <ToolInput value={docTitle} action={modifyDocTitle} />
       <span className="verti-sep"></span>
-      <ToolItem fa="draw-polygon" action={showNodeTool} />
-      <ToolItem fa="slash" action={showCurveTool} />
-      <ToolItem fa="edit" action={showNote} />
+      <ToolBtn fa="draw-polygon" action={showNodeTool} title="Node Style" />
+      <ToolBtn fa="slash" action={showCurveTool} title="Curve Style" />
       <span className="verti-sep"></span>
-      <ToolItem fa="save" action={saveMindnoteToDB} />
-    </div>
-  );
-};
-
-const ToolItem = (props) => {
-  const { fa, action } = props;
-  return (
-    <div className="tool-item tool-btn" onClick={action}>
-      <div className="tool-icon">
-        <i className={`fas fa-${fa}`}></i>
-      </div>
+      <ToolBtn fa="edit" action={showNote} title="Edit Node Note" />
+      <ToolBtn
+        fa="trash-alt"
+        action={deleteSelectedNode}
+        title="Delete Selected Node"
+      />
     </div>
   );
 };

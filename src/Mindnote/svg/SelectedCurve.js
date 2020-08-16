@@ -59,7 +59,7 @@ const SelectedCurve = (props) => {
   };
 
   return (
-    <g tabIndex={-1}>
+    <g tabIndex={-1} className="selected-curve">
       <BaseCurve
         curveData={{
           ...curveData,

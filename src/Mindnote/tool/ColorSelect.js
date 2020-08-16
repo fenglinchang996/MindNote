@@ -1,18 +1,19 @@
 import React from "react";
 import ToolSelect from "./widget/ToolSelect";
+import ToolIcon from "./widget/ToolIcon";
 
 const ColorSelect = (props) => {
   const { colorCode, modifyColor } = props;
   return (
     <ToolSelect>
-      <div className="tool-icon">
+      <ToolIcon title="Color">
         <div
           className="color-block"
           style={{
             backgroundColor: colorCode,
           }}
         ></div>
-      </div>
+      </ToolIcon>
       <span className="tool-trigger">
         <input
           type="color"

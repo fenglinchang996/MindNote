@@ -2,15 +2,16 @@ import React from "react";
 import ToolSelect from "./widget/ToolSelect";
 import ToolSelector from "./widget/ToolSelector";
 import ToolOption from "./widget/ToolOption";
+import ToolIcon from "./widget/ToolIcon";
 import { STROKE_TYPE } from "../utils/enums";
 
 const TypeSelect = (props) => {
   const { colorCode, width, modifyType } = props;
   return (
     <ToolSelect>
-      <div className="tool-icon">
+      <ToolIcon title="Type">
         <StrokeTypeIcon colorCode={colorCode} />
-      </div>
+      </ToolIcon>
       <ToolSelector>
         {Object.values(STROKE_TYPE).map((type) => (
           <ToolOption key={type} action={() => modifyType(type, width)}>

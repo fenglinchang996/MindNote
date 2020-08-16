@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import StyleContext from "../StyleContext";
 import { STROKE_TYPE } from "../utils/enums";
 import ToolList from "./widget/ToolList";
@@ -7,12 +7,34 @@ import ColorSelect from "./ColorSelect";
 import WidthSelect from "./WidthSelect";
 import TypeSelect from "./TypeSelect";
 import CloseBtn from "./CloseBtn";
+import { ITEM_TYPE } from "../utils/enums";
+import ItemContext from "../ItemContext";
 
 const CurveTool = (props) => {
-  const { maxLevel, isShowCurveTool, closeCurveTool, modifyCurveStyle } = props;
+  const {
+    maxLevel,
+    isShowCurveTool,
+    closeCurveTool,
+    modifyCurveStyle,
+    selectedItem,
+  } = props;
+  const { getCurve } = useContext(ItemContext);
   // Level List for selecting Curve(s)
   const levelList = [...Array(maxLevel).keys()].map((n) => n + 1);
   const [targetLevel, setTargetLevel] = useState(1);
+  useEffect(() => {
+    if (maxLevel === 0) {
+      setTargetLevel(1);
+    } else if (targetLevel > maxLevel) {
+      setTargetLevel(maxLevel);
+    }
+  }, [maxLevel]);
+  useEffect(() => {
+    if (selectedItem && selectedItem.type === ITEM_TYPE.CURVE) {
+      const selectedCurve = getCurve(selectedItem.id);
+      setTargetLevel(selectedCurve.level);
+    }
+  }, [selectedItem]);
   const { defaultCurveStyle, curveStyles } = useContext(StyleContext);
   const currentCurveStyle = curveStyles[targetLevel] || defaultCurveStyle;
   const { type, style } = currentCurveStyle;
@@ -59,12 +81,10 @@ const CurveTool = (props) => {
       <div className="tool-main-title">
         Curve <hr className="hori-sep" />
       </div>
-      <CloseBtn action={closeCurveTool} />
       <ToolList title="Target">
         <TargetSelect
-          maxLevel={maxLevel}
           levelList={levelList}
-          targetLevel={targetLevel}
+          targetLevelString={maxLevel > 0 ? `Level ${targetLevel}` : "No Curve"}
           setTargetLevel={setTargetLevel}
         />
       </ToolList>
@@ -81,8 +101,12 @@ const CurveTool = (props) => {
           modifyType={modifyCurveType}
         />
       </ToolList>
+      {maxLevel === 0 && <ForbiddenLayer />}
+      <CloseBtn action={closeCurveTool} />
     </div>
   );
 };
+
+const ForbiddenLayer = () => <div className="forbidden-layer"></div>;
 
 export default CurveTool;

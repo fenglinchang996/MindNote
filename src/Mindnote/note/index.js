@@ -1,13 +1,24 @@
 import React, { useState, useEffect, useContext } from "react";
 import { LIST_ACTION_TYPE, NOTE_MODE, MINDNOTE_MODE } from "../utils/enums";
+import ToolBtn from "../tool/widget/ToolBtn";
+import CloseBtn from "../tool/CloseBtn";
 import ItemContext from "../ItemContext";
 import { md } from "../utils/mdParser";
 
 const Note = (props) => {
-  const { width, resizeNote, selectedItem, selectedNote, mindnoteMode } = props;
+  const {
+    isShowNote,
+    width,
+    resizeNote,
+    selectedItem,
+    selectedNote,
+    mindnoteMode,
+    closeNote,
+  } = props;
   const { dispatchNotes, dispatchNodes, getNote, getNode } = useContext(
     ItemContext
   );
+  const [isMinimized, setIsMinimized] = useState(false);
   const [noteMode, setNoteMode] = useState(NOTE_MODE.EDIT_MODE);
   useEffect(() => {
     switch (mindnoteMode) {
@@ -51,7 +62,10 @@ const Note = (props) => {
     <div
       className="tool-box note"
       style={{
+        display: isShowNote ? "block" : "none",
         width: `${width}px`,
+        height: isMinimized ? "auto" : "70%",
+        minHeight: isMinimized ? "auto" : "300px",
       }}
     >
       <div className="tool-main-title">
@@ -64,19 +78,44 @@ const Note = (props) => {
         noteMode={noteMode}
         setNoteMode={setNoteMode}
       />
-      <NoteBody
-        note={note}
-        noteMode={noteMode}
-        modifyTitle={modifyTitle}
-        modifyContent={modifyContent}
-      />
+      {!isMinimized && (
+        <NoteBody
+          note={note}
+          noteMode={noteMode}
+          modifyTitle={modifyTitle}
+          modifyContent={modifyContent}
+        />
+      )}
+      <CloseBtn action={closeNote} />
+      <div
+        style={{
+          position: "absolute",
+          top: "5px",
+          right: "55px",
+          padding: "5px 0",
+        }}
+      >
+        {isMinimized ? (
+          <ToolBtn
+            fa="chevron-down"
+            action={() => setIsMinimized(false)}
+            title="Expand Note"
+          ></ToolBtn>
+        ) : (
+          <ToolBtn
+            fa="chevron-up"
+            action={() => setIsMinimized(true)}
+            title="Collapse Note"
+          ></ToolBtn>
+        )}
+      </div>
     </div>
   );
 };
 
 const LeftEdge = (props) => {
   const { resizeNote } = props;
-  return <div className="note-left-edge" onMouseDown={resizeNote}></div>;
+  return <div className="note-left-edge" onPointerDown={resizeNote}></div>;
 };
 
 const NoteBody = (props) => {
@@ -109,23 +148,23 @@ const NoteModeBtn = (props) => {
     switch (noteMode) {
       case NOTE_MODE.VIEW_MODE:
         return (
-          <button
-            type="button"
-            className="tool-item edit-mode-btn"
-            onClick={() => setNoteMode(NOTE_MODE.EDIT_MODE)}
-          >
-            <i className="fas fa-pen"></i>
-          </button>
+          <div className="edit-mode-btn">
+            <ToolBtn
+              fa="pen"
+              action={() => setNoteMode(NOTE_MODE.EDIT_MODE)}
+              title="Edit"
+            />
+          </div>
         );
       case NOTE_MODE.EDIT_MODE:
         return (
-          <button
-            type="button"
-            className="tool-item view-mode-btn"
-            onClick={() => setNoteMode(NOTE_MODE.VIEW_MODE)}
-          >
-            <i className="fas fa-eye"></i>
-          </button>
+          <div className="view-mode-btn">
+            <ToolBtn
+              fa="eye"
+              action={() => setNoteMode(NOTE_MODE.VIEW_MODE)}
+              title="View"
+            />
+          </div>
         );
       default:
         return <></>;
@@ -154,7 +193,7 @@ const TitleView = (props) => {
   const { title } = props;
   return (
     <div className="title-view" title={title}>
-      {title.length > 24 ? `${title.slice(0, 24)}...` : title}
+      {title.length > 22 ? `${title.slice(0, 22)}...` : title}
     </div>
   );
 };

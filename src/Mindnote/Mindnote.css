@@ -12,22 +12,31 @@
   position: absolute; /* relative to .canvas */
   display: flex;
   padding: 10px;
+  margin: 20px 0;
   border-radius: 5px;
   box-shadow: 0 0 10px #457b9d;
   background-color: #ffffff;
 }
 
 .common-tool {
-  top: 30px;
+  top: 5px;
   left: 20px;
 }
 .curve-tool {
-  top: 120px;
+  top: 80px;
   left: 20px;
 }
 .node-tool {
-  top: 300px;
+  top: 260px;
   left: 20px;
+}
+.canvas-tool {
+  top: 5px;
+  right: 15px;
+}
+.save-tool {
+  top: 5px;
+  left: 440px;
 }
 
 .tool-item {
@@ -35,7 +44,6 @@
   align-items: center;
   height: 30px;
   text-align: center;
-  margin: 0 5px;
   border-radius: 2px;
 }
 .tool-item:hover {
@@ -62,19 +70,16 @@
 .tool-close-btn {
   position: absolute; /* relative to .tool-box */
   padding: 5px;
-  top: 10px;
+  top: 6px;
   right: 15px;
-}
-.tool-close-btn:hover {
-  background-color: #e8e8e8;
 }
 
 .edit-mode-btn,
 .view-mode-btn {
   position: absolute; /* relative to .tool-box */
   padding: 5px;
-  top: 12px;
-  right: 15px;
+  top: 6px;
+  left: 15px;
 }
 
 .tool-list {
@@ -122,13 +127,30 @@
   cursor: pointer;
 }
 
+.check-btn {
+  text-align: center;
+  margin: 8px;
+  padding: 5px 10px;
+  color: #457b9d;
+  border: 1px solid #457b9d;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.check-btn:hover {
+  color: #ffffff;
+  background-color: #457b9d;
+}
+
 .tool-input:hover,
 .tool-input:focus-within {
   background-color: initial;
-  border-bottom: 2px solid #e8e8e8;
 }
 .tool-text {
   padding: 5px;
+  display: flex;
+  align-items: center;
+  font-size: 0.8rem;
 }
 .tool-btn {
   cursor: pointer;
@@ -170,23 +192,77 @@
   cursor: pointer;
 }
 
+.forbidden-layer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 65%;
+  background-color: #ffffff;
+  opacity: 0.5;
+}
+
+input[type="range"] {
+  cursor: pointer;
+}
+
+.saving-icon {
+  width: 30px;
+  height: 30px;
+}
+
+/* Tooltip */
+
+.tooltip-wrapper {
+  position: relative;
+}
+
+.tooltip {
+  position: absolute;
+  display: none;
+  background-color: #777777;
+  color: #ffffff;
+  border-radius: 5px;
+  top: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 0 12px 0 #a8a8a8;
+  padding: 5px;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  z-index: 99;
+}
+.tooltip:after {
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: solid transparent;
+  content: " ";
+  height: 0;
+  width: 0;
+  position: absolute;
+  border-bottom-color: #777777;
+  border-width: 5px;
+}
+
 /* Doc Title */
 
 .doc-title-input {
   border: none;
   font-size: 1.2rem;
   font-weight: bold;
+  width: 200px;
 }
 
 /* Note Tool */
 .note {
   display: block;
   width: 400px;
+  max-width: 80%;
   height: 70%;
-  right: 20px;
-  top: 50%;
-  z-index: 99;
-  transform: translateY(-50%);
+  min-height: 300px;
+  right: 15px;
+  top: 80px;
 }
 
 .note-left-edge {
@@ -208,6 +284,7 @@
 }
 
 .title-content {
+  width: 100%;
   padding: 0;
   border: none;
   font-size: 1.1rem;
@@ -216,6 +293,7 @@
 .title-view {
   height: 35px;
   font-size: 1.1rem;
+  font-weight: bold;
   padding: 5px 15px;
   margin: 5px;
   margin-bottom: 10px;
@@ -319,8 +397,32 @@
 
 /* SVG */
 .connection-arrow {
+  height: 20px;
+  width: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
+  font-size: 1rem;
+  background-color: #e8e8e8;
+  border-radius: 5px;
+}
+
+@media (max-width: 760px) {
+  .save-tool {
+    left: 15px;
+  }
+
+  .common-tool {
+    display: none;
+  }
+
+  .note {
+    right: 50%;
+    transform: translateX(50%);
+  }
+
+  .selected-node,
+  .selected-curve {
+    display: none;
+  }
 }

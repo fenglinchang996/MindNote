@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import StyleContext from "../StyleContext";
 import { STROKE_TYPE } from "../utils/enums";
 import ToolList from "./widget/ToolList";
@@ -8,12 +8,32 @@ import WidthSelect from "./WidthSelect";
 import TypeSelect from "./TypeSelect";
 import CornerSelect from "./CornerSelect";
 import CloseBtn from "./CloseBtn";
+import { ITEM_TYPE } from "../utils/enums";
+import ItemContext from "../ItemContext";
 
 const NodeTool = (props) => {
-  const { maxLevel, isShowNodeTool, closeNodeTool, modifyNodeStyle } = props;
+  const {
+    maxLevel,
+    isShowNodeTool,
+    closeNodeTool,
+    modifyNodeStyle,
+    selectedItem,
+  } = props;
+  const { getNode } = useContext(ItemContext);
   // Level List for selecting Node(s)
   const levelList = [...Array(maxLevel + 1).keys()].map((n) => n);
   const [targetLevel, setTargetLevel] = useState(0);
+  useEffect(() => {
+    if (targetLevel > maxLevel) {
+      setTargetLevel(maxLevel);
+    }
+  }, [maxLevel]);
+  useEffect(() => {
+    if (selectedItem && selectedItem.type === ITEM_TYPE.NODE) {
+      const selectedNode = getNode(selectedItem.id);
+      setTargetLevel(selectedNode.level);
+    }
+  }, [selectedItem]);
   const { defaultNodeStyle, nodeStyles } = useContext(StyleContext);
   const currentNodeStyle = nodeStyles[targetLevel] || defaultNodeStyle;
   const { borderType, rxRatio, ryRatio, style } = currentNodeStyle;
@@ -66,12 +86,10 @@ const NodeTool = (props) => {
       <div className="tool-main-title">
         Node <hr className="hori-sep" />
       </div>
-      <CloseBtn action={closeNodeTool} />
       <ToolList title="Target">
         <TargetSelect
-          maxLevel={maxLevel}
           levelList={levelList}
-          targetLevel={targetLevel}
+          targetLevelString={`Level ${targetLevel}`}
           setTargetLevel={setTargetLevel}
         />
       </ToolList>
@@ -97,6 +115,7 @@ const NodeTool = (props) => {
       <ToolList title="Fill">
         <ColorSelect colorCode={fill} modifyColor={modifyFillColor} />
       </ToolList>
+      <CloseBtn action={closeNodeTool} />
     </div>
   );
 };

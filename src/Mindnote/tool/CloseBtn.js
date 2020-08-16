@@ -1,11 +1,12 @@
 import React from "react";
+import ToolBtn from "./widget/ToolBtn";
 
 const CloseBtn = (props) => {
   const { action } = props;
   return (
-    <button type="button" className="tool-close-btn" onClick={action}>
-      <i className="fas fa-times"></i>
-    </button>
+    <div className="tool-close-btn">
+      <ToolBtn fa="times" action={action} title="close" />
+    </div>
   );
 };
 
