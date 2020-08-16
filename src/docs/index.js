@@ -81,6 +81,7 @@ const wrapNewDoc = (isFirstNewDoc) => (props) => {
     <button
       className="add-mindnote-btn"
       onClick={() => createNewMindnoteToDB()}
+      title="Add New Mindnote"
     >
       <i className="fas fa-plus"></i>
     </button>
@@ -185,6 +186,12 @@ const MyDocList = (props) => {
 
   return (
     <div>
+      {path === "/docs/my" &&
+        (docList.length === 0 ? (
+          <FirstNewDoc setIsLoading={setIsLoading} />
+        ) : (
+          <NewDoc setIsLoading={setIsLoading} />
+        ))}
       <div className="doc-list">
         {docList.length > 0 &&
           docList.map((doc) => {
@@ -208,12 +215,6 @@ const MyDocList = (props) => {
             );
           })}
       </div>
-      {path === "/docs/my" &&
-        (docList.length === 0 ? (
-          <FirstNewDoc setIsLoading={setIsLoading} />
-        ) : (
-          <NewDoc setIsLoading={setIsLoading} />
-        ))}
     </div>
   );
 };
