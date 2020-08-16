@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { Link, NavLink, useRouteMatch, useHistory } from "react-router-dom";
 import UserContext from "../UserContext";
 import "./Header.css";
@@ -18,7 +18,7 @@ const Header = (props) => {
     </nav>
   );
   const docsNav = (
-    <nav className="navbar">
+    <nav className="navbar docs-nav">
       <NavLink
         className="navbar-item"
         to="/docs/public"
@@ -36,7 +36,13 @@ const Header = (props) => {
     </nav>
   );
 
-  const handleGoBack = () => history.goBack();
+  const handleGoBack = () => {
+    if (user) {
+      history.push("/docs/my");
+    } else {
+      history.push("/docs/public");
+    }
+  };
   const mindnoteNav = (
     <div className="go-back-btn" onClick={handleGoBack}>
       <i className="fas fa-chevron-left"></i>&nbsp; Back
@@ -51,6 +57,7 @@ const Header = (props) => {
         </div>
         {/* {path === "/home" && homeNav} */}
         {path === "/docs" && docsNav}
+        {path === "/docs" && <MenuBar />}
         {path === "/mindnote/:docId/:mindnoteId" && mindnoteNav}
         {path !== "/member" && (
           <div className="user">
@@ -66,6 +73,54 @@ const Header = (props) => {
       </header>
       <div className="header-sep"></div>
     </>
+  );
+};
+
+const MenuBar = (props) => {
+  const [isDropdownDisplayed, setIsDropdownDisplayed] = useState(false);
+  const showDropdown = () => setIsDropdownDisplayed(true);
+  const closeDropdown = () => setIsDropdownDisplayed(false);
+  return (
+    <div className="navbar menubar">
+      <NavLink
+        className="menubar-item"
+        to="/docs/public"
+        activeClassName="navbar-item-selected menubar-item-selected"
+      >
+        Public Mindnotes
+      </NavLink>
+      <NavLink
+        className="menubar-item"
+        to="/docs/my"
+        activeClassName="navbar-item-selected menubar-item-selected"
+      >
+        My Mindnotes
+      </NavLink>
+      <div className="dropdown-btn" onClick={showDropdown}>
+        <i className="fas fa-chevron-down"></i>
+      </div>
+      <div
+        tabIndex={-1}
+        className="dropdown"
+        style={{ display: isDropdownDisplayed ? "flex" : "none" }}
+        onClick={closeDropdown}
+      >
+        <NavLink
+          className="dropdown-item"
+          to="/docs/public"
+          activeClassName="dropdown-item-selected"
+        >
+          Public Mindnotes
+        </NavLink>
+        <NavLink
+          className="dropdown-item"
+          to="/docs/my"
+          activeClassName="dropdown-item-selected"
+        >
+          My Mindnotes
+        </NavLink>
+      </div>
+    </div>
   );
 };
 
@@ -90,12 +145,14 @@ const UserInfo = (props) => {
       onMouseOut={(e) => setisUserPopoverDisplayed(false)}
     >
       <i className="fas fa-user-alt"></i>
-      <span>&nbsp;{user.email}&nbsp;</span>
+      <span className="user-data">&nbsp;{user.email}&nbsp;</span>
       <div
         className="popover"
         style={{ display: isUserPopoverDisplayed ? "block" : "none" }}
       >
-        <div className="item" onClick={logOut}>
+        <div className="item">{user.name}</div>
+        <div className="item">{user.email}</div>
+        <div className="item item-btn" onClick={logOut}>
           Log out
         </div>
       </div>
