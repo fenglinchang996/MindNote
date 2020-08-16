@@ -11,7 +11,7 @@ Color: #1d3557, #457b9d, #e8e8e8, #a8a8a8, #c8c8c8, #e63946
 }
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Arial, Helvetica, "Microsoft JhengHei", sans-serif;
   margin: 0;
   padding: 0;
   color: #1d3557;
@@ -36,7 +36,8 @@ button {
 }
 
 input:focus,
-button:focus {
+button:focus,
+select:focus {
   outline: none;
 }
 
@@ -47,6 +48,20 @@ path,
 line,
 g {
   outline: none;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #a8a8a8;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-track {
+  display: none;
 }
 
 /* Common */
@@ -78,11 +93,16 @@ g {
 .loading-icon {
   width: 4rem;
   height: 4rem;
-  line-height: 4rem;
-  text-align: center;
   font-size: 3rem;
-  animation: spin 1s linear infinite;
 }
+
+.spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: spin 2s linear infinite;
+}
+
 @keyframes spin {
   100% {
     transform: rotate(360deg);

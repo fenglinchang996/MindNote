@@ -1,6 +1,8 @@
 import React, { useContext } from "react";
 import { Route, Redirect } from "react-router-dom";
 import UserContext from "./UserContext";
+import Loading from "./Loading";
+import Header from "./header";
 
 // AuthRoute
 const wrapAuthRoute = ({ isAuthTo = null, nonAuthTo = null } = {}) => (
@@ -8,6 +10,13 @@ const wrapAuthRoute = ({ isAuthTo = null, nonAuthTo = null } = {}) => (
 ) => {
   const user = useContext(UserContext);
   const { children } = props;
+  if (user === undefined)
+    return (
+      <div>
+        <Header />
+        <Loading />
+      </div>
+    );
   if (isAuthTo && user) return <Route {...props}>{isAuthTo}</Route>;
   if (nonAuthTo && !user) return <Route {...props}>{nonAuthTo}</Route>;
   return <Route {...props}>{children}</Route>;
