@@ -6,6 +6,8 @@ A web tool for organizing your ideas, concepts and knowledge with mind mapping a
 
 ![Home Page](https://i.imgur.com/z3e7ENM.png)
 
+> Using **desktop device** and **Chrome browser** is highly recommended for better user experience.
+
 ## Technologies
 
 - React
@@ -135,5 +137,7 @@ To zoom in/out the the working area of mind map, you can click the **Zoom In/Out
 ### Moving Mind Map
 
 To move mind map, **press down on any point of the mind map except on node or curve**, **then drag it**, the mind map will move with the cursor's movement.
+
+> Moving mind map function is currently only worked on Chrome browser.
 
 ![Move Mind Map](https://i.imgur.com/Y43iVZz.gif "Move Mind Map")
