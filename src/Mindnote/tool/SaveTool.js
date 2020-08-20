@@ -16,7 +16,7 @@ const SaveTool = (props) => {
       ) : (
         <ToolBtn fa="save" action={saveMindnoteToDB} title="Save" />
       )}
-      <ToolText width="70px" textAlign="left">
+      <ToolText width="80px" textAlign="left">
         {getSavingString(isSaving, autoSaveCount)}
       </ToolText>
     </div>

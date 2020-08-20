@@ -74,6 +74,7 @@
   position: absolute; /* Relative to main-block */
   width: 300px;
   opacity: 0.1;
+  z-index: -1;
 }
 .main-pic.mind-map {
   top: 20px;
