@@ -208,9 +208,10 @@ const LogIn = (props) => {
     <>
       <h2 className="title">Log In</h2>
       <input
+        autoFocus
         name="email"
         type="email"
-        placeholder="Email"
+        placeholder="test@test.com"
         value={email}
         required
         onChange={(e) => setEmail(e.target.value)}
@@ -218,7 +219,7 @@ const LogIn = (props) => {
       <input
         name="password"
         type="password"
-        placeholder="Password"
+        placeholder="test123456"
         value={password}
         required
         onChange={(e) => setPassword(e.target.value)}
