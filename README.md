@@ -1,3 +1,5 @@
+> MidNote 個人專案是我在 2020 年參加 [AppWorks School](https://school.appworks.tw/) 前端轉職培訓時，花了大約六週的時間，從前端工程的基礎架設到專案功能實作，完全由自己獨立完成的心智圖筆記軟體。使用了 Webpack、Babel、React、Firebase 等技術，並使用了最基礎的 SVG，不仰賴第三方套件，實作了心智圖線條/節點的移動、放大縮小、編輯等等功能。回頭來看，這個專案有許多明顯的缺陷，也有大量可以改善的空間，但作為個人的第一個獨立完成的前端作品，MindNote 對我來說，別具意義。
+
 # MindNote
 
 [https://mindnote-f39e9.firebaseapp.com/](https://mindnote-f39e9.firebaseapp.com/)
